@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Compliance Studio — SMEDTEC (demonstration)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1A2433; min-height: 100vh; }
+.qcs ::-webkit-scrollbar { width: 9px; height: 9px; }
+.qcs ::-webkit-scrollbar-thumb { background: #E3E9F0; border-radius: 9px; }
+.qcs button { font-family: inherit; cursor: pointer; }
+.qcs button:focus-visible, .qcs [tabindex]:focus-visible { outline: 2px solid #00C5A8; outline-offset: 2px; }
+.nav-item { transition: background .15s ease, color .15s ease; }
+.nav-item:hover { background: #F3F6FA; }
+.row-hover { transition: background .15s ease; }
+.row-hover:hover { background: #F3F6FA; }
+.thread { transition: opacity .2s ease, stroke-width .2s ease; }
+.claim-chip { transition: border-color .2s ease, background .2s ease, transform .15s ease; }
+.claim-chip:hover { transform: translateX(2px); }
+.prod-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.prod-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(26,36,51,.30); border-color: #BBDFEC; }
+.dot-node { transition: transform .15s ease; }
+.dot-node:hover { transform: translate(-50%,-50%) scale(1.25); }
+@media (prefers-reduced-motion: reduce) { .qcs * { transition: none !important; animation: none !important; } }
+@media (max-width: 900px) {
+  .qcs-shell { flex-direction: column !important; }
+  .qcs-side { width: 100% !important; flex-direction: row !important; overflow-x: auto !important; border-right: none !important; border-bottom: 1px solid #E3E9F0 !important; padding: 12px !important; }
+  .qcs-side .side-foot { display: none !important; }
+  .qcs-side .side-brand { display: none !important; }
+  .qcs-map { grid-template-columns: 1fr !important; }
+  .qcs-two { grid-template-columns: 1fr !important; }
+  .qcs-board { grid-template-columns: 1fr 1fr !important; }
+}
+</style>
+</head>
+<body class="qcs">
+<div id="root"></div>
+<script>
+"use strict";
+
+/* ---- SMEDTEC consultancy tokens (teal = working accent; gold = statutory only) ---- */
+var Q = {
+  porcelain:"#FAFBFC", surface:"#FFFFFF", surface2:"#F3F6FA", ink:"#1A2433",
+  muted:"#4D6880", hair:"#E3E9F0", gold:"#00C5A8", goldDeep:"#0A8C7C",
+  statGold:"#D98A1F", champagne:"#D9F2EC", green:"#2E3F57", sage:"#00A878",
+  sageFill:"#D8F0E6", amber:"#E9A23B", clay:"#D64545", ink70:"rgba(26,36,51,.70)"
+};
+
+var CAT = {
+  mech:{label:"Mechanical device"}, led:{label:"Light therapy device"}, serum:{label:"Serum"},
+  patch:{label:"Microneedle patch"}, mist:{label:"Mist"}, filter:{label:"Water filtration"}, acc:{label:"Accessory"}
+};
+var POSTURE = {
+  cosmetic:{c:Q.sage,label:"Cosmetic"}, watch:{c:Q.amber,label:"Cosmetic · watch"},
+  device:{c:Q.green,label:"Device pathway"}, none:{c:Q.muted,label:"Unregulated"}
+};
+var STAGE = {
+  concept:{label:"Concept",c:Q.muted}, dev:{label:"In development",c:Q.amber},
+  prelaunch:{label:"Pre-launch",c:Q.gold}, market:{label:"In market",c:Q.sage}, iterate:{label:"Iterating",c:Q.clay}
+};
+
+/* ---- anonymised fictional portfolio: "Meridian Health" ---- */
+var PRODUCTS = [
+  {id:"drs", name:"Dermal Renewal System", cat:"mech", posture:"watch", stage:"iterate", flagship:true, ready:64,
+   spec:"Single-use sterile microneedle head · paired serum · 0.25–1.5 mm",
+   note:"Flagship. Delivery / “infuses beyond the barrier” language is the live exposure — anchor on the mechanical mode of action.",
+   markets:["ok","ok","ok","watch"], claims:["c1","c2","c3","c4","c5","c6","c7"], mx:70, my:55},
+  {id:"sb", name:"Active Serum — Brightening", cat:"serum", posture:"watch", stage:"iterate", ready:68,
+   spec:"Niacinamide · tranexamic acid · peptide complex",
+   note:"Tranexamic acid is the live market flag (topical cosmetic limits vary by region); review the ingredient-introduction position per market.",
+   markets:["ok","ok","ok","flag"], claims:["c3","c6"], mx:30, my:70},
+  {id:"sh", name:"Active Serum — Hydrating", cat:"serum", posture:"cosmetic", stage:"market", ready:74,
+   spec:"Hyaluronic acid · beta-glucan · panthenol",
+   note:"Conventional cosmetic — keep claims appearance-based and the posture stays clean.",
+   markets:["ok","ok","ok","ok"], claims:["c1","c2","c7"], mx:22, my:78},
+  {id:"sbal", name:"Active Serum — Balanced", cat:"serum", posture:"cosmetic", stage:"market", ready:70,
+   spec:"Blend of the Brightening and Hydrating formulations",
+   note:"Inherits the ingredient position of the Brightening base.",
+   markets:["ok","ok","ok","watch"], claims:["c1","c2","c3"], mx:26, my:74},
+  {id:"patch", name:"Recovery Microneedle Patches", cat:"patch", posture:"watch", stage:"market", ready:60,
+   spec:"Dissolvable microneedle patches · targeted application",
+   note:"Microneedle patches penetrate — borderline; sterility and penetration evidence needed as for the system.",
+   markets:["ok","ok","watch","watch"], claims:["c1","c4"], mx:40, my:62},
+  {id:"anti", name:"Daily Antioxidant Serum", cat:"serum", posture:"cosmetic", stage:"market", ready:80,
+   spec:"Daily topical serum · applied conventionally",
+   note:"Conventional cosmetic — the cleanest posture in the range.",
+   markets:["ok","ok","ok","ok"], claims:["c1","c3"], mx:16, my:84},
+  {id:"mist", name:"Prep Mist", cat:"mist", posture:"cosmetic", stage:"market", ready:82,
+   spec:"Pre-treatment refreshing mist",
+   note:"Conventional cosmetic.",
+   markets:["ok","ok","ok","ok"], claims:["c1"], mx:12, my:88},
+  {id:"led", name:"Radiance LED Mask", cat:"led", posture:"device", stage:"market", ready:40,
+   spec:"Powered red / near-infrared LED face wear",
+   note:"Light therapy with anti-ageing claims sits on a device pathway in several markets — a different posture from the cosmetic lines.",
+   markets:["watch","watch","watch","watch"], claims:["c8","c2"], mx:80, my:45},
+  {id:"neck", name:"Neck & Décolletage LED", cat:"led", posture:"device", stage:"prelaunch", ready:34,
+   spec:"Powered LED system for neck / décolletage",
+   note:"Same light therapy device posture as the mask; pre-launch is the moment to set the pathway.",
+   markets:["watch","watch","planned","watch"], claims:["c8"], mx:82, my:36},
+  {id:"scalp", name:"Scalp Laser Cap", cat:"led", posture:"device", stage:"market", ready:24,
+   spec:"Low-level laser / LED hair-growth device",
+   note:"“Stimulates regrowth” is a structure-function claim — the most device-exposed item in the range.",
+   markets:["flag","watch","watch","watch"], claims:["c9"], mx:90, my:25},
+  {id:"filt", name:"Shower & Tap Filters", cat:"filter", posture:"none", stage:"market", ready:94,
+   spec:"Chlorine / sediment filtration · refills",
+   note:"General consumer product — only the “healthier skin & hair” framing needs a light watch.",
+   markets:["ok","ok","ok","ok"], claims:["c10"], mx:6, my:92},
+  {id:"pillow", name:"Silk Pillowcase", cat:"acc", posture:"none", stage:"market", ready:98,
+   spec:"Mulberry silk accessory",
+   note:"Unregulated accessory.",
+   markets:["ok","ok","ok","ok"], claims:[], mx:3, my:96},
+  {id:"sens", name:"Renewal System · Sensitive 0.3 mm", cat:"mech", posture:"cosmetic", stage:"dev", ready:38,
+   spec:"Depth-limited variant · superficial channels only",
+   note:"Pipeline. A shallow, claims-light variant is the cleanest way to hold cosmetic positioning while keeping deeper variants in a separate lane.",
+   markets:["planned","planned","planned","planned"], claims:["c1","c4"], mx:18, my:40},
+  {id:"body", name:"Body Renewal System", cat:"mech", posture:"watch", stage:"concept", ready:10,
+   spec:"Concept · larger-area body application",
+   note:"Concept. New use-area, new risk profile — scope the posture before any spend.",
+   markets:["planned","planned","planned","planned"], claims:["c4"], mx:55, my:18}
+];
+
+var CLAIMS = [
+  {id:"c1", text:"Boosts visible hydration and bounce", kind:"Cosmetic", risk:"ok"},
+  {id:"c2", text:"Improves the look of fine lines and wrinkles", kind:"Cosmetic", risk:"ok"},
+  {id:"c3", text:"Brightens uneven tone, fades the look of dark spots", kind:"Cosmetic", risk:"ok"},
+  {id:"c4", text:"Smooths texture, minimises the appearance of pores", kind:"Cosmetic", risk:"ok"},
+  {id:"c7", text:"Supports the skin's natural barrier", kind:"Borderline", risk:"watch"},
+  {id:"c5", text:"Delivers active serums deeper, beyond the barrier", kind:"Delivery", risk:"flag"},
+  {id:"c6", text:"Helps fade acne scars", kind:"Disease", risk:"flag"},
+  {id:"c8", text:"Reduces wrinkles through LED light therapy", kind:"Device", risk:"flag"},
+  {id:"c9", text:"Stimulates new hair regrowth", kind:"Structure/function", risk:"flag"},
+  {id:"c10", text:"Filters chlorine for healthier-looking skin & hair", kind:"Cosmetic", risk:"watch"}
+];
+var CLAIM = {}; CLAIMS.forEach(function(c){ CLAIM[c.id]=c; });
+
+var EVIDENCE = [
+  {id:"e6", name:"Preservative efficacy (challenge test)", std:"ISO 11930", prov:"Independent", status:"accepted"},
+  {id:"e1", name:"Biocompatibility evaluation", std:"ISO 10993-1/-5/-10/-23", prov:"Independent", status:"progress"},
+  {id:"e5", name:"Needle integrity & penetration depth", std:"Bespoke protocol", prov:"Independent", status:"progress"},
+  {id:"e7", name:"Formulation stability & micro limits", std:"ISO 17516", prov:"Independent", status:"progress"},
+  {id:"e9", name:"Clinical substantiation", std:"ISO 14155 (data mapping)", prov:"Independent", status:"progress"},
+  {id:"e10", name:"Cosmetic safety assessment", std:"CPSR / safety substantiation", prov:"Independent", status:"progress"},
+  {id:"e2", name:"EO sterilisation validation", std:"ISO 11135", prov:"Manufacturer", status:"reval"},
+  {id:"e3", name:"Sterile barrier & shelf-life", std:"ISO 11607 · ASTM F1980", prov:"—", status:"planned"},
+  {id:"e4", name:"EO residuals", std:"ISO 10993-7", prov:"Independent", status:"planned"},
+  {id:"e8", name:"In-use tolerance (serum via channels)", std:"Controlled study", prov:"Independent", status:"planned"}
+];
+var LINKS = { c1:["e9","e7"], c2:["e9"], c3:["e9","e6"], c4:["e9","e5"], c7:["e7","e10"], c5:["e5"], c6:[], c8:[], c9:[], c10:["e10"] };
+var STATUS = {
+  accepted:{label:"Accepted",c:Q.sage}, progress:{label:"In progress",c:Q.amber},
+  reval:{label:"Revalidate",c:Q.clay}, planned:{label:"Planned",c:Q.muted}
+};
+var TESTS = [
+  {name:"Preservative efficacy", std:"ISO 11930", decision:"Accept", lab:"Accredited lab", gate:"M4", status:"accepted"},
+  {name:"Biocompatibility (10993 series)", std:"ISO 10993-1", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
+  {name:"EO sterilisation validation", std:"ISO 11135", decision:"Bridge", lab:"TBC", gate:"M5", status:"reval"},
+  {name:"Sterile barrier & shelf-life", std:"ISO 11607", decision:"Repeat", lab:"TBC", gate:"M6", status:"planned"},
+  {name:"Needle & penetration depth", std:"Bespoke", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
+  {name:"In-use tolerance study", std:"Controlled", decision:"New", lab:"CRO", gate:"M7", status:"planned"},
+  {name:"Clinical substantiation", std:"ISO 14155", decision:"Bridge", lab:"CRO", gate:"M9", status:"progress"}
+];
+var RISKS = [
+  {hz:"Skin puncture with non-sterile needles", harm:"Infection", ctrl:"EO sterilisation validation (ISO 11135)", state:"open"},
+  {hz:"Excess penetration depth", harm:"Injury / scarring", ctrl:"Depth-limited variant; usage guidance", state:"controlled"},
+  {hz:"Serum into breached skin", harm:"Irritation / sensitisation", ctrl:"In-use tolerance study", state:"open"},
+  {hz:"Device re-use", harm:"Cross-contamination", ctrl:"Single-use labelling; human factors", state:"controlled"}
+];
+var VIGILANCE = [
+  {ev:"Transient redness post-use", market:"US", sev:"Expected", due:"Log only", state:"Recorded"},
+  {ev:"Localised irritation report", market:"EU", sev:"Non-serious", due:"Trend review", state:"Under review"}
+];
+var MARKET_ACCESS = [
+  {region:"US", body:"FDA / MoCRA", items:"Facility registration · product listing · responsible person · safety substantiation", state:"progress"},
+  {region:"EU", body:"Reg. 1223/2009", items:"Responsible Person · safety report · notification", state:"progress"},
+  {region:"UK", body:"UK Cosmetics Reg.", items:"UK Responsible Person · SCPN notification", state:"planned"},
+  {region:"AU", body:"TGA / AICIS", items:"Cosmetic vs therapeutic position · ingredient introduction", state:"flag"}
+];
+var NAV = [
+  {k:"studio", label:"Studio"}, {k:"portfolio", label:"Product"},
+  {k:"supplier", label:"Supplier"}, {k:"compliance", label:"Compliance"}
+];
+
+var SUPPLIERS = [
+  {name:"Microneedle device manufacturer", loc:"Shenzhen, CN", scope:"Renewal System · patches",
+   attrs:{ "ISO 13485":"Unconfirmed", "ISO 22716":"—", "Quality agreement":"Drafting", "Change control":"In place", "Incoming acceptance":"Defined" },
+   audit:"Desktop done · on-site due", risk:"watch"},
+  {name:"Serum & mist filler", loc:"European Union", scope:"Active serums · prep mist",
+   attrs:{ "ISO 13485":"—", "ISO 22716":"Certified", "Quality agreement":"Signed", "Change control":"In place", "Incoming acceptance":"Defined" },
+   audit:"On-site complete", risk:"ok"},
+  {name:"Light-therapy device OEM", loc:"Shenzhen, CN", scope:"LED mask · neck · laser cap",
+   attrs:{ "ISO 13485":"Certified", "ISO 22716":"—", "Quality agreement":"In review", "Change control":"Partial", "Incoming acceptance":"Defining" },
+   audit:"Planned", risk:"watch"}
+];
+
+var META = {
+  drs:{sku:"MRD-001",owner:"A. Marsh"}, sb:{sku:"SER-002",owner:"T. Cole"}, sh:{sku:"SER-003",owner:"T. Cole"},
+  sbal:{sku:"SER-004",owner:"T. Cole"}, patch:{sku:"PCH-010",owner:"A. Marsh"}, anti:{sku:"SER-005",owner:"T. Cole"},
+  mist:{sku:"MST-011",owner:"R. Diaz"}, led:{sku:"LED-020",owner:"K. Owens"}, neck:{sku:"LED-021",owner:"K. Owens"},
+  scalp:{sku:"LED-022",owner:"K. Owens"}, filt:{sku:"FLT-030",owner:"R. Diaz"}, pillow:{sku:"ACC-040",owner:"R. Diaz"},
+  sens:{sku:"MRD-002",owner:"A. Marsh"}, body:{sku:"MRD-003",owner:"A. Marsh"}
+};
+
+var TASKS = [
+  {t:"Biocompatibility test pack to lab", sku:"MRD-001", owner:"A. Marsh", due:"12 Jul", status:"doing", prio:"high"},
+  {t:"Revalidate EO sterilisation", sku:"MRD-001", owner:"A. Marsh", due:"18 Jul", status:"review", prio:"high"},
+  {t:"Penetration-depth protocol sign-off", sku:"MRD-001", owner:"A. Marsh", due:"02 Jul", status:"done", prio:"med"},
+  {t:"Brightening serum — AU ingredient position", sku:"SER-002", owner:"T. Cole", due:"15 Jul", status:"todo", prio:"high"},
+  {t:"Stability study setup", sku:"SER-002", owner:"T. Cole", due:"22 Jul", status:"doing", prio:"med"},
+  {t:"CPSR — hydrating serum", sku:"SER-003", owner:"T. Cole", due:"28 Jun", status:"done", prio:"med"},
+  {t:"Claims matrix v2 review", sku:"—", owner:"T. Cole", due:"10 Jul", status:"review", prio:"med"},
+  {t:"LED mask — pathway memo", sku:"LED-020", owner:"K. Owens", due:"20 Jul", status:"todo", prio:"high"},
+  {t:"Scalp cap — structure/function review", sku:"LED-022", owner:"K. Owens", due:"25 Jul", status:"todo", prio:"high"},
+  {t:"Sign quality agreement — device mfr", sku:"MRD-001", owner:"A. Marsh", due:"16 Jul", status:"doing", prio:"med"},
+  {t:"UK SCPN notification", sku:"—", owner:"R. Diaz", due:"30 Jul", status:"doing", prio:"low"},
+  {t:"Sensitive 0.3 mm — DFMEA", sku:"MRD-002", owner:"A. Marsh", due:"05 Aug", status:"todo", prio:"med"}
+];
+
+var INTEGRATIONS = [
+  {name:"ClickUp", flow:"Tasks ↔ ClickUp", sync:"4m ago", on:true},
+  {name:"Slack", flow:"Alerts → #compliance", sync:"live", on:true},
+  {name:"Monday.com", flow:"Boards ↔ Monday", sync:"11m ago", on:true},
+  {name:"Airtable", flow:"Records ↔ Airtable", sync:"2m ago", on:true},
+  {name:"Excel", flow:"Exports → Excel", sync:"1h ago", on:true},
+  {name:"Jira", flow:"Available", sync:"", on:false}
+];
+
+/* ---- helpers ---- */
+function riskColor(r){ return r==="ok"?Q.sage:r==="watch"?Q.amber:Q.clay; }
+function riskLabel(r){ return r==="ok"?"Substantiated":r==="watch"?"Watch":"Exposed"; }
+function mktColor(s){ return s==="ok"?Q.sage:s==="watch"?Q.amber:s==="flag"?Q.clay:Q.muted; }
+
+function card(extra, inner){
+  return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:12px;padding:20px;'+(extra||'')+'">'+inner+'</div>';
+}
+function eyebrow(t){
+  return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:10px;">'+t+'</div>';
+}
+function pill(color, t){
+  return '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.02em;color:'+color+';border:1px solid '+color+'55;background:'+color+'14;padding:2px 8px;border-radius:999px;white-space:nowrap;">'+t+'</span>';
+}
+function moduleHeader(eb, title, blurb){
+  return '<div style="margin-bottom:16px;">'+eyebrow(eb)+
+    '<div style="font-size:24px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+title+'</div>'+
+    (blurb?'<div style="color:'+Q.muted+';font-size:13px;margin-top:4px;max-width:660px;">'+blurb+'</div>':'')+'</div>';
+}
+function ring(pct, size, label){
+  size = size || 120; label = label || "READY";
+  var r = size/2 - 14, circ = 2*Math.PI*r, off = circ*(1 - pct/100);
+  return '<div style="position:relative;width:'+size+'px;height:'+size+'px;flex:none;">'+
+    '<svg width="'+size+'" height="'+size+'" style="transform:rotate(-90deg);">'+
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+Q.hair+'" stroke-width="10"/>'+
+    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+Q.gold+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'"/></svg>'+
+    '<div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;"><div>'+
+    '<div style="font-size:'+(size*0.26)+'px;color:'+Q.ink+';font-weight:700;">'+pct+'<span style="font-size:'+(size*0.12)+'px;">%</span></div>'+
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+Q.muted+';letter-spacing:.1em;">'+label+'</div></div></div></div>';
+}
+function glyph(cat, size, color){
+  size = size || 40; color = color || Q.goldDeep;
+  var st = 'stroke="'+color+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+  var inner = '';
+  if (cat === "mech") {
+    inner = '<circle cx="20" cy="20" r="13" '+st+'/>';
+    [-5,0,5].forEach(function(dx){ [-5,0,5].forEach(function(dy){ inner += '<circle cx="'+(20+dx)+'" cy="'+(20+dy)+'" r="1.3" fill="'+color+'"/>'; }); });
+  } else if (cat === "led") {
+    inner = '<path d="M7 15 C12 8, 28 8, 33 15 C34 24, 28 31, 20 32 C12 31, 6 24, 7 15 Z" '+st+'/>';
+    [12,20,28].forEach(function(c){ inner += '<circle cx="'+c+'" cy="18" r="1.4" fill="'+color+'"/>'; });
+    [16,24].forEach(function(c){ inner += '<circle cx="'+c+'" cy="24" r="1.4" fill="'+color+'"/>'; });
+  } else if (cat === "serum") {
+    inner = '<path d="M20 6 C24 13, 28 17, 28 23 a8 8 0 0 1 -16 0 C12 17, 16 13, 20 6 Z" '+st+'/><path d="M16 23 a4 4 0 0 0 4 4" '+st+'/>';
+  } else if (cat === "patch") {
+    inner = '<rect x="8" y="8" width="24" height="24" rx="6" '+st+'/>';
+    [14,20,26].forEach(function(a){ [14,20,26].forEach(function(b){ inner += '<circle cx="'+a+'" cy="'+b+'" r="1.2" fill="'+color+'"/>'; }); });
+  } else if (cat === "mist") {
+    inner = '<rect x="14" y="16" width="12" height="16" rx="3" '+st+'/><path d="M18 16 v-3 h4 v3" '+st+'/>';
+    [[30,9],[33,12],[30,14]].forEach(function(p){ inner += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.1" fill="'+color+'"/>'; });
+  } else if (cat === "filter") {
+    inner = '<path d="M9 11 H31 L23 21 V31 L17 28 V21 Z" '+st+'/><path d="M13 16 H27" '+st+'/>';
+  } else {
+    inner = '<path d="M20 8 L31 20 L20 32 L9 20 Z" '+st+'/>';
+  }
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 40 40" fill="none" aria-hidden="true">'+inner+'</svg>';
+}
+function productPlate(p, size){
+  size = size || 64;
+  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:14px;flex:none;background:linear-gradient(150deg, '+Q.surface2+', '+Q.champagne+');border:1px solid '+Q.hair+';display:grid;place-items:center;">'+glyph(p.cat, size*0.56)+'</div>';
+}
+
+/* ---- state ---- */
+var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{} };
+
+/* ---- portfolio matrix ---- */
+function axLbl(pos){
+  var base = "position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:"+Q.muted+";text-transform:uppercase;";
+  if (pos === "left") return base+"left:10px;top:50%;transform:translateY(-50%);";
+  if (pos === "right") return base+"right:10px;top:50%;transform:translateY(-50%);";
+  if (pos === "top") return base+"top:8px;left:50%;transform:translateX(-50%);";
+  return base+"bottom:8px;left:50%;transform:translateX(-50%);";
+}
+function portfolioMatrix(){
+  var H = 360;
+  var dots = PRODUCTS.map(function(p){
+    var c = POSTURE[p.posture].c, sz = p.flagship?16:12;
+    var shadow = p.flagship ? "box-shadow:0 0 0 4px "+Q.gold+"33;" : "";
+    return '<button class="dot-node" data-open-product="'+p.id+'" title="'+p.name+' — '+POSTURE[p.posture].label+'" style="position:absolute;left:'+p.mx+'%;top:'+(100-p.my)+'%;transform:translate(-50%,-50%);border:none;background:transparent;padding:0;">'+
+      '<span style="display:block;width:'+sz+'px;height:'+sz+'px;border-radius:99px;background:'+c+';'+shadow+'border:1.5px solid '+Q.surface+';"></span></button>';
+  }).join('');
+  var legend = Object.keys(POSTURE).map(function(k){ var v=POSTURE[k];
+    return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:'+Q.muted+';"><span style="width:9px;height:9px;border-radius:99px;background:'+v.c+';"></span> '+v.label+'</span>';
+  }).join('');
+  return card('padding:0;overflow:hidden;',
+    '<div style="padding:18px 20px 8px;border-bottom:1px solid '+Q.hair+';">'+eyebrow('The portfolio map')+
+      '<div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">Every product, placed by posture and readiness</div>'+
+      '<div style="color:'+Q.muted+';font-size:12.5px;margin-top:4px;">Left is cosmetic, right is a device pathway. Higher is closer to compliant launch. The range isn\'t one problem — it\'s a spread. Select a product to open its record.</div></div>'+
+    '<div style="position:relative;height:'+H+'px;margin:14px 20px 8px;border-radius:10px;background:linear-gradient(90deg, '+Q.sageFill+'66, '+Q.surface+' 45%, '+Q.green+'12);border:1px solid '+Q.hair+';">'+
+      '<div style="position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:'+Q.hair+';"></div>'+
+      '<div style="position:absolute;top:50%;left:8px;right:8px;height:1px;background:'+Q.hair+';"></div>'+
+      '<span style="'+axLbl('left')+'">Cosmetic</span><span style="'+axLbl('right')+'">Device pathway</span>'+
+      '<span style="'+axLbl('top')+'">Launch-ready</span><span style="'+axLbl('bottom')+'">Early / exposed</span>'+
+      dots+'</div>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;padding:4px 20px 18px;">'+legend+'</div>'
+  );
+}
+
+/* ---- substantiation map ---- */
+function substantiationMap(mapId, claimIds, evidenceIds, title, compact){
+  var claims = (claimIds || CLAIMS.map(function(c){return c.id;})).map(function(id){return CLAIM[id];}).filter(Boolean);
+  var evList = (evidenceIds || EVIDENCE.map(function(e){return e.id;})).map(function(id){
+    return EVIDENCE.filter(function(e){return e.id===id;})[0];
+  }).filter(Boolean);
+  var H = compact ? 280 : 392;
+  var sel = state.sel[mapId] || null;
+  var n = claims.length, m = evList.length, W = 150;
+  var evIndex = {}; evList.forEach(function(e,j){ evIndex[e.id]=j; });
+  function cY(i){ return ((i+0.5)/n)*H; }
+  function eY(j){ return ((j+0.5)/m)*H; }
+  var threads = [];
+  claims.forEach(function(c,i){ (LINKS[c.id]||[]).forEach(function(eid){
+    var j = evIndex[eid]; if (j == null) return; threads.push({cid:c.id, y1:cY(i), y2:eY(j)});
+  }); });
+  var threadSvg = threads.map(function(t){
+    var active = sel===t.cid, dim = sel && !active;
+    var w = active?2.4:1.2, op = dim?0.08:active?0.95:0.34;
+    return '<path class="thread" d="M 0 '+t.y1+' C '+(W*0.5)+' '+t.y1+', '+(W*0.5)+' '+t.y2+', '+W+' '+t.y2+'" fill="none" stroke="'+Q.gold+'" stroke-width="'+w+'" opacity="'+op+'"/>';
+  }).join('');
+  var claimChips = claims.map(function(c){
+    var active = sel===c.id, dim = sel && !active;
+    return '<button class="claim-chip" data-sel-claim="'+c.id+'" data-map="'+mapId+'" style="text-align:left;border:1px solid '+(active?riskColor(c.risk):Q.hair)+';background:'+(active?riskColor(c.risk)+'10':Q.surface)+';opacity:'+(dim?0.4:1)+';border-radius:9px;padding:7px 11px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-size:12.5px;color:'+Q.ink+';line-height:1.3;">'+c.text+'</span>'+
+      '<span style="width:8px;height:8px;border-radius:99px;background:'+riskColor(c.risk)+';flex:none;"></span></div></button>';
+  }).join('');
+  var evCards = evList.map(function(e){
+    var linked = sel && (LINKS[sel]||[]).indexOf(e.id) > -1, dim = sel && !linked, s = STATUS[e.status];
+    return '<div style="border:1px solid '+(linked?Q.gold:Q.hair)+';background:'+(linked?Q.gold+'10':Q.surface)+';opacity:'+(dim?0.4:1)+';border-radius:9px;padding:6px 11px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-size:12px;color:'+Q.ink+';line-height:1.25;">'+e.name+'</span>'+
+      '<span style="width:8px;height:8px;border-radius:99px;background:'+s.c+';flex:none;"></span></div>'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:2px;">'+e.std+'</div></div>';
+  }).join('');
+  return card('padding:0;overflow:hidden;',
+    '<div style="padding:18px 20px 8px;border-bottom:1px solid '+Q.hair+';">'+eyebrow('The substantiation map')+
+      '<div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+title+'</div>'+
+      '<div style="color:'+Q.muted+';font-size:12.5px;margin-top:4px;">Select a claim to follow its evidence. Claims with thin or no threads are the commercial exposure.</div></div>'+
+    '<div class="qcs-map" style="display:grid;grid-template-columns:1fr '+W+'px 1fr;padding:16px 18px 20px;">'+
+      '<div style="display:flex;flex-direction:column;justify-content:space-around;height:'+H+'px;">'+claimChips+'</div>'+
+      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" preserveAspectRatio="none" style="overflow:visible;" aria-hidden="true">'+threadSvg+'</svg>'+
+      '<div style="display:flex;flex-direction:column;justify-content:space-around;height:'+H+'px;">'+evCards+'</div></div>'
+  );
+}
+
+/* ---- studio ---- */
+function studio(){
+  var inMarket = PRODUCTS.filter(function(p){return p.stage==="market"||p.stage==="iterate";}).length;
+  var device = PRODUCTS.filter(function(p){return p.posture==="device";}).length;
+  var exposed = PRODUCTS.filter(function(p){return p.posture==="watch";}).length;
+  var pipeline = PRODUCTS.filter(function(p){return ["concept","dev","prelaunch"].indexOf(p.stage)>-1;}).length;
+  var portfolioReady = Math.round(PRODUCTS.reduce(function(a,p){return a+p.ready;},0)/PRODUCTS.length);
+  var openTasks = TASKS.filter(function(t){return t.status!=="done";}).length;
+  var tiles = [
+    {label:"SKUs tracked", v:PRODUCTS.length, sub:inMarket+" in market · "+pipeline+" in pipeline", c:Q.gold, go:"portfolio"},
+    {label:"Open tasks", v:openTasks, sub:"across the project board", c:Q.amber, go:"portfolio"},
+    {label:"Suppliers managed", v:SUPPLIERS.length, sub:"qualification & change control", c:Q.green, go:"supplier"},
+    {label:"Exposed claims", v:exposed, sub:"delivery & device-flavoured", c:Q.clay, go:"compliance"}
+  ];
+  var tileHtml = tiles.map(function(t){
+    return '<button class="row-hover" data-nav="'+t.go+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:12px;padding:16px 16px 14px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';letter-spacing:.04em;">'+t.label+'</span>'+
+      '<span style="width:7px;height:7px;border-radius:99px;background:'+t.c+';"></span></div>'+
+      '<div style="font-size:30px;color:'+Q.ink+';font-weight:700;margin-top:6px;">'+t.v+'</div>'+
+      '<div style="color:'+Q.muted+';font-size:11.5px;margin-top:2px;">'+t.sub+'</div></button>';
+  }).join('');
+  var lifecycle = Object.keys(STAGE).map(function(k){
+    var s = STAGE[k], items = PRODUCTS.filter(function(p){return p.stage===k;});
+    var names = items.slice(0,2).map(function(p){return p.name.split("·")[0].split("—")[0].trim();}).join(", ") + (items.length>2?"…":"");
+    return '<div style="display:flex;align-items:center;gap:12px;"><span style="width:8px;height:8px;border-radius:99px;background:'+s.c+';flex:none;"></span>'+
+      '<span style="font-size:13px;color:'+Q.ink+';width:110px;flex:none;">'+s.label+'</span>'+
+      '<span style="font-size:18px;color:'+Q.ink+';font-weight:700;">'+items.length+'</span>'+
+      '<span style="font-size:11.5px;color:'+Q.muted+';line-height:1.3;">'+names+'</span></div>';
+  }).join('');
+  return '<div style="display:grid;gap:18px;">'+
+    card('display:flex;gap:28px;align-items:center;background:linear-gradient(120deg, '+Q.surface+', '+Q.surface2+');',
+      ring(portfolioReady)+'<div>'+eyebrow('Portfolio readiness')+
+      '<div style="font-size:22px;color:'+Q.ink+';font-weight:700;line-height:1.3;max-width:600px;letter-spacing:-.01em;">Product, supplier and compliance operations for the whole range — in one system we build around you and run with you.</div>'+
+      '<div style="color:'+Q.muted+';font-size:13px;margin-top:8px;max-width:600px;">Each product carries its own posture, stage and evidence. The score is held down by the powered light-therapy devices and the delivery-claim exposure on the flagship — not by the cosmetic lines, which are already close to clean.</div></div>')+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:14px;">'+tileHtml+'</div>'+
+    integrationsPanel()+
+    portfolioMatrix()+
+    '<div class="qcs-two" style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;">'+
+      substantiationMap('studio', null, null, 'The flagship, claim by claim', false)+
+      card('', eyebrow('Lifecycle snapshot')+'<div style="display:grid;gap:10px;margin-top:8px;">'+lifecycle+'</div>')+
+    '</div></div>';
+}
+
+/* ---- PM dashboard pieces ---- */
+function initials(n){ return n.split(/[ .]+/).filter(Boolean).map(function(x){return x[0];}).slice(0,2).join("").toUpperCase(); }
+
+function integrationsPanel(){
+  var tiles = INTEGRATIONS.map(function(i){
+    var dot = i.on ? Q.sage : Q.muted;
+    var statusText = i.on ? ("Connected · synced "+i.sync) : "Available";
+    return '<div style="border:1px solid '+Q.hair+';border-radius:10px;padding:12px 13px;opacity:'+(i.on?1:0.6)+';">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13.5px;color:'+Q.ink+';font-weight:600;">'+i.name+'</span><span style="width:8px;height:8px;border-radius:99px;background:'+dot+';"></span></div>'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';margin-top:6px;">'+i.flow+'</div>'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+(i.on?Q.goldDeep:Q.muted)+';margin-top:3px;">'+statusText+'</div></div>';
+  }).join('');
+  return card('', eyebrow('Integrations · your stack')+
+    '<div style="font-size:12.5px;color:'+Q.muted+';margin:-4px 0 12px;">Two-way sync with the tools your team already uses. Anything with an API can be wired in.</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:10px;">'+tiles+'</div>');
+}
+
+function skuTable(list){
+  var cols = "0.9fr 2fr 1fr 1fr 1.1fr 1fr";
+  var rows = list.map(function(p,i){
+    var meta = META[p.id] || {}, st = STAGE[p.stage], last = i===list.length-1;
+    var mk = ["US","EU","UK","AU"].map(function(m,idx){
+      return '<span title="'+m+'" style="width:9px;height:9px;border-radius:3px;background:'+mktColor(p.markets[idx])+';display:inline-block;margin-right:3px;"></span>';
+    }).join('');
+    return '<div class="row-hover" data-open-product="'+p.id+'" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:12px 18px;border-bottom:'+(last?'none':'1px solid '+Q.hair)+';font-size:12.5px;color:'+Q.ink+';cursor:pointer;">'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';">'+(meta.sku||"—")+'</div>'+
+      '<div style="display:flex;align-items:center;gap:9px;padding-right:8px;">'+glyph(p.cat,22)+'<span>'+p.name+'</span></div>'+
+      '<div>'+pill(st.c,st.label)+'</div>'+
+      '<div style="font-size:12px;color:'+Q.ink70+';">'+(meta.owner||"—")+'</div>'+
+      '<div>'+mk+'</div>'+
+      '<div>'+pill(POSTURE[p.posture].c, POSTURE[p.posture].label)+'</div></div>';
+  }).join('');
+  return tableShell(cols, ["SKU","Product","Stage","Owner","Markets","Posture"], rows);
+}
+
+function projectBoard(){
+  var colDefs = [["todo","To do",Q.muted],["doing","In progress",Q.amber],["review","In review",Q.gold],["done","Done",Q.sage]];
+  var prioColor = function(p){ return p==="high"?Q.clay:p==="med"?Q.amber:Q.muted; };
+  var columns = colDefs.map(function(c){
+    var key=c[0], label=c[1], headC=c[2];
+    var items = TASKS.filter(function(t){return t.status===key;});
+    var cardsH = items.map(function(t){
+      return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:9px;padding:10px 11px;margin-bottom:9px;">'+
+        '<div style="font-size:12.5px;color:'+Q.ink+';line-height:1.3;">'+t.t+'</div>'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:8px;">'+
+          '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';"><span style="width:6px;height:6px;border-radius:99px;background:'+prioColor(t.prio)+';"></span>'+(t.sku!=="—"?t.sku:"cross-cutting")+'</span>'+
+          '<span style="display:flex;align-items:center;gap:6px;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';">'+t.due+'</span>'+
+          '<span style="width:21px;height:21px;border-radius:99px;background:'+Q.surface2+';border:1px solid '+Q.hair+';display:grid;place-items:center;font-size:8.5px;font-weight:700;color:'+Q.ink70+';">'+initials(t.owner)+'</span></span>'+
+        '</div></div>';
+    }).join('') || '<div style="font-size:11px;color:'+Q.muted+';padding:6px 2px;">—</div>';
+    return '<div style="background:'+Q.surface2+';border:1px solid '+Q.hair+';border-radius:11px;padding:12px;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:'+Q.ink+';"><span style="width:7px;height:7px;border-radius:99px;background:'+headC+';"></span>'+label+'</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';">'+items.length+'</span></div>'+cardsH+'</div>';
+  }).join('');
+  return '<div>'+
+    '<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">'+
+      '<div>'+eyebrow('Project board')+'<div style="font-size:20px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">Workstreams across the range</div></div>'+
+      '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;color:'+Q.goldDeep+';display:inline-flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:99px;background:'+Q.sage+';"></span>Synced with ClickUp · 4m ago</span>'+
+    '</div>'+
+    '<div class="qcs-board" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;">'+columns+'</div></div>';
+}
+
+/* ---- product ---- */
+function product(){
+  var filters = [["all","All"],["mech","Devices"],["led","LED"],["serum","Serums"],["patch","Patches"],["mist","Mist"],["filter","Filters"],["acc","Accessories"]];
+  var list = state.filter==="all" ? PRODUCTS : PRODUCTS.filter(function(p){return p.cat===state.filter;});
+  var filterHtml = filters.map(function(f){ var k=f[0], l=f[1], on=state.filter===k;
+    return '<button data-filter="'+k+'" style="border:1px solid '+(on?Q.gold:Q.hair)+';background:'+(on?Q.gold+'14':Q.surface)+';color:'+(on?Q.goldDeep:Q.muted)+';border-radius:999px;padding:6px 14px;font-size:12.5px;">'+l+'</button>';
+  }).join('');
+  var cards = list.map(function(p){
+    var post = POSTURE[p.posture], st = STAGE[p.stage];
+    var mkts = ["US","EU","UK","AU"].map(function(m,i){
+      return '<span style="flex:1;display:grid;place-items:center;gap:3px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';">'+m+'<span style="width:8px;height:8px;border-radius:3px;background:'+mktColor(p.markets[i])+';"></span></span>';
+    }).join('');
+    var flag = p.flagship ? '<span style="font-size:9px;color:'+Q.goldDeep+';border:1px solid '+Q.gold+'55;border-radius:99px;padding:1px 6px;font-family:\'JetBrains Mono\',monospace;">FLAGSHIP</span>' : '';
+    return '<button class="prod-card" data-open-product="'+p.id+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:14px;padding:18px;">'+
+      '<div style="display:flex;gap:14px;align-items:flex-start;">'+productPlate(p)+
+        '<div style="min-width:0;flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.04em;color:'+Q.muted+';text-transform:uppercase;">'+CAT[p.cat].label+'</span>'+flag+'</div>'+
+        '<div style="font-size:16.5px;color:'+Q.ink+';font-weight:600;line-height:1.25;">'+p.name+'</div></div></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">'+pill(post.c,post.label)+pill(st.c,st.label)+'</div>'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-top:14px;"><div style="flex:1;height:6px;border-radius:99px;background:'+Q.hair+';overflow:hidden;"><div style="width:'+p.ready+'%;height:100%;background:'+Q.gold+';"></div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';">'+p.ready+'%</span></div>'+
+      '<div style="display:flex;gap:6px;margin-top:12px;">'+mkts+'</div></button>';
+  }).join('');
+  return '<div>'+moduleHeader('Product management','Your range, by SKU','Every SKU as a live record — code, stage, owner, markets and posture. Open a row for the full product passport.')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">'+filterHtml+'</div>'+
+    skuTable(list)+
+    '<div style="margin-top:36px;">'+projectBoard()+'</div>'+
+    '<div style="margin-top:36px;border-top:1px solid '+Q.hair+';padding-top:24px;">'+roadmap()+'</div></div>';
+}
+
+/* ---- product detail ---- */
+function productDetail(p){
+  var post = POSTURE[p.posture], st = STAGE[p.stage], claimIds = p.claims;
+  var linkedSet = {}; claimIds.forEach(function(id){ (LINKS[id]||[]).forEach(function(e){ linkedSet[e]=1; }); });
+  var linkedEv = Object.keys(linkedSet);
+  var mktRows = ["US","EU","UK","AU"].map(function(m,i){
+    var v = p.markets[i], lbl = v==="ok"?"Clear":v==="watch"?"Watch":v==="flag"?"Attention":"Planned";
+    return '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13px;color:'+Q.ink+';">'+m+'</span>'+pill(mktColor(v),lbl)+'</div>';
+  }).join('');
+  var claimRows = claimIds.length===0 ? '<div style="font-size:13px;color:'+Q.muted+';">No regulated claims — accessory.</div>' :
+    claimIds.map(function(id){ var c=CLAIM[id];
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid '+Q.hair+';padding-bottom:7px;"><span style="font-size:12.5px;color:'+Q.ink+';">'+c.text+'</span>'+pill(riskColor(c.risk),riskLabel(c.risk))+'</div>';
+    }).join('');
+  var subEv = linkedEv.length ? linkedEv : EVIDENCE.slice(0,5).map(function(e){return e.id;});
+  var subMap = claimIds.length>0 ? substantiationMap('product-'+p.id, claimIds, subEv, "This product's claims, traced to evidence", true) : '';
+  return '<div style="display:grid;gap:18px;">'+
+    '<button data-back="1" style="border:none;background:transparent;color:'+Q.goldDeep+';font-family:\'JetBrains Mono\',monospace;font-size:11.5px;letter-spacing:.04em;padding:0;width:fit-content;">← Portfolio</button>'+
+    card('display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;',
+      productPlate(p,96)+'<div style="flex:1;min-width:240px;">'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.06em;color:'+Q.muted+';text-transform:uppercase;">'+CAT[p.cat].label+'</div>'+
+      '<div style="font-size:26px;color:'+Q.ink+';font-weight:700;margin-top:2px;letter-spacing:-.01em;">'+p.name+'</div>'+
+      '<div style="font-size:12.5px;color:'+Q.ink70+';margin-top:6px;font-family:\'JetBrains Mono\',monospace;">'+p.spec+'</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">'+pill(post.c,post.label)+pill(st.c,st.label)+pill(Q.gold,p.ready+'% ready')+'</div></div>'+
+      '<div style="flex:none;">'+ring(p.ready,92)+'</div>')+
+    card('border-left:3px solid '+post.c+';background:'+post.c+'08;', eyebrow('Posture note')+'<div style="font-size:14px;color:'+Q.ink+';line-height:1.5;">'+p.note+'</div>')+
+    '<div class="qcs-two" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">'+
+      card('', eyebrow('Market availability')+'<div style="display:grid;gap:10px;margin-top:6px;">'+mktRows+'</div>')+
+      card('', eyebrow('Claims on this product')+'<div style="display:grid;gap:8px;margin-top:6px;">'+claimRows+'</div>')+
+    '</div>'+
+    subMap+
+    '<button class="row-hover" data-nav="compliance" style="border:1px solid '+Q.hair+';background:'+Q.surface+';border-radius:12px;padding:14px 18px;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13.5px;color:'+Q.ink+';">Open the cross-portfolio compliance modules</span><span style="color:'+Q.goldDeep+';font-family:\'JetBrains Mono\',monospace;font-size:12px;">Evidence · Testing · Risk →</span></button>'+
+  '</div>';
+}
+
+/* ---- roadmap ---- */
+function roadmap(){
+  var lanes = Object.keys(STAGE).map(function(k){
+    var s = STAGE[k], items = PRODUCTS.filter(function(p){return p.stage===k;});
+    var chips = items.length===0 ? '<span style="font-size:12px;color:'+Q.muted+';padding-top:8px;">—</span>' :
+      items.map(function(p){
+        return '<button class="prod-card" data-open-product="'+p.id+'" style="border:1px solid '+Q.hair+';background:'+Q.surface+';border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;text-align:left;">'+
+          glyph(p.cat,26)+'<span><span style="display:block;font-size:12.5px;color:'+Q.ink+';line-height:1.2;">'+p.name+'</span>'+
+          '<span style="display:block;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+POSTURE[p.posture].c+';margin-top:2px;">'+POSTURE[p.posture].label+'</span></span></button>';
+      }).join('');
+    return '<div style="display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start;">'+
+      '<div style="display:flex;align-items:center;gap:8px;padding-top:6px;"><span style="width:9px;height:9px;border-radius:99px;background:'+s.c+';flex:none;"></span><span style="font-size:15px;color:'+Q.ink+';font-weight:600;">'+s.label+'</span></div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;">'+chips+'</div></div>';
+  }).join('');
+  return '<div>'+moduleHeader('Roadmap','The range across its lifecycle','From concept to in-market, with the live remediations called out. Pipeline products are where posture is cheapest to set — before any spend is committed.')+
+    '<div style="display:grid;gap:14px;">'+lanes+'</div></div>';
+}
+
+/* ---- supplier ---- */
+function supplier(){
+  function vc(v){
+    if (["Certified","In place","Signed","Defined","On-site complete"].indexOf(v) > -1) return Q.sage;
+    if (v === "Unconfirmed") return Q.clay;
+    if (v === "—") return Q.muted;
+    return Q.amber;
+  }
+  var cards = SUPPLIERS.map(function(s){
+    var attrs = Object.keys(s.attrs).map(function(k){ var v=s.attrs[k];
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid '+Q.hair+';padding:7px 0;">'+
+        '<span style="font-size:12.5px;color:'+Q.muted+';">'+k+'</span>'+
+        '<span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:'+Q.ink+';"><span style="width:8px;height:8px;border-radius:99px;background:'+vc(v)+';"></span>'+v+'</span></div>';
+    }).join('');
+    return card('', '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'+
+      '<div><div style="font-size:16.5px;color:'+Q.ink+';font-weight:600;">'+s.name+'</div>'+
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';margin-top:3px;text-transform:uppercase;letter-spacing:.04em;">'+s.loc+' · '+s.scope+'</div></div>'+
+      pill(s.risk==="ok"?Q.sage:Q.amber, s.risk==="ok"?"Qualified":"In qualification")+'</div>'+
+      '<div style="margin-top:12px;">'+attrs+'</div>'+
+      '<div style="margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';">Audit · '+s.audit+'</div>');
+  }).join('');
+  var sumItems = [
+    ["Certifications","ISO 13485 / ISO 22716 on file and current"],
+    ["Quality agreement","Signed and in force per supplier"],
+    ["Change control","Notified before it ships, not after"],
+    ["Manufacturer data","Their reports audited, not assumed"]
+  ];
+  var sum = sumItems.map(function(it){
+    return '<div style="background:'+Q.surface2+';border:1px solid '+Q.hair+';border-radius:10px;padding:14px;">'+
+      '<div style="font-size:13px;color:'+Q.ink+';font-weight:600;">'+it[0]+'</div>'+
+      '<div style="font-size:12px;color:'+Q.muted+';margin-top:3px;">'+it[1]+'</div></div>';
+  }).join('');
+  return '<div>'+moduleHeader('Supplier management','Your manufacturers, under control','Each contract manufacturer pulled into a controlled workflow — certifications, quality agreement, change control and incoming acceptance — so the data behind every product is yours, audited and current.')+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px,1fr));gap:16px;">'+cards+'</div>'+
+    '<div style="margin-top:26px;">'+eyebrow('What &ldquo;under control&rdquo; means')+'<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:12px;">'+sum+'</div></div></div>';
+}
+
+/* ---- compliance modules ---- */
+function tableShell(cols, labels, rows){
+  var head = labels.map(function(l){return '<div>'+l+'</div>';}).join('');
+  return card('padding:0;overflow:hidden;',
+    '<div style="display:grid;grid-template-columns:'+cols+';background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.04em;color:'+Q.muted+';text-transform:uppercase;padding:11px 18px;">'+head+'</div>'+rows);
+}
+function trow(cols, cells, last){
+  return '<div class="row-hover" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:13px 18px;border-bottom:'+(last?'none':'1px solid '+Q.hair)+';font-size:13px;color:'+Q.ink+';">'+cells+'</div>';
+}
+function evidenceModule(){
+  var cols = "2.2fr 1.4fr 1fr 1fr";
+  var rows = EVIDENCE.map(function(e,i){ var s=STATUS[e.status];
+    return trow(cols, '<div style="padding-right:10px;">'+e.name+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11.5px;color:'+Q.muted+';">'+e.std+'</div><div style="color:'+(e.prov==="Manufacturer"?Q.clay:Q.ink70)+';font-size:12.5px;">'+e.prov+'</div><div>'+pill(s.c,s.label)+'</div>', i===EVIDENCE.length-1);
+  }).join('');
+  return '<div>'+moduleHeader('Evidence portal','The substantiation file','Every report and study in one place, tagged by standard, provenance and state. Independent and accredited data carries the weight; manufacturer data is flagged for revalidation.')+tableShell(cols,["Evidence","Standard","Provenance","State"],rows)+'</div>';
+}
+function claimsModule(){
+  var markets = ["US","EU","UK","AU"];
+  var grid = {c5:["flag","flag","flag","flag"], c6:["flag","flag","flag","flag"], c9:["flag","flag","flag","flag"], c8:["flag","flag","flag","flag"], c7:["ok","watch","watch","watch"], c3:["ok","ok","ok","watch"]};
+  var cols = "2.4fr 1fr 1.4fr";
+  var rows = CLAIMS.map(function(c,i){
+    return trow(cols, '<div style="padding-right:10px;">'+c.text+'</div><div style="font-size:12px;color:'+Q.muted+';">'+c.kind+'</div><div>'+pill(riskColor(c.risk),riskLabel(c.risk))+'</div>', i===CLAIMS.length-1);
+  }).join('');
+  function cell(v){ return '<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+riskColor(v)+';" title="'+riskLabel(v)+'"></span>'; }
+  var matrixRows = '<div></div>' + markets.map(function(m){return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';text-align:center;">'+m+'</div>';}).join('');
+  Object.keys(grid).forEach(function(cid){
+    matrixRows += '<div style="font-size:12.5px;color:'+Q.ink+';padding:9px 0;border-top:1px solid '+Q.hair+';">'+CLAIM[cid].text+'</div>' +
+      grid[cid].map(function(v){return '<div style="display:grid;place-items:center;border-top:1px solid '+Q.hair+';">'+cell(v)+'</div>';}).join('');
+  });
+  var matrix = card('', eyebrow('Per-market matrix')+'<div style="display:grid;grid-template-columns:2.2fr repeat(4, 1fr);margin-top:6px;">'+matrixRows+'</div>'+
+    '<div style="margin-top:12px;font-size:12px;color:'+Q.muted+';border-top:1px dashed '+Q.hair+';padding-top:10px;">Note · Australia flags an ingredient-introduction question for the brightening claim — held against the per-market position until resolved.</div>');
+  return '<div>'+moduleHeader('Claims governance','The compliance line, claim by claim, market by market','Every claim held against the line in each market — nothing goes live without bound evidence. The exposures span the range: delivery and disease claims on the system, and the device-flavoured light-therapy and hair-growth claims.')+
+    '<div style="display:grid;gap:16px;">'+tableShell(cols,["Claim","Type","Position"],rows)+matrix+'</div></div>';
+}
+function testingModule(){
+  function dColor(d){ return d==="Accept"?Q.sage:d==="Bridge"?Q.amber:d==="Repeat"?Q.gold:Q.clay; }
+  var cols = "2fr 1.1fr 1fr 1fr 0.8fr 1fr";
+  var rows = TESTS.map(function(t,i){ var s=STATUS[t.status];
+    return trow(cols, '<div style="padding-right:8px;">'+t.name+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';">'+t.std+'</div><div>'+pill(dColor(t.decision),t.decision)+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+t.lab+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+Q.muted+';">'+t.gate+'</div><div>'+pill(s.c,s.label)+'</div>', i===TESTS.length-1);
+  }).join('');
+  return '<div>'+moduleHeader('Testing programme','Accept, bridge, or repeat — per test','Existing manufacturer data is audited first, then each test is accepted as-is, bridged with a justification, or independently repeated. The plan funds genuine gaps, not duplicates.')+
+    tableShell(cols,["Test","Standard","Decision","Lab","Gate","State"],rows)+
+    '<div style="margin-top:12px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.statGold+';">Accredited testing billed at cost — no consultancy margin on pass-through lab costs.</div></div>';
+}
+function riskVigilanceModule(){
+  function sColor(s){ return s==="controlled"?Q.sage:Q.clay; }
+  var rc = "2fr 1.2fr 2fr 1fr";
+  var riskRows = RISKS.map(function(r,i){
+    return trow(rc, '<div style="padding-right:8px;">'+r.hz+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+r.harm+'</div><div style="font-size:12.5px;color:'+Q.ink70+';padding-right:8px;">'+r.ctrl+'</div><div>'+pill(sColor(r.state), r.state==="controlled"?"Controlled":"Open")+'</div>', i===RISKS.length-1);
+  }).join('');
+  var vc = "2fr 0.8fr 1fr 1.2fr 1fr";
+  var vigRows = VIGILANCE.map(function(v,i){
+    return trow(vc, '<div>'+v.ev+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+Q.muted+';">'+v.market+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+v.sev+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+v.due+'</div><div>'+pill(v.state==="Recorded"?Q.sage:Q.amber, v.state)+'</div>', i===VIGILANCE.length-1);
+  }).join('');
+  return '<div style="display:grid;gap:18px;">'+
+    '<div>'+moduleHeader('Risk file · ISO 14971','Live risk register','The static manufacturer file becomes a living register — each hazard traced to a control and the evidence that verifies it.')+tableShell(rc,["Hazard","Harm","Control","State"],riskRows)+'</div>'+
+    '<div>'+moduleHeader('Post-market surveillance','Adverse-event intake','Recordkeeping and serious-event reporting are a live obligation across markets — intake, triage and trending in one workflow.')+tableShell(vc,["Event","Market","Severity","Action","State"],vigRows)+'</div></div>';
+}
+function supplierModule(){
+  var items = [
+    {k:"ISO 13485 (QMS)", v:"Unconfirmed", c:Q.clay},
+    {k:"ISO 22716 (GMP)", v:"Requested", c:Q.amber},
+    {k:"Quality agreement", v:"Drafting", c:Q.amber},
+    {k:"Change control", v:"In place", c:Q.sage},
+    {k:"Incoming acceptance", v:"Defined", c:Q.sage}
+  ];
+  var cardsHtml = items.map(function(it){
+    return card('padding:16px;', '<div style="font-size:12.5px;color:'+Q.muted+';">'+it.k+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><span style="width:9px;height:9px;border-radius:99px;background:'+it.c+';"></span><span style="font-size:18px;color:'+Q.ink+';font-weight:600;">'+it.v+'</span></div>');
+  }).join('');
+  return '<div>'+moduleHeader('Supplier file','The manufacturer, under control','The contract manufacturer pulled into a controlled workflow: certifications, quality agreement, change control and incoming acceptance — the supplier side of a device-grade operation.')+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px,1fr));gap:14px;">'+cardsHtml+'</div></div>';
+}
+function marketAccessModule(){
+  var cols = "0.6fr 1.2fr 2.4fr 1fr";
+  function sColor(s){ return s==="flag"?Q.clay:s==="progress"?Q.amber:Q.muted; }
+  function sLabel(s){ return s==="flag"?"Attention":s==="progress"?"In progress":"Planned"; }
+  var rows = MARKET_ACCESS.map(function(m,i){
+    return trow(cols, '<div style="font-size:17px;color:'+Q.ink+';font-weight:600;">'+m.region+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+m.body+'</div><div style="font-size:12.5px;color:'+Q.ink70+';padding-right:8px;">'+m.items+'</div><div>'+pill(sColor(m.state),sLabel(m.state))+'</div>', i===MARKET_ACCESS.length-1);
+  }).join('');
+  return '<div>'+moduleHeader('Market access','Compliant in every market sold','Registration, responsible-person and notification duties tracked per region — including the open Australian position on classification and ingredient introduction.')+
+    tableShell(cols,["Region","Framework","Obligations","State"],rows)+'</div>';
+}
+function compliance(){
+  var tabs = [["claims","Claims"],["evidence","Evidence"],["testing","Testing"],["risk","Risk &amp; post-market"],["market","Markets"]];
+  var tabHtml = tabs.map(function(t){ var k=t[0], l=t[1], on=state.tab===k;
+    return '<button data-tab="'+k+'" style="border:none;background:'+(on?Q.surface2:'transparent')+';color:'+(on?Q.ink:Q.muted)+';border-radius:8px;padding:8px 14px;font-size:13px;font-weight:'+(on?600:400)+';border-bottom:2px solid '+(on?Q.gold:'transparent')+';">'+l+'</button>';
+  }).join('');
+  var map = {claims:claimsModule, evidence:evidenceModule, testing:testingModule, risk:riskVigilanceModule, market:marketAccessModule};
+  var body = map[state.tab]();
+  return '<div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid '+Q.hair+';padding-bottom:12px;">'+tabHtml+'</div>'+body+'</div>';
+}
+
+/* ---- shell ---- */
+function content(){
+  var selected = state.product ? PRODUCTS.filter(function(p){return p.id===state.product;})[0] : null;
+  if (selected) return productDetail(selected);
+  if (state.view === "portfolio") return product();
+  if (state.view === "supplier") return supplier();
+  if (state.view === "compliance") return compliance();
+  return studio();
+}
+function shell(){
+  var selected = state.product;
+  var navItem = NAV.filter(function(n){return n.k===state.view;})[0];
+  var headerTitle = selected ? "Product record" : (navItem ? navItem.label : "");
+  var nav = NAV.map(function(n){
+    var active = (!selected && state.view===n.k) || (selected && n.k==="portfolio");
+    return '<button class="nav-item" data-nav="'+n.k+'" style="text-align:left;border:none;border-radius:8px;padding:10px 12px;background:'+(active?Q.surface2:'transparent')+';color:'+(active?Q.ink:Q.muted)+';font-size:13.5px;font-weight:'+(active?600:400)+';display:flex;align-items:center;gap:10px;white-space:nowrap;">'+
+      '<span style="width:6px;height:6px;border-radius:99px;background:'+(active?Q.gold:'transparent')+';flex:none;"></span>'+n.label+'</button>';
+  }).join('');
+  return '<div class="qcs-shell" style="display:flex;min-height:100vh;">'+
+    '<aside class="qcs-side" style="width:250px;flex:none;background:'+Q.surface+';border-right:1px solid '+Q.hair+';display:flex;flex-direction:column;padding:18px;">'+
+      '<div class="side-brand" style="padding:6px 8px 18px;border-bottom:1px solid '+Q.hair+';margin-bottom:14px;"><div style="font-size:20px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.06em;color:'+Q.goldDeep+';margin-top:4px;">PRODUCT · SUPPLIER · COMPLIANCE</div></div>'+
+      '<nav style="display:flex;flex-direction:column;gap:2px;">'+nav+'</nav>'+
+      '<div class="side-foot" style="margin-top:auto;padding-top:16px;border-top:1px solid '+Q.hair+';"><div style="font-size:11px;color:'+Q.muted+';line-height:1.5;">A <span style="color:'+Q.ink+';font-weight:600;">SMEDTEC</span> build · in your brand</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:3px;">Illustration · anonymised sample data</div></div>'+
+    '</aside>'+
+    '<main style="flex:1;min-width:0;">'+
+      '<div style="background:'+Q.green+';color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.05em;padding:8px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><span>ILLUSTRATION · A SMEDTEC BUILD FOR A FICTIONAL BRAND</span><span style="color:'+Q.gold+';">Yours is built around your range, in your brand</span></div>'+
+      '<header style="display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid '+Q.hair+';background:'+Q.surface+';">'+
+        '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;">Meridian Health · full range</div><div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+headerTitle+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:18px;"><div style="text-align:right;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';">MARKETS</div><div style="font-size:13px;color:'+Q.ink+';">US · EU · UK · AU</div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';border:1px solid '+Q.gold+'55;background:'+Q.gold+'14;padding:5px 12px;border-radius:999px;">'+PRODUCTS.length+' products</span></div>'+
+      '</header>'+
+      '<div style="padding:28px;max-width:1180px;">'+content()+'</div>'+
+    '</main></div>';
+}
+
+var root = document.getElementById("root");
+function render(){ root.innerHTML = shell(); }
+
+root.addEventListener("click", function(e){
+  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim]");
+  if (!t) return;
+  if (t.hasAttribute("data-sel-claim")) {
+    var mid = t.getAttribute("data-map"), cid = t.getAttribute("data-sel-claim");
+    state.sel[mid] = (state.sel[mid] === cid) ? null : cid;
+    render();
+  } else if (t.hasAttribute("data-open-product")) {
+    state.product = t.getAttribute("data-open-product"); state.view = "portfolio"; render(); window.scrollTo(0,0);
+  } else if (t.hasAttribute("data-back")) {
+    state.product = null; render();
+  } else if (t.hasAttribute("data-nav")) {
+    state.product = null; state.view = t.getAttribute("data-nav"); render(); window.scrollTo(0,0);
+  } else if (t.hasAttribute("data-filter")) {
+    state.filter = t.getAttribute("data-filter"); render();
+  } else if (t.hasAttribute("data-tab")) {
+    state.tab = t.getAttribute("data-tab"); render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
