@@ -50,11 +50,11 @@ var Q = {
 };
 
 var CAT = {
-  mech:{label:"Mechanical device"}, led:{label:"Light therapy device"}, serum:{label:"Serum"},
-  patch:{label:"Microneedle patch"}, mist:{label:"Mist"}, filter:{label:"Water filtration"}, acc:{label:"Accessory"}
+  skincare:{label:"Skincare"}, haircare:{label:"Hair care"}, oral:{label:"Oral care"},
+  monitor:{label:"Health monitor"}, therapy:{label:"Therapy device"}, wellbeing:{label:"Wellbeing"}, acc:{label:"Accessory"}
 };
 var POSTURE = {
-  cosmetic:{c:Q.sage,label:"Cosmetic"}, watch:{c:Q.amber,label:"Cosmetic · watch"},
+  cosmetic:{c:Q.sage,label:"Cosmetic"}, watch:{c:Q.amber,label:"Cosmetic / OTC \u00b7 watch"},
   device:{c:Q.green,label:"Device pathway"}, none:{c:Q.muted,label:"Unregulated"}
 };
 var STAGE = {
@@ -62,121 +62,124 @@ var STAGE = {
   prelaunch:{label:"Pre-launch",c:Q.gold}, market:{label:"In market",c:Q.sage}, iterate:{label:"Iterating",c:Q.clay}
 };
 
-/* ---- anonymised fictional portfolio: "Meridian Health" ---- */
+/* ---- anonymised fictional portfolio: "Meridian Health" (consumer health & beauty) ---- */
 var PRODUCTS = [
-  {id:"drs", name:"Dermal Renewal System", cat:"mech", posture:"watch", stage:"iterate", flagship:true, ready:64,
-   spec:"Single-use sterile microneedle head · paired serum · 0.25–1.5 mm",
-   note:"Flagship. Delivery / “infuses beyond the barrier” language is the live exposure — anchor on the mechanical mode of action.",
-   markets:["ok","ok","ok","watch"], claims:["c1","c2","c3","c4","c5","c6","c7"], mx:70, my:55},
-  {id:"sb", name:"Active Serum — Brightening", cat:"serum", posture:"watch", stage:"iterate", ready:68,
-   spec:"Niacinamide · tranexamic acid · peptide complex",
-   note:"Tranexamic acid is the live market flag (topical cosmetic limits vary by region); review the ingredient-introduction position per market.",
-   markets:["ok","ok","ok","flag"], claims:["c3","c6"], mx:30, my:70},
-  {id:"sh", name:"Active Serum — Hydrating", cat:"serum", posture:"cosmetic", stage:"market", ready:74,
-   spec:"Hyaluronic acid · beta-glucan · panthenol",
-   note:"Conventional cosmetic — keep claims appearance-based and the posture stays clean.",
-   markets:["ok","ok","ok","ok"], claims:["c1","c2","c7"], mx:22, my:78},
-  {id:"sbal", name:"Active Serum — Balanced", cat:"serum", posture:"cosmetic", stage:"market", ready:70,
-   spec:"Blend of the Brightening and Hydrating formulations",
-   note:"Inherits the ingredient position of the Brightening base.",
-   markets:["ok","ok","ok","watch"], claims:["c1","c2","c3"], mx:26, my:74},
-  {id:"patch", name:"Recovery Microneedle Patches", cat:"patch", posture:"watch", stage:"market", ready:60,
-   spec:"Dissolvable microneedle patches · targeted application",
-   note:"Microneedle patches penetrate — borderline; sterility and penetration evidence needed as for the system.",
-   markets:["ok","ok","watch","watch"], claims:["c1","c4"], mx:40, my:62},
-  {id:"anti", name:"Daily Antioxidant Serum", cat:"serum", posture:"cosmetic", stage:"market", ready:80,
-   spec:"Daily topical serum · applied conventionally",
-   note:"Conventional cosmetic — the cleanest posture in the range.",
-   markets:["ok","ok","ok","ok"], claims:["c1","c3"], mx:16, my:84},
-  {id:"mist", name:"Prep Mist", cat:"mist", posture:"cosmetic", stage:"market", ready:82,
-   spec:"Pre-treatment refreshing mist",
-   note:"Conventional cosmetic.",
-   markets:["ok","ok","ok","ok"], claims:["c1"], mx:12, my:88},
-  {id:"led", name:"Radiance LED Mask", cat:"led", posture:"device", stage:"market", ready:40,
-   spec:"Powered red / near-infrared LED face wear",
-   note:"Light therapy with anti-ageing claims sits on a device pathway in several markets — a different posture from the cosmetic lines.",
-   markets:["watch","watch","watch","watch"], claims:["c8","c2"], mx:80, my:45},
-  {id:"neck", name:"Neck & Décolletage LED", cat:"led", posture:"device", stage:"prelaunch", ready:34,
-   spec:"Powered LED system for neck / décolletage",
-   note:"Same light therapy device posture as the mask; pre-launch is the moment to set the pathway.",
-   markets:["watch","watch","planned","watch"], claims:["c8"], mx:82, my:36},
-  {id:"scalp", name:"Scalp Laser Cap", cat:"led", posture:"device", stage:"market", ready:24,
-   spec:"Low-level laser / LED hair-growth device",
-   note:"“Stimulates regrowth” is a structure-function claim — the most device-exposed item in the range.",
-   markets:["flag","watch","watch","watch"], claims:["c9"], mx:90, my:25},
-  {id:"filt", name:"Shower & Tap Filters", cat:"filter", posture:"none", stage:"market", ready:94,
-   spec:"Chlorine / sediment filtration · refills",
-   note:"General consumer product — only the “healthier skin & hair” framing needs a light watch.",
-   markets:["ok","ok","ok","ok"], claims:["c10"], mx:6, my:92},
-  {id:"pillow", name:"Silk Pillowcase", cat:"acc", posture:"none", stage:"market", ready:98,
-   spec:"Mulberry silk accessory",
+  {id:"tens", name:"ReliefTENS Pain Therapy Unit", cat:"therapy", posture:"device", stage:"iterate", flagship:true, ready:34,
+   spec:"Dual-channel TENS \u00b7 electrode pads \u00b7 15 modes",
+   note:"Flagship. The \u201Crelieves arthritis pain\u201D line is the live exposure \u2014 a disease claim. Anchor marketing on symptomatic relief until the evidence supports more.",
+   markets:["flag","watch","watch","watch"], claims:["c7","c8"], mx:88, my:30},
+  {id:"therm", name:"Digital Ear Thermometer", cat:"monitor", posture:"device", stage:"market", ready:58,
+   spec:"Infrared tympanic thermometer \u00b7 1-second read",
+   note:"Medical device \u2014 clinical-accuracy and electrical-safety evidence carry the posture; the accuracy claim must be bound.",
+   markets:["ok","ok","ok","watch"], claims:["c4"], mx:72, my:60},
+  {id:"oxi", name:"Fingertip Pulse Oximeter", cat:"monitor", posture:"device", stage:"market", ready:50,
+   spec:"SpO2 & pulse rate \u00b7 OLED display",
+   note:"Measures a physiological parameter \u2014 device pathway; SpO2 accuracy is the claim to substantiate.",
+   markets:["ok","ok","ok","watch"], claims:["c5"], mx:78, my:52},
+  {id:"bp", name:"Upper-Arm Blood Pressure Monitor", cat:"monitor", posture:"device", stage:"prelaunch", ready:40,
+   spec:"Oscillometric \u00b7 cuff 22\u201342 cm \u00b7 app sync",
+   note:"Pre-launch is the moment to lock the validation set and the measurement claim before any marketing goes out.",
+   markets:["watch","watch","planned","watch"], claims:["c6"], mx:80, my:42},
+  {id:"scale", name:"Smart Body-Composition Scale", cat:"wellbeing", posture:"watch", stage:"market", ready:64,
+   spec:"Weight + bioimpedance estimates \u00b7 app",
+   note:"Bioimpedance body-fat outputs sit between wellness and medical depending on the claim \u2014 keep them indicative.",
+   markets:["ok","ok","ok","watch"], claims:["c9"], mx:55, my:62},
+  {id:"brush", name:"SonicCare Electric Toothbrush", cat:"oral", posture:"cosmetic", stage:"market", ready:82,
+   spec:"Sonic brush \u00b7 pressure sensor \u00b7 2-minute timer",
+   note:"General consumer oral-care device \u2014 clean unless plaque or gingivitis claims are added.",
+   markets:["ok","ok","ok","ok"], claims:["c1"], mx:34, my:82},
+  {id:"paste", name:"Whitening Fluoride Toothpaste", cat:"oral", posture:"watch", stage:"market", ready:70,
+   spec:"Fluoride 1450 ppm \u00b7 gentle whitening",
+   note:"Fluoride is an OTC anti-cavity active in the US (monograph); whitening is cosmetic \u2014 split the claims by market.",
+   markets:["watch","ok","ok","ok"], claims:["c1","c10"], mx:42, my:68},
+  {id:"spf", name:"Daily Defence Moisturiser SPF 30", cat:"skincare", posture:"watch", stage:"market", ready:66,
+   spec:"Daily facial moisturiser \u00b7 broad-spectrum SPF 30",
+   note:"SPF is an OTC sunscreen drug in the US and TGA-regulated in AU \u2014 the sun-protection claim drives the posture, not the moisturiser base.",
+   markets:["watch","ok","ok","flag"], claims:["c2","c11"], mx:46, my:64},
+  {id:"vitc", name:"Vitamin C Day Cream", cat:"skincare", posture:"cosmetic", stage:"market", ready:84,
+   spec:"Antioxidant day cream \u00b7 conventional application",
+   note:"Conventional cosmetic \u2014 keep claims appearance-based and the posture stays clean.",
+   markets:["ok","ok","ok","ok"], claims:["c2","c3"], mx:18, my:84},
+  {id:"lotion", name:"Hand & Body Lotion", cat:"skincare", posture:"cosmetic", stage:"market", ready:90,
+   spec:"Everyday moisturising lotion",
+   note:"Conventional cosmetic \u2014 the cleanest posture in the range.",
+   markets:["ok","ok","ok","ok"], claims:["c2"], mx:12, my:90},
+  {id:"shampoo", name:"Anti-Dandruff Shampoo", cat:"haircare", posture:"watch", stage:"market", ready:60,
+   spec:"Zinc pyrithione \u00b7 weekly use",
+   note:"Anti-dandruff is a medicated/OTC claim in some markets \u2014 \u201Ctreats dandruff\u201D tips it over the line; \u201Creduces flakes\u201D is softer.",
+   markets:["watch","watch","ok","watch"], claims:["c12","c13"], mx:48, my:58},
+  {id:"lipbalm", name:"Lip Balm SPF 15", cat:"skincare", posture:"watch", stage:"market", ready:72,
+   spec:"Moisturising lip balm \u00b7 SPF 15",
+   note:"Same SPF/OTC question as the moisturiser, at lower exposure.",
+   markets:["watch","ok","ok","watch"], claims:["c2","c11"], mx:40, my:70},
+  {id:"mask", name:"Weighted Sleep Mask", cat:"acc", posture:"none", stage:"market", ready:96,
+   spec:"Mulberry silk \u00b7 light-blocking accessory",
    note:"Unregulated accessory.",
-   markets:["ok","ok","ok","ok"], claims:[], mx:3, my:96},
-  {id:"sens", name:"Renewal System · Sensitive 0.3 mm", cat:"mech", posture:"cosmetic", stage:"dev", ready:38,
-   spec:"Depth-limited variant · superficial channels only",
-   note:"Pipeline. A shallow, claims-light variant is the cleanest way to hold cosmetic positioning while keeping deeper variants in a separate lane.",
-   markets:["planned","planned","planned","planned"], claims:["c1","c4"], mx:18, my:40},
-  {id:"body", name:"Body Renewal System", cat:"mech", posture:"watch", stage:"concept", ready:10,
-   spec:"Concept · larger-area body application",
-   note:"Concept. New use-area, new risk profile — scope the posture before any spend.",
-   markets:["planned","planned","planned","planned"], claims:["c4"], mx:55, my:18}
+   markets:["ok","ok","ok","ok"], claims:[], mx:5, my:96},
+  {id:"band", name:"Wellbeing Activity Band", cat:"wellbeing", posture:"watch", stage:"concept", ready:10,
+   spec:"Concept \u00b7 wearable activity & sleep tracker",
+   note:"Concept. If it edges into physiological measurement it gains a device posture \u2014 set the claim scope before any spend.",
+   markets:["planned","planned","planned","planned"], claims:["c9"], mx:58, my:16}
 ];
 
 var CLAIMS = [
-  {id:"c1", text:"Boosts visible hydration and bounce", kind:"Cosmetic", risk:"ok"},
-  {id:"c2", text:"Improves the look of fine lines and wrinkles", kind:"Cosmetic", risk:"ok"},
-  {id:"c3", text:"Brightens uneven tone, fades the look of dark spots", kind:"Cosmetic", risk:"ok"},
-  {id:"c4", text:"Smooths texture, minimises the appearance of pores", kind:"Cosmetic", risk:"ok"},
-  {id:"c7", text:"Supports the skin's natural barrier", kind:"Borderline", risk:"watch"},
-  {id:"c5", text:"Delivers active serums deeper, beyond the barrier", kind:"Delivery", risk:"flag"},
-  {id:"c6", text:"Helps fade acne scars", kind:"Disease", risk:"flag"},
-  {id:"c8", text:"Reduces wrinkles through LED light therapy", kind:"Device", risk:"flag"},
-  {id:"c9", text:"Stimulates new hair regrowth", kind:"Structure/function", risk:"flag"},
-  {id:"c10", text:"Filters chlorine for healthier-looking skin & hair", kind:"Cosmetic", risk:"watch"}
+  {id:"c1", text:"Removes surface stains for a whiter smile", kind:"Cosmetic", risk:"ok"},
+  {id:"c2", text:"Moisturises for up to 24 hours", kind:"Cosmetic", risk:"ok"},
+  {id:"c3", text:"Improves the look of dull, tired skin", kind:"Cosmetic", risk:"ok"},
+  {id:"c4", text:"Clinically accurate temperature readings", kind:"Device", risk:"watch"},
+  {id:"c5", text:"Measures blood-oxygen saturation (SpO2)", kind:"Device", risk:"watch"},
+  {id:"c6", text:"Tracks your blood pressure at home", kind:"Device", risk:"watch"},
+  {id:"c7", text:"Relieves muscle and joint pain", kind:"Device", risk:"watch"},
+  {id:"c8", text:"Relieves the pain of arthritis", kind:"Disease", risk:"flag"},
+  {id:"c9", text:"Estimates your body-fat percentage", kind:"Borderline", risk:"watch"},
+  {id:"c10", text:"Helps prevent tooth decay", kind:"OTC / drug", risk:"flag"},
+  {id:"c11", text:"Protects against UVA/UVB rays (SPF 30)", kind:"OTC / drug", risk:"flag"},
+  {id:"c12", text:"Reduces dandruff and flaking", kind:"Borderline", risk:"watch"},
+  {id:"c13", text:"Treats the cause of dandruff", kind:"Disease", risk:"flag"}
 ];
 var CLAIM = {}; CLAIMS.forEach(function(c){ CLAIM[c.id]=c; });
 
 var EVIDENCE = [
-  {id:"e6", name:"Preservative efficacy (challenge test)", std:"ISO 11930", prov:"Independent", status:"accepted"},
-  {id:"e1", name:"Biocompatibility evaluation", std:"ISO 10993-1/-5/-10/-23", prov:"Independent", status:"progress"},
-  {id:"e5", name:"Needle integrity & penetration depth", std:"Bespoke protocol", prov:"Independent", status:"progress"},
-  {id:"e7", name:"Formulation stability & micro limits", std:"ISO 17516", prov:"Independent", status:"progress"},
-  {id:"e9", name:"Clinical substantiation", std:"ISO 14155 (data mapping)", prov:"Independent", status:"progress"},
-  {id:"e10", name:"Cosmetic safety assessment", std:"CPSR / safety substantiation", prov:"Independent", status:"progress"},
-  {id:"e2", name:"EO sterilisation validation", std:"ISO 11135", prov:"Manufacturer", status:"reval"},
-  {id:"e3", name:"Sterile barrier & shelf-life", std:"ISO 11607 · ASTM F1980", prov:"—", status:"planned"},
-  {id:"e4", name:"EO residuals", std:"ISO 10993-7", prov:"Independent", status:"planned"},
-  {id:"e8", name:"In-use tolerance (serum via channels)", std:"Controlled study", prov:"Independent", status:"planned"}
+  {id:"e1", name:"Electrical safety", std:"IEC 60601-1", prov:"Independent", status:"accepted"},
+  {id:"e8", name:"Preservative efficacy & stability", std:"ISO 11930", prov:"Independent", status:"accepted"},
+  {id:"e2", name:"Electromagnetic compatibility", std:"IEC 60601-1-2", prov:"Independent", status:"progress"},
+  {id:"e3", name:"Clinical accuracy validation", std:"ISO 80601 / ISO 81060-2", prov:"Independent", status:"progress"},
+  {id:"e4", name:"Skin-contact biocompatibility", std:"ISO 10993-1/-5/-10", prov:"Independent", status:"progress"},
+  {id:"e7", name:"Cosmetic safety assessment", std:"CPSR / safety substantiation", prov:"Independent", status:"progress"},
+  {id:"e9", name:"SPF & broad-spectrum testing", std:"ISO 24444 / ISO 24443", prov:"Independent", status:"progress"},
+  {id:"e6", name:"Battery safety", std:"IEC 62133", prov:"Manufacturer", status:"reval"},
+  {id:"e5", name:"Usability / human factors", std:"IEC 62366-1", prov:"\u2014", status:"planned"},
+  {id:"e10", name:"Dermatological tolerance (HRIPT)", std:"Controlled study", prov:"Independent", status:"planned"}
 ];
-var LINKS = { c1:["e9","e7"], c2:["e9"], c3:["e9","e6"], c4:["e9","e5"], c7:["e7","e10"], c5:["e5"], c6:[], c8:[], c9:[], c10:["e10"] };
+var LINKS = { c1:["e8"], c2:["e7","e8"], c3:["e7"], c4:["e3","e1"], c5:["e3","e1"], c6:["e3","e1"], c7:["e1","e4"], c8:[], c9:["e3"], c10:[], c11:["e9"], c12:["e7","e10"], c13:[] };
 var STATUS = {
   accepted:{label:"Accepted",c:Q.sage}, progress:{label:"In progress",c:Q.amber},
   reval:{label:"Revalidate",c:Q.clay}, planned:{label:"Planned",c:Q.muted}
 };
 var TESTS = [
-  {name:"Preservative efficacy", std:"ISO 11930", decision:"Accept", lab:"Accredited lab", gate:"M4", status:"accepted"},
-  {name:"Biocompatibility (10993 series)", std:"ISO 10993-1", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
-  {name:"EO sterilisation validation", std:"ISO 11135", decision:"Bridge", lab:"TBC", gate:"M5", status:"reval"},
-  {name:"Sterile barrier & shelf-life", std:"ISO 11607", decision:"Repeat", lab:"TBC", gate:"M6", status:"planned"},
-  {name:"Needle & penetration depth", std:"Bespoke", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
-  {name:"In-use tolerance study", std:"Controlled", decision:"New", lab:"CRO", gate:"M7", status:"planned"},
-  {name:"Clinical substantiation", std:"ISO 14155", decision:"Bridge", lab:"CRO", gate:"M9", status:"progress"}
+  {name:"Electrical safety", std:"IEC 60601-1", decision:"Accept", lab:"Accredited lab", gate:"M4", status:"accepted"},
+  {name:"Electromagnetic compatibility", std:"IEC 60601-1-2", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
+  {name:"Clinical accuracy validation", std:"ISO 80601 / 81060", decision:"Repeat", lab:"CRO", gate:"M6", status:"progress"},
+  {name:"Skin-contact biocompatibility", std:"ISO 10993-1", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
+  {name:"Cosmetic safety assessment", std:"CPSR", decision:"Accept", lab:"Independent", gate:"M4", status:"progress"},
+  {name:"SPF & broad-spectrum", std:"ISO 24444", decision:"Repeat", lab:"Accredited lab", gate:"M5", status:"progress"},
+  {name:"Usability / human factors", std:"IEC 62366-1", decision:"New", lab:"Specialist", gate:"M6", status:"planned"}
 ];
 var RISKS = [
-  {hz:"Skin puncture with non-sterile needles", harm:"Infection", ctrl:"EO sterilisation validation (ISO 11135)", state:"open"},
-  {hz:"Excess penetration depth", harm:"Injury / scarring", ctrl:"Depth-limited variant; usage guidance", state:"controlled"},
-  {hz:"Serum into breached skin", harm:"Irritation / sensitisation", ctrl:"In-use tolerance study", state:"open"},
-  {hz:"Device re-use", harm:"Cross-contamination", ctrl:"Single-use labelling; human factors", state:"controlled"}
+  {hz:"Inaccurate measurement (temperature / SpO2 / BP)", harm:"Missed or delayed care", ctrl:"Clinical-accuracy validation (ISO 80601 / 81060)", state:"open"},
+  {hz:"Electrical fault or battery overheating", harm:"Shock or burn", ctrl:"IEC 60601-1 safety; IEC 62133 battery", state:"controlled"},
+  {hz:"Skin reaction to electrodes / probe", harm:"Irritation / sensitisation", ctrl:"Skin-contact biocompatibility (ISO 10993)", state:"open"},
+  {hz:"Use without reading the instructions", harm:"Incorrect readings / improper therapy", ctrl:"Usability engineering; clear IFU", state:"controlled"}
 ];
 var VIGILANCE = [
-  {ev:"Transient redness post-use", market:"US", sev:"Expected", due:"Log only", state:"Recorded"},
-  {ev:"Localised irritation report", market:"EU", sev:"Non-serious", due:"Trend review", state:"Under review"}
+  {ev:"Skin redness under TENS electrodes", market:"EU", sev:"Non-serious", due:"Trend review", state:"Under review"},
+  {ev:"Thermometer reading variance reported", market:"US", sev:"Expected", due:"Log only", state:"Recorded"}
 ];
 var MARKET_ACCESS = [
-  {region:"US", body:"FDA / MoCRA", items:"Facility registration · product listing · responsible person · safety substantiation", state:"progress"},
-  {region:"EU", body:"Reg. 1223/2009", items:"Responsible Person · safety report · notification", state:"progress"},
-  {region:"UK", body:"UK Cosmetics Reg.", items:"UK Responsible Person · SCPN notification", state:"planned"},
-  {region:"AU", body:"TGA / AICIS", items:"Cosmetic vs therapeutic position · ingredient introduction", state:"flag"}
+  {region:"US", body:"FDA / MoCRA", items:"Device listing & registration \u00b7 OTC monograph (SPF, fluoride) \u00b7 MoCRA cosmetic listing", state:"progress"},
+  {region:"EU", body:"MDR 2017/745 \u00b7 Reg. 1223/2009", items:"Device conformity (CE) \u00b7 cosmetic Responsible Person & safety report", state:"progress"},
+  {region:"UK", body:"UKCA / MHRA \u00b7 UK Cosmetics Reg.", items:"UKCA device marking \u00b7 UK Responsible Person \u00b7 SCPN", state:"planned"},
+  {region:"AU", body:"TGA / AICIS", items:"ARTG device inclusion \u00b7 sunscreen (therapeutic) position \u00b7 chemical introduction", state:"flag"}
 ];
 var NAV = [
   {k:"studio", label:"Studio"}, {k:"portfolio", label:"Product"},
@@ -184,38 +187,38 @@ var NAV = [
 ];
 
 var SUPPLIERS = [
-  {name:"Microneedle device manufacturer", loc:"Shenzhen, CN", scope:"Renewal System · patches",
-   attrs:{ "ISO 13485":"Unconfirmed", "ISO 22716":"—", "Quality agreement":"Drafting", "Change control":"In place", "Incoming acceptance":"Defined" },
-   audit:"Desktop done · on-site due", risk:"watch"},
-  {name:"Serum & mist filler", loc:"European Union", scope:"Active serums · prep mist",
-   attrs:{ "ISO 13485":"—", "ISO 22716":"Certified", "Quality agreement":"Signed", "Change control":"In place", "Incoming acceptance":"Defined" },
+  {name:"Consumer-electronics device OEM", loc:"Shenzhen, CN", scope:"Thermometer \u00b7 oximeter \u00b7 BP monitor \u00b7 TENS",
+   attrs:{ "ISO 13485":"Certified", "ISO 22716":"\u2014", "Quality agreement":"In review", "Change control":"In place", "Incoming acceptance":"Defined" },
+   audit:"Desktop done \u00b7 on-site due", risk:"watch"},
+  {name:"Personal-care contract manufacturer", loc:"European Union", scope:"Creams \u00b7 lotions \u00b7 SPF \u00b7 lip balm",
+   attrs:{ "ISO 13485":"\u2014", "ISO 22716":"Certified", "Quality agreement":"Signed", "Change control":"In place", "Incoming acceptance":"Defined" },
    audit:"On-site complete", risk:"ok"},
-  {name:"Light-therapy device OEM", loc:"Shenzhen, CN", scope:"LED mask · neck · laser cap",
-   attrs:{ "ISO 13485":"Certified", "ISO 22716":"—", "Quality agreement":"In review", "Change control":"Partial", "Incoming acceptance":"Defining" },
+  {name:"Oral-care manufacturer", loc:"United Kingdom", scope:"Toothpaste \u00b7 electric toothbrush",
+   attrs:{ "ISO 13485":"Partial", "ISO 22716":"Certified", "Quality agreement":"In review", "Change control":"Partial", "Incoming acceptance":"Defining" },
    audit:"Planned", risk:"watch"}
 ];
 
 var META = {
-  drs:{sku:"MRD-001",owner:"A. Marsh"}, sb:{sku:"SER-002",owner:"T. Cole"}, sh:{sku:"SER-003",owner:"T. Cole"},
-  sbal:{sku:"SER-004",owner:"T. Cole"}, patch:{sku:"PCH-010",owner:"A. Marsh"}, anti:{sku:"SER-005",owner:"T. Cole"},
-  mist:{sku:"MST-011",owner:"R. Diaz"}, led:{sku:"LED-020",owner:"K. Owens"}, neck:{sku:"LED-021",owner:"K. Owens"},
-  scalp:{sku:"LED-022",owner:"K. Owens"}, filt:{sku:"FLT-030",owner:"R. Diaz"}, pillow:{sku:"ACC-040",owner:"R. Diaz"},
-  sens:{sku:"MRD-002",owner:"A. Marsh"}, body:{sku:"MRD-003",owner:"A. Marsh"}
+  tens:{sku:"THR-010",owner:"A. Marsh"}, therm:{sku:"MON-001",owner:"A. Marsh"}, oxi:{sku:"MON-002",owner:"A. Marsh"},
+  bp:{sku:"MON-003",owner:"A. Marsh"}, scale:{sku:"WEL-020",owner:"K. Owens"}, brush:{sku:"ORAL-030",owner:"R. Diaz"},
+  paste:{sku:"ORAL-031",owner:"R. Diaz"}, spf:{sku:"SKN-040",owner:"T. Cole"}, vitc:{sku:"SKN-041",owner:"T. Cole"},
+  lotion:{sku:"SKN-042",owner:"T. Cole"}, shampoo:{sku:"HAIR-050",owner:"T. Cole"}, lipbalm:{sku:"SKN-043",owner:"T. Cole"},
+  mask:{sku:"ACC-060",owner:"R. Diaz"}, band:{sku:"WEL-021",owner:"K. Owens"}
 };
 
 var TASKS = [
-  {t:"Biocompatibility test pack to lab", sku:"MRD-001", owner:"A. Marsh", due:"12 Jul", status:"doing", prio:"high"},
-  {t:"Revalidate EO sterilisation", sku:"MRD-001", owner:"A. Marsh", due:"18 Jul", status:"review", prio:"high"},
-  {t:"Penetration-depth protocol sign-off", sku:"MRD-001", owner:"A. Marsh", due:"02 Jul", status:"done", prio:"med"},
-  {t:"Brightening serum — AU ingredient position", sku:"SER-002", owner:"T. Cole", due:"15 Jul", status:"todo", prio:"high"},
-  {t:"Stability study setup", sku:"SER-002", owner:"T. Cole", due:"22 Jul", status:"doing", prio:"med"},
-  {t:"CPSR — hydrating serum", sku:"SER-003", owner:"T. Cole", due:"28 Jun", status:"done", prio:"med"},
-  {t:"Claims matrix v2 review", sku:"—", owner:"T. Cole", due:"10 Jul", status:"review", prio:"med"},
-  {t:"LED mask — pathway memo", sku:"LED-020", owner:"K. Owens", due:"20 Jul", status:"todo", prio:"high"},
-  {t:"Scalp cap — structure/function review", sku:"LED-022", owner:"K. Owens", due:"25 Jul", status:"todo", prio:"high"},
-  {t:"Sign quality agreement — device mfr", sku:"MRD-001", owner:"A. Marsh", due:"16 Jul", status:"doing", prio:"med"},
-  {t:"UK SCPN notification", sku:"—", owner:"R. Diaz", due:"30 Jul", status:"doing", prio:"low"},
-  {t:"Sensitive 0.3 mm — DFMEA", sku:"MRD-002", owner:"A. Marsh", due:"05 Aug", status:"todo", prio:"med"}
+  {t:"Clinical-accuracy validation pack to lab", sku:"MON-001", owner:"A. Marsh", due:"12 Jul", status:"doing", prio:"high"},
+  {t:"EMC retest \u2014 oximeter", sku:"MON-002", owner:"A. Marsh", due:"18 Jul", status:"review", prio:"high"},
+  {t:"Electrical-safety sign-off \u2014 thermometer", sku:"MON-001", owner:"A. Marsh", due:"02 Jul", status:"done", prio:"med"},
+  {t:"TENS \u2014 reframe arthritis claim", sku:"THR-010", owner:"A. Marsh", due:"15 Jul", status:"todo", prio:"high"},
+  {t:"Skin-contact biocompatibility \u2014 electrodes", sku:"THR-010", owner:"A. Marsh", due:"22 Jul", status:"doing", prio:"med"},
+  {t:"CPSR \u2014 vitamin C day cream", sku:"SKN-041", owner:"T. Cole", due:"28 Jun", status:"done", prio:"med"},
+  {t:"Claims matrix v2 review", sku:"\u2014", owner:"T. Cole", due:"10 Jul", status:"review", prio:"med"},
+  {t:"SPF testing \u2014 moisturiser & lip balm", sku:"SKN-040", owner:"T. Cole", due:"20 Jul", status:"todo", prio:"high"},
+  {t:"Fluoride OTC monograph position (US)", sku:"ORAL-031", owner:"R. Diaz", due:"25 Jul", status:"todo", prio:"high"},
+  {t:"Sign quality agreement \u2014 device OEM", sku:"MON-001", owner:"A. Marsh", due:"16 Jul", status:"doing", prio:"med"},
+  {t:"UK SCPN notification \u2014 cosmetics", sku:"\u2014", owner:"R. Diaz", due:"30 Jul", status:"doing", prio:"low"},
+  {t:"Anti-dandruff shampoo \u2014 claim split by market", sku:"HAIR-050", owner:"T. Cole", due:"05 Aug", status:"todo", prio:"med"}
 ];
 
 var INTEGRATIONS = [
@@ -230,8 +233,14 @@ var INTEGRATIONS = [
 var COMPANY = "Meridian Health";
 function snapshot(){ return JSON.stringify({company:COMPANY, products:PRODUCTS, tasks:TASKS, integrations:INTEGRATIONS, meta:META}); }
 var SEED = snapshot();
-function persist(){ try{ localStorage.setItem("smedtec_studio_demo", snapshot()); }catch(e){} }
-function loadSaved(){ try{ var r=localStorage.getItem("smedtec_studio_demo"); if(r){ var d=JSON.parse(r); if(d.company)COMPANY=d.company; if(d.products)PRODUCTS=d.products; if(d.tasks)TASKS=d.tasks; if(d.integrations)INTEGRATIONS=d.integrations; if(d.meta)META=d.meta; } }catch(e){} }
+var STORE_KEY = "smedtec_studio_demo_v2";
+function persist(){ try{ localStorage.setItem(STORE_KEY, snapshot()); }catch(e){} }
+function loadSaved(){ try{
+  var r=localStorage.getItem(STORE_KEY); if(!r) return;
+  var d=JSON.parse(r);
+  if(d.products && !d.products.every(function(p){ return p && CAT[p.cat] && POSTURE[p.posture] && STAGE[p.stage]; })) return;
+  if(d.company)COMPANY=d.company; if(d.products)PRODUCTS=d.products; if(d.tasks)TASKS=d.tasks; if(d.integrations)INTEGRATIONS=d.integrations; if(d.meta)META=d.meta;
+}catch(e){} }
 function resetDemo(){ try{ var d=JSON.parse(SEED); COMPANY=d.company; PRODUCTS=d.products; TASKS=d.tasks; INTEGRATIONS=d.integrations; META=d.meta; }catch(e){} persist(); }
 loadSaved();
 
@@ -269,23 +278,18 @@ function glyph(cat, size, color){
   size = size || 40; color = color || Q.goldDeep;
   var st = 'stroke="'+color+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
   var inner = '';
-  if (cat === "mech") {
-    inner = '<circle cx="20" cy="20" r="13" '+st+'/>';
-    [-5,0,5].forEach(function(dx){ [-5,0,5].forEach(function(dy){ inner += '<circle cx="'+(20+dx)+'" cy="'+(20+dy)+'" r="1.3" fill="'+color+'"/>'; }); });
-  } else if (cat === "led") {
-    inner = '<path d="M7 15 C12 8, 28 8, 33 15 C34 24, 28 31, 20 32 C12 31, 6 24, 7 15 Z" '+st+'/>';
-    [12,20,28].forEach(function(c){ inner += '<circle cx="'+c+'" cy="18" r="1.4" fill="'+color+'"/>'; });
-    [16,24].forEach(function(c){ inner += '<circle cx="'+c+'" cy="24" r="1.4" fill="'+color+'"/>'; });
-  } else if (cat === "serum") {
+  if (cat === "monitor") {
+    inner = '<rect x="7" y="11" width="26" height="18" rx="4" '+st+'/><path d="M11 20 h4 l2 -5 l3 10 l2 -5 h6" '+st+'/>';
+  } else if (cat === "therapy") {
+    inner = '<rect x="10" y="9" width="20" height="22" rx="5" '+st+'/><path d="M21 13 l-5 8 h5 l-3 7" '+st+'/>';
+  } else if (cat === "skincare") {
     inner = '<path d="M20 6 C24 13, 28 17, 28 23 a8 8 0 0 1 -16 0 C12 17, 16 13, 20 6 Z" '+st+'/><path d="M16 23 a4 4 0 0 0 4 4" '+st+'/>';
-  } else if (cat === "patch") {
-    inner = '<rect x="8" y="8" width="24" height="24" rx="6" '+st+'/>';
-    [14,20,26].forEach(function(a){ [14,20,26].forEach(function(b){ inner += '<circle cx="'+a+'" cy="'+b+'" r="1.2" fill="'+color+'"/>'; }); });
-  } else if (cat === "mist") {
-    inner = '<rect x="14" y="16" width="12" height="16" rx="3" '+st+'/><path d="M18 16 v-3 h4 v3" '+st+'/>';
-    [[30,9],[33,12],[30,14]].forEach(function(p){ inner += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1.1" fill="'+color+'"/>'; });
-  } else if (cat === "filter") {
-    inner = '<path d="M9 11 H31 L23 21 V31 L17 28 V21 Z" '+st+'/><path d="M13 16 H27" '+st+'/>';
+  } else if (cat === "haircare") {
+    inner = '<rect x="14" y="15" width="12" height="17" rx="3" '+st+'/><path d="M17 15 v-4 h6 v4" '+st+'/><path d="M16 22 h8" '+st+'/>';
+  } else if (cat === "oral") {
+    inner = '<rect x="9" y="24" width="22" height="6" rx="3" '+st+'/><path d="M13 24 v-3 M17 24 v-4 M21 24 v-4 M25 24 v-3" '+st+'/><path d="M9 12 h13 a3 3 0 0 1 0 6 H9" '+st+'/>';
+  } else if (cat === "wellbeing") {
+    inner = '<path d="M20 30 C12 24 9 17 15 13 C18.5 11 20 14 20 15 C20 14 21.5 11 25 13 C31 17 28 24 20 30 Z" '+st+'/>';
   } else {
     inner = '<path d="M20 8 L31 20 L20 32 L9 20 Z" '+st+'/>';
   }
@@ -411,7 +415,7 @@ function studio(){
     card('display:flex;gap:28px;align-items:center;background:linear-gradient(120deg, '+Q.surface+', '+Q.surface2+');',
       ring(portfolioReady)+'<div>'+eyebrow('Portfolio readiness')+
       '<div style="font-size:22px;color:'+Q.ink+';font-weight:700;line-height:1.3;max-width:600px;letter-spacing:-.01em;">Product, supplier and compliance operations for the whole range — in one system we build around you and run with you.</div>'+
-      '<div style="color:'+Q.muted+';font-size:13px;margin-top:8px;max-width:600px;">Each product carries its own posture, stage and evidence. The score is held down by the powered light-therapy devices and the delivery-claim exposure on the flagship — not by the cosmetic lines, which are already close to clean.</div></div>')+
+      '<div style="color:'+Q.muted+';font-size:13px;margin-top:8px;max-width:600px;">Each product carries its own posture, stage and evidence. The score is held down by the powered medical devices and the OTC and disease-claim exposures — not by the everyday cosmetics, which are already close to clean.</div></div>')+
     '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:14px;">'+tileHtml+'</div>'+
     integrationsPanel()+
     portfolioMatrix()+
@@ -484,7 +488,7 @@ function projectBoard(){
 
 /* ---- product ---- */
 function product(){
-  var filters = [["all","All"],["mech","Devices"],["led","LED"],["serum","Serums"],["patch","Patches"],["mist","Mist"],["filter","Filters"],["acc","Accessories"]];
+  var filters = [["all","All"],["monitor","Monitors"],["therapy","Therapy"],["oral","Oral care"],["skincare","Skincare"],["haircare","Hair"],["wellbeing","Wellbeing"],["acc","Accessories"]];
   var list = state.filter==="all" ? PRODUCTS : PRODUCTS.filter(function(p){return p.cat===state.filter;});
   var filterHtml = filters.map(function(f){ var k=f[0], l=f[1], on=state.filter===k;
     return '<button data-filter="'+k+'" style="border:1px solid '+(on?Q.gold:Q.hair)+';background:'+(on?Q.gold+'14':Q.surface)+';color:'+(on?Q.goldDeep:Q.muted)+';border-radius:999px;padding:6px 14px;font-size:12.5px;">'+l+'</button>';
@@ -632,8 +636,8 @@ function claimsModule(){
       grid[cid].map(function(v){return '<div style="display:grid;place-items:center;border-top:1px solid '+Q.hair+';">'+cell(v)+'</div>';}).join('');
   });
   var matrix = card('', eyebrow('Per-market matrix')+'<div style="display:grid;grid-template-columns:2.2fr repeat(4, 1fr);margin-top:6px;">'+matrixRows+'</div>'+
-    '<div style="margin-top:12px;font-size:12px;color:'+Q.muted+';border-top:1px dashed '+Q.hair+';padding-top:10px;">Note · Australia flags an ingredient-introduction question for the brightening claim — held against the per-market position until resolved.</div>');
-  return '<div>'+moduleHeader('Claims governance','The compliance line, claim by claim, market by market','Every claim held against the line in each market — nothing goes live without bound evidence. The exposures span the range: delivery and disease claims on the system, and the device-flavoured light-therapy and hair-growth claims.')+
+    '<div style="margin-top:12px;font-size:12px;color:'+Q.muted+';border-top:1px dashed '+Q.hair+';padding-top:10px;">Note · Australia flags the sunscreen (SPF) line as therapeutic and a chemical-introduction question — held against the per-market position until resolved.</div>');
+  return '<div>'+moduleHeader('Claims governance','The compliance line, claim by claim, market by market','Every claim held against the line in each market — nothing goes live without bound evidence. The exposures span the range: disease claims on the therapy device, and the OTC drug claims on the SPF and fluoride lines.')+
     '<div style="display:grid;gap:16px;">'+tableShell(cols,["Claim","Type","Position"],rows)+matrix+'</div></div>';
 }
 function testingModule(){
@@ -745,7 +749,7 @@ function modalView(){
   if(!state.modal) return '';
   var body='', title='', btn='Add';
   if(state.modal==='product'){ title='Add a product';
-    body = field('Product name', inputEl('m_name','e.g. Renewal Serum \u2014 Night'))
+    body = field('Product name', inputEl('m_name','e.g. Vitamin C Day Cream'))
       + field('Category', selectEl('m_cat', Object.keys(CAT).map(function(k){return [k,CAT[k].label];})))
       + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('Stage', selectEl('m_stage', Object.keys(STAGE).map(function(k){return [k,STAGE[k].label];})))+'</div>'
       + '<div style="flex:1;">'+field('Posture', selectEl('m_posture', Object.keys(POSTURE).map(function(k){return [k,POSTURE[k].label];})))+'</div></div>';
@@ -771,8 +775,8 @@ function modalView(){
 }
 function addProduct(){
   var name=val('m_name'); if(!name){ state.modal=null; render(); return; }
-  var cat=val('m_cat')||'serum', id='p'+Date.now();
-  var pfx={mech:'MRD',led:'LED',serum:'SER',patch:'PCH',mist:'MST',filter:'FLT',acc:'ACC'}[cat]||'SKU';
+  var cat=val('m_cat')||'skincare', id='p'+Date.now();
+  var pfx={monitor:'MON',therapy:'THR',skincare:'SKN',haircare:'HAIR',oral:'ORAL',wellbeing:'WEL',acc:'ACC'}[cat]||'SKU';
   var sku=pfx+'-'+(Math.floor(Math.random()*900)+100);
   PRODUCTS.push({id:id,name:name,cat:cat,posture:val('m_posture')||'cosmetic',stage:val('m_stage')||'concept',ready:15,spec:'Added in this demo',note:'Added in this demo session \u2014 in a real build this would carry its full spec, claims and evidence.',markets:['planned','planned','planned','planned'],claims:[],mx:40+Math.floor(Math.random()*25),my:12+Math.floor(Math.random()*18)});
   META[id]={sku:sku,owner:'You'};
@@ -899,7 +903,7 @@ root.addEventListener("click", function(e){
 
   function addProductSilent(name, cat, posture, stage){
     var id = "p"+Date.now()+Math.floor(Math.random()*99);
-    var pfx = {mech:"MRD",led:"LED",serum:"SER",patch:"PCH",mist:"MST",filter:"FLT",acc:"ACC"}[cat] || "SKU";
+    var pfx = {monitor:"MON",therapy:"THR",skincare:"SKN",haircare:"HAIR",oral:"ORAL",wellbeing:"WEL",acc:"ACC"}[cat] || "SKU";
     PRODUCTS.push({id:id,name:name,cat:cat,posture:posture,stage:stage,ready:25,spec:"Added by the assistant",note:"Created by the Studio assistant in this demo session.",markets:["ok","ok","ok","planned"],claims:[],mx:30+Math.floor(Math.random()*40),my:20+Math.floor(Math.random()*28)});
     META[id] = {sku:pfx+"-"+(Math.floor(Math.random()*900)+100), owner:"You"};
     try{ persist(); }catch(e){}
@@ -914,9 +918,9 @@ root.addEventListener("click", function(e){
     after(750, function(){
       t.remove();
       ai("On it. I’ll create a starter portfolio, map markets, connect a tool and draft the first tasks.");
-      after(800,  function(){ addProductSilent("Day Brightening Serum","serum","cosmetic","market"); step("Created SKU · Day Brightening Serum"); });
-      after(1600, function(){ addProductSilent("Night Recovery Serum","serum","cosmetic","market"); step("Created SKU · Night Recovery Serum"); });
-      after(2400, function(){ addProductSilent("Renewal Device","mech","watch","iterate"); step("Created SKU · Renewal Device"); });
+      after(800,  function(){ addProductSilent("Vitamin C Day Cream","skincare","cosmetic","market"); step("Created SKU · Vitamin C Day Cream"); });
+      after(1600, function(){ addProductSilent("Daily SPF 30 Moisturiser","skincare","watch","market"); step("Created SKU · Daily SPF 30 Moisturiser"); });
+      after(2400, function(){ addProductSilent("Digital Ear Thermometer","monitor","device","market"); step("Created SKU · Digital Ear Thermometer"); });
       after(3200, function(){ toggleIntSilent("ClickUp", true); step("Connected ClickUp — tasks now sync"); });
       after(4000, function(){ addTaskSilent("Biocompatibility test pack","You","doing","high"); addTaskSilent("Draft claims matrix","You","todo","med"); step("Drafted 2 tasks on the board"); });
       after(4800, function(){ step("Flagged 1 claim that needs evidence"); });
@@ -934,10 +938,10 @@ root.addEventListener("click", function(e){
     } else if(key==="claims"){
       var t=typing(); after(750,function(){ t.remove();
         ai("I checked every claim against the line in each market. Four need attention:");
-        after(500,function(){ step("“Delivers serums beyond the barrier” — delivery claim"); });
-        after(1000,function(){ step("“Helps fade acne scars” — disease claim"); });
-        after(1500,function(){ step("“Reduces wrinkles via LED” — device claim"); });
-        after(2000,function(){ step("“Stimulates hair regrowth” — structure/function"); });
+        after(500,function(){ step("“Relieves the pain of arthritis” — disease claim"); });
+        after(1000,function(){ step("“Helps prevent tooth decay” — OTC drug claim"); });
+        after(1500,function(){ step("“Protects against UVA/UVB (SPF 30)” — OTC drug claim"); });
+        after(2000,function(){ step("“Treats the cause of dandruff” — disease claim"); });
         after(2500,function(){ ai("I’ve opened the <b>Claims</b> tab and flagged these, so nothing goes live unsubstantiated."); state.view="compliance"; state.tab="claims"; state.product=null; render(); });
       });
     } else if(key==="setup"){ runSetup(); }
