@@ -46,7 +46,7 @@ var Q = {
   porcelain:"#FAFBFC", surface:"#FFFFFF", surface2:"#F3F6FA", ink:"#1A2433",
   muted:"#4D6880", hair:"#E3E9F0", gold:"#00C5A8", goldDeep:"#0A8C7C",
   statGold:"#D98A1F", champagne:"#D9F2EC", green:"#2E3F57", sage:"#00A878",
-  sageFill:"#D8F0E6", amber:"#E9A23B", clay:"#D64545", ink70:"rgba(26,36,51,.70)"
+  sageFill:"#D8F0E6", amber:"#E9A23B", clay:"#D64545", ink70:"rgba(26,36,51,.70)", line2:"#EEF2F7"
 };
 
 var CAT = {
@@ -227,24 +227,32 @@ var INTEGRATIONS = [
   {name:"Jira", flow:"Available", sync:"", on:false}
 ];
 
+var COMPANY = "Meridian Health";
+function snapshot(){ return JSON.stringify({company:COMPANY, products:PRODUCTS, tasks:TASKS, integrations:INTEGRATIONS, meta:META}); }
+var SEED = snapshot();
+function persist(){ try{ localStorage.setItem("smedtec_studio_demo", snapshot()); }catch(e){} }
+function loadSaved(){ try{ var r=localStorage.getItem("smedtec_studio_demo"); if(r){ var d=JSON.parse(r); if(d.company)COMPANY=d.company; if(d.products)PRODUCTS=d.products; if(d.tasks)TASKS=d.tasks; if(d.integrations)INTEGRATIONS=d.integrations; if(d.meta)META=d.meta; } }catch(e){} }
+function resetDemo(){ try{ var d=JSON.parse(SEED); COMPANY=d.company; PRODUCTS=d.products; TASKS=d.tasks; INTEGRATIONS=d.integrations; META=d.meta; }catch(e){} persist(); }
+loadSaved();
+
 /* ---- helpers ---- */
 function riskColor(r){ return r==="ok"?Q.sage:r==="watch"?Q.amber:Q.clay; }
 function riskLabel(r){ return r==="ok"?"Substantiated":r==="watch"?"Watch":"Exposed"; }
 function mktColor(s){ return s==="ok"?Q.sage:s==="watch"?Q.amber:s==="flag"?Q.clay:Q.muted; }
 
 function card(extra, inner){
-  return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:12px;padding:20px;'+(extra||'')+'">'+inner+'</div>';
+  return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:14px;box-shadow:0 1px 2px rgba(26,36,51,.03), 0 14px 32px -26px rgba(26,36,51,.45);padding:22px;'+(extra||'')+'">'+inner+'</div>';
 }
 function eyebrow(t){
-  return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:10px;">'+t+'</div>';
+  return '<div style="display:flex;align-items:center;gap:9px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:12px;"><span style="width:18px;height:1.5px;background:'+Q.gold+';display:inline-block;flex:none;"></span>'+t+'</div>';
 }
 function pill(color, t){
-  return '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.02em;color:'+color+';border:1px solid '+color+'55;background:'+color+'14;padding:2px 8px;border-radius:999px;white-space:nowrap;">'+t+'</span>';
+  return '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;font-weight:500;letter-spacing:.03em;color:'+color+';border:1px solid '+color+'4D;background:'+color+'10;padding:3px 9px;border-radius:999px;white-space:nowrap;">'+t+'</span>';
 }
 function moduleHeader(eb, title, blurb){
-  return '<div style="margin-bottom:16px;">'+eyebrow(eb)+
-    '<div style="font-size:24px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+title+'</div>'+
-    (blurb?'<div style="color:'+Q.muted+';font-size:13px;margin-top:4px;max-width:660px;">'+blurb+'</div>':'')+'</div>';
+  return '<div style="margin-bottom:18px;">'+eyebrow(eb)+
+    '<div style="font-size:23px;color:'+Q.ink+';font-weight:700;letter-spacing:-.018em;line-height:1.2;">'+title+'</div>'+
+    (blurb?'<div style="color:'+Q.muted+';font-size:13px;margin-top:6px;max-width:660px;line-height:1.55;">'+blurb+'</div>':'')+'</div>';
 }
 function ring(pct, size, label){
   size = size || 120; label = label || "READY";
@@ -289,7 +297,7 @@ function productPlate(p, size){
 }
 
 /* ---- state ---- */
-var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{} };
+var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{}, modal:null, tip:true };
 
 /* ---- portfolio matrix ---- */
 function axLbl(pos){
@@ -384,11 +392,11 @@ function studio(){
     {label:"Exposed claims", v:exposed, sub:"delivery & device-flavoured", c:Q.clay, go:"compliance"}
   ];
   var tileHtml = tiles.map(function(t){
-    return '<button class="row-hover" data-nav="'+t.go+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:12px;padding:16px 16px 14px;">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';letter-spacing:.04em;">'+t.label+'</span>'+
-      '<span style="width:7px;height:7px;border-radius:99px;background:'+t.c+';"></span></div>'+
-      '<div style="font-size:30px;color:'+Q.ink+';font-weight:700;margin-top:6px;">'+t.v+'</div>'+
-      '<div style="color:'+Q.muted+';font-size:11.5px;margin-top:2px;">'+t.sub+'</div></button>';
+    return '<button class="prod-card" data-nav="'+t.go+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:14px;padding:16px 17px 15px;box-shadow:0 1px 2px rgba(26,36,51,.03), 0 14px 30px -26px rgba(26,36,51,.4);">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';letter-spacing:.1em;text-transform:uppercase;">'+t.label+'</span>'+
+      '<span style="width:7px;height:7px;border-radius:99px;background:'+t.c+';box-shadow:0 0 0 4px '+t.c+'1A;"></span></div>'+
+      '<div style="font-size:33px;color:'+Q.ink+';font-weight:700;margin-top:8px;letter-spacing:-.02em;line-height:1;">'+t.v+'</div>'+
+      '<div style="color:'+Q.muted+';font-size:11.5px;margin-top:5px;">'+t.sub+'</div></button>';
   }).join('');
   var lifecycle = Object.keys(STAGE).map(function(k){
     var s = STAGE[k], items = PRODUCTS.filter(function(p){return p.stage===k;});
@@ -399,6 +407,7 @@ function studio(){
       '<span style="font-size:11.5px;color:'+Q.muted+';line-height:1.3;">'+names+'</span></div>';
   }).join('');
   return '<div style="display:grid;gap:18px;">'+
+    (state.tip?tipStrip():'')+
     card('display:flex;gap:28px;align-items:center;background:linear-gradient(120deg, '+Q.surface+', '+Q.surface2+');',
       ring(portfolioReady)+'<div>'+eyebrow('Portfolio readiness')+
       '<div style="font-size:22px;color:'+Q.ink+';font-weight:700;line-height:1.3;max-width:600px;letter-spacing:-.01em;">Product, supplier and compliance operations for the whole range — in one system we build around you and run with you.</div>'+
@@ -419,13 +428,13 @@ function integrationsPanel(){
   var tiles = INTEGRATIONS.map(function(i){
     var dot = i.on ? Q.sage : Q.muted;
     var statusText = i.on ? ("Connected · synced "+i.sync) : "Available";
-    return '<div style="border:1px solid '+Q.hair+';border-radius:10px;padding:12px 13px;opacity:'+(i.on?1:0.6)+';">'+
+    return '<button data-toggle-int="'+i.name+'" style="text-align:left;width:100%;background:#fff;border:1px solid '+(i.on?Q.gold+'4D':Q.hair)+';border-radius:11px;padding:12px 13px;opacity:'+(i.on?1:0.7)+';cursor:pointer;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13.5px;color:'+Q.ink+';font-weight:600;">'+i.name+'</span><span style="width:8px;height:8px;border-radius:99px;background:'+dot+';"></span></div>'+
       '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';margin-top:6px;">'+i.flow+'</div>'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+(i.on?Q.goldDeep:Q.muted)+';margin-top:3px;">'+statusText+'</div></div>';
+      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+(i.on?Q.goldDeep:Q.muted)+';margin-top:3px;">'+statusText+'</div></button>';
   }).join('');
   return card('', eyebrow('Integrations · your stack')+
-    '<div style="font-size:12.5px;color:'+Q.muted+';margin:-4px 0 12px;">Two-way sync with the tools your team already uses. Anything with an API can be wired in.</div>'+
+    '<div style="font-size:12.5px;color:'+Q.muted+';margin:-4px 0 12px;">Two-way sync with the tools your team already uses. Anything with an API can be wired in — click a tool to connect or disconnect.</div>'+
     '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:10px;">'+tiles+'</div>');
 }
 
@@ -468,7 +477,7 @@ function projectBoard(){
   return '<div>'+
     '<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">'+
       '<div>'+eyebrow('Project board')+'<div style="font-size:20px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">Workstreams across the range</div></div>'+
-      '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;color:'+Q.goldDeep+';display:inline-flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:99px;background:'+Q.sage+';"></span>Synced with ClickUp · 4m ago</span>'+
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;color:'+Q.goldDeep+';display:inline-flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:99px;background:'+Q.sage+';"></span>Synced with ClickUp · 4m ago</span>'+addBtn('data-add-task','+ Add task')+'</div>'+
     '</div>'+
     '<div class="qcs-board" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;">'+columns+'</div></div>';
 }
@@ -494,7 +503,10 @@ function product(){
       '<div style="display:flex;align-items:center;gap:10px;margin-top:14px;"><div style="flex:1;height:6px;border-radius:99px;background:'+Q.hair+';overflow:hidden;"><div style="width:'+p.ready+'%;height:100%;background:'+Q.gold+';"></div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';">'+p.ready+'%</span></div>'+
       '<div style="display:flex;gap:6px;margin-top:12px;">'+mkts+'</div></button>';
   }).join('');
-  return '<div>'+moduleHeader('Product management','Your range, by SKU','Every SKU as a live record — code, stage, owner, markets and posture. Open a row for the full product passport.')+
+  return '<div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'+
+    moduleHeader('Product management','Your range, by SKU','Every SKU as a live record — code, stage, owner, markets and posture. Open a row for the full product passport.')+
+    addBtn('data-add-product','+ Add product')+'</div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">'+filterHtml+'</div>'+
     skuTable(list)+
     '<div style="margin-top:36px;">'+projectBoard()+'</div>'+
@@ -594,10 +606,10 @@ function supplier(){
 function tableShell(cols, labels, rows){
   var head = labels.map(function(l){return '<div>'+l+'</div>';}).join('');
   return card('padding:0;overflow:hidden;',
-    '<div style="display:grid;grid-template-columns:'+cols+';background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.04em;color:'+Q.muted+';text-transform:uppercase;padding:11px 18px;">'+head+'</div>'+rows);
+    '<div style="display:grid;grid-template-columns:'+cols+';background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;padding:12px 20px;">'+head+'</div>'+rows);
 }
 function trow(cols, cells, last){
-  return '<div class="row-hover" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:13px 18px;border-bottom:'+(last?'none':'1px solid '+Q.hair)+';font-size:13px;color:'+Q.ink+';">'+cells+'</div>';
+  return '<div class="row-hover" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:14px 20px;border-bottom:'+(last?'none':'1px solid '+Q.line2)+';font-size:13px;color:'+Q.ink+';">'+cells+'</div>';
 }
 function evidenceModule(){
   var cols = "2.2fr 1.4fr 1fr 1fr";
@@ -697,35 +709,109 @@ function shell(){
   var headerTitle = selected ? "Product record" : (navItem ? navItem.label : "");
   var nav = NAV.map(function(n){
     var active = (!selected && state.view===n.k) || (selected && n.k==="portfolio");
-    return '<button class="nav-item" data-nav="'+n.k+'" style="text-align:left;border:none;border-radius:8px;padding:10px 12px;background:'+(active?Q.surface2:'transparent')+';color:'+(active?Q.ink:Q.muted)+';font-size:13.5px;font-weight:'+(active?600:400)+';display:flex;align-items:center;gap:10px;white-space:nowrap;">'+
-      '<span style="width:6px;height:6px;border-radius:99px;background:'+(active?Q.gold:'transparent')+';flex:none;"></span>'+n.label+'</button>';
+    return '<button class="nav-item" data-nav="'+n.k+'" style="position:relative;text-align:left;border:none;border-radius:9px;padding:10px 12px 10px 16px;background:'+(active?Q.surface2:'transparent')+';color:'+(active?Q.ink:Q.muted)+';font-size:13.5px;font-weight:'+(active?600:500)+';display:flex;align-items:center;white-space:nowrap;">'+
+      '<span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);width:3px;height:'+(active?16:0)+'px;border-radius:2px;background:'+Q.gold+';"></span>'+n.label+'</button>';
   }).join('');
   return '<div class="qcs-shell" style="display:flex;min-height:100vh;">'+
     '<aside class="qcs-side" style="width:250px;flex:none;background:'+Q.surface+';border-right:1px solid '+Q.hair+';display:flex;flex-direction:column;padding:18px;">'+
-      '<div class="side-brand" style="padding:6px 8px 18px;border-bottom:1px solid '+Q.hair+';margin-bottom:14px;"><div style="font-size:20px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.06em;color:'+Q.goldDeep+';margin-top:4px;">PRODUCT · SUPPLIER · COMPLIANCE</div></div>'+
+      '<div class="side-brand" style="padding:4px 6px 18px;border-bottom:1px solid '+Q.hair+';margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;"><span style="width:26px;height:26px;border-radius:7px;flex:none;border:1.5px solid '+Q.green+';background:radial-gradient(120% 120% at 28% 18%, '+Q.gold+'55, transparent 62%);display:grid;place-items:center;font-size:12px;font-weight:700;color:'+Q.green+';">S</span><div style="font-size:19px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</div></div><div style="font-family:\'JetBrains Mono\',monospace;font-size:8.5px;letter-spacing:.14em;color:'+Q.goldDeep+';margin-top:9px;">PRODUCT · SUPPLIER · COMPLIANCE</div></div>'+
       '<nav style="display:flex;flex-direction:column;gap:2px;">'+nav+'</nav>'+
-      '<div class="side-foot" style="margin-top:auto;padding-top:16px;border-top:1px solid '+Q.hair+';"><div style="font-size:11px;color:'+Q.muted+';line-height:1.5;">A <span style="color:'+Q.ink+';font-weight:600;">SMEDTEC</span> build · in your brand</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:3px;">Illustration · anonymised sample data</div></div>'+
+      '<div class="side-foot" style="margin-top:auto;padding-top:16px;border-top:1px solid '+Q.hair+';"><div style="font-size:11px;color:'+Q.muted+';line-height:1.5;">A <span style="color:'+Q.ink+';font-weight:600;">SMEDTEC</span> build · in your brand</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:3px;">Illustration · anonymised sample data</div><button data-reset-demo style="margin-top:10px;border:none;background:transparent;color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.04em;text-decoration:underline;cursor:pointer;padding:0;">Reset demo data</button></div>'+
     '</aside>'+
     '<main style="flex:1;min-width:0;">'+
-      '<div style="background:'+Q.green+';color:#fff;font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.05em;padding:8px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><span>ILLUSTRATION · A SMEDTEC BUILD FOR A FICTIONAL BRAND</span><span style="color:'+Q.gold+';">Yours is built around your range, in your brand</span></div>'+
-      '<header style="display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid '+Q.hair+';background:'+Q.surface+';">'+
-        '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;">Meridian Health · full range</div><div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+headerTitle+'</div></div>'+
+      '<div style="background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.06em;padding:9px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:99px;background:'+Q.gold+';flex:none;"></span>ILLUSTRATION · A SMEDTEC BUILD FOR A FICTIONAL BRAND</span><span style="color:'+Q.goldDeep+';">Yours is built around your range, in your brand</span></div>'+
+      '<header style="display:flex;justify-content:space-between;align-items:center;padding:18px 28px;border-bottom:1px solid '+Q.hair+';background:'+Q.surface+';box-shadow:0 1px 0 rgba(26,36,51,.03);">'+
+        '<div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;"><span data-rename-company style="cursor:pointer;border-bottom:1px dashed '+Q.muted+'66;">'+COMPANY+'</span> · full range</div><div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+headerTitle+'</div></div>'+
         '<div style="display:flex;align-items:center;gap:18px;"><div style="text-align:right;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';">MARKETS</div><div style="font-size:13px;color:'+Q.ink+';">US · EU · UK · AU</div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';border:1px solid '+Q.gold+'55;background:'+Q.gold+'14;padding:5px 12px;border-radius:999px;">'+PRODUCTS.length+' products</span></div>'+
       '</header>'+
       '<div style="padding:28px;max-width:1180px;">'+content()+'</div>'+
-    '</main></div>';
+    '</main></div>' + modalView();
 }
+
+/* ---- interactive: make-it-yours ---- */
+function val(id){ var el=document.getElementById(id); return el?String(el.value).trim():""; }
+function addBtn(attr, label){ return '<button '+attr+' style="flex:none;border:1px solid '+Q.gold+'66;background:'+Q.gold+'12;color:'+Q.goldDeep+';border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;">'+label+'</button>'; }
+function tipStrip(){
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:'+Q.gold+'0F;border:1px solid '+Q.gold+'3D;border-radius:13px;padding:13px 16px;">'+
+    '<span style="font-size:12.5px;color:'+Q.ink+';line-height:1.45;"><strong style="color:'+Q.goldDeep+';">Make it yours.</strong> Rename the workspace, add a product or a task, connect a tool \u2014 changes are saved in your browser for this demo.</span>'+
+    '<button data-dismiss-tip style="border:none;background:transparent;color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.04em;cursor:pointer;padding:4px 8px;">DISMISS</button></div>';
+}
+function field(label, inner){ return '<label style="display:block;margin-bottom:13px;"><span style="display:block;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:'+Q.muted+';margin-bottom:5px;">'+label+'</span>'+inner+'</label>'; }
+function inputEl(id, ph, v){ return '<input id="'+id+'" value="'+(v||'')+'" placeholder="'+(ph||'')+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;color:'+Q.ink+';background:#fff;" />'; }
+function selectEl(id, opts){ return '<select id="'+id+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;color:'+Q.ink+';background:#fff;">'+opts.map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('')+'</select>'; }
+
+function modalView(){
+  if(!state.modal) return '';
+  var body='', title='', btn='Add';
+  if(state.modal==='product'){ title='Add a product';
+    body = field('Product name', inputEl('m_name','e.g. Renewal Serum \u2014 Night'))
+      + field('Category', selectEl('m_cat', Object.keys(CAT).map(function(k){return [k,CAT[k].label];})))
+      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('Stage', selectEl('m_stage', Object.keys(STAGE).map(function(k){return [k,STAGE[k].label];})))+'</div>'
+      + '<div style="flex:1;">'+field('Posture', selectEl('m_posture', Object.keys(POSTURE).map(function(k){return [k,POSTURE[k].label];})))+'</div></div>';
+  } else if(state.modal==='task'){ title='Add a task';
+    body = field('Task', inputEl('m_title','e.g. Draft claims matrix'))
+      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('SKU (optional)', inputEl('m_sku','e.g. SER-002'))+'</div>'
+      + '<div style="flex:1;">'+field('Owner', inputEl('m_owner','You'))+'</div></div>'
+      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('Due', inputEl('m_due','e.g. 20 Aug'))+'</div>'
+      + '<div style="flex:1;">'+field('Priority', selectEl('m_prio',[['high','High'],['med','Medium'],['low','Low']]))+'</div></div>'
+      + field('Column', selectEl('m_status',[['todo','To do'],['doing','In progress'],['review','In review'],['done','Done']]));
+  } else if(state.modal==='company'){ title='Rename the workspace'; btn='Save';
+    body = field('Company name', inputEl('m_company','', COMPANY));
+  }
+  return '<div id="modalbg" style="position:fixed;inset:0;background:rgba(26,36,51,.45);display:grid;place-items:center;z-index:60;padding:20px;">'+
+    '<div style="background:#fff;border-radius:16px;box-shadow:0 30px 80px -28px rgba(26,36,51,.6);width:100%;max-width:440px;padding:24px;">'+
+      eyebrow('SMEDTEC Studio')+
+      '<div style="font-size:20px;font-weight:700;color:'+Q.ink+';letter-spacing:-.01em;margin-bottom:16px;">'+title+'</div>'+
+      body+
+      '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;">'+
+        '<button data-modal-close style="border:1px solid '+Q.hair+';background:#fff;color:'+Q.muted+';border-radius:9px;padding:9px 16px;font-size:13px;cursor:pointer;">Cancel</button>'+
+        '<button data-modal-save="'+state.modal+'" style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:9px;padding:9px 18px;font-size:13px;cursor:pointer;">'+btn+'</button>'+
+      '</div></div></div>';
+}
+function addProduct(){
+  var name=val('m_name'); if(!name){ state.modal=null; render(); return; }
+  var cat=val('m_cat')||'serum', id='p'+Date.now();
+  var pfx={mech:'MRD',led:'LED',serum:'SER',patch:'PCH',mist:'MST',filter:'FLT',acc:'ACC'}[cat]||'SKU';
+  var sku=pfx+'-'+(Math.floor(Math.random()*900)+100);
+  PRODUCTS.push({id:id,name:name,cat:cat,posture:val('m_posture')||'cosmetic',stage:val('m_stage')||'concept',ready:15,spec:'Added in this demo',note:'Added in this demo session \u2014 in a real build this would carry its full spec, claims and evidence.',markets:['planned','planned','planned','planned'],claims:[],mx:40+Math.floor(Math.random()*25),my:12+Math.floor(Math.random()*18)});
+  META[id]={sku:sku,owner:'You'};
+  state.modal=null; persist(); render();
+}
+function addTask(){
+  var t=val('m_title'); if(!t){ state.modal=null; render(); return; }
+  TASKS.push({t:t,sku:val('m_sku')||'\u2014',owner:val('m_owner')||'You',due:val('m_due')||'\u2014',status:val('m_status')||'todo',prio:val('m_prio')||'med'});
+  state.modal=null; persist(); render();
+}
+function setCompany(){ var n=val('m_company'); if(n) COMPANY=n; state.modal=null; persist(); render(); }
+function toggleInt(name){ INTEGRATIONS.forEach(function(i){ if(i.name===name){ i.on=!i.on; i.sync=i.on?'just now':''; if(i.on&&i.flow==='Available') i.flow=name+' connected'; } }); persist(); render(); }
 
 var root = document.getElementById("root");
 function render(){ root.innerHTML = shell(); }
 
 root.addEventListener("click", function(e){
-  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim]");
+  if (e.target && e.target.id === "modalbg") { state.modal = null; render(); return; }
+  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim],[data-add-product],[data-add-task],[data-toggle-int],[data-rename-company],[data-modal-close],[data-modal-save],[data-reset-demo],[data-dismiss-tip]");
   if (!t) return;
-  if (t.hasAttribute("data-sel-claim")) {
+  if (t.hasAttribute("data-modal-save")) {
+    var k = t.getAttribute("data-modal-save");
+    if (k === "product") addProduct(); else if (k === "task") addTask(); else if (k === "company") setCompany();
+  } else if (t.hasAttribute("data-modal-close")) {
+    state.modal = null; render();
+  } else if (t.hasAttribute("data-add-product")) {
+    state.modal = "product"; render();
+  } else if (t.hasAttribute("data-add-task")) {
+    state.modal = "task"; render();
+  } else if (t.hasAttribute("data-rename-company")) {
+    state.modal = "company"; render();
+  } else if (t.hasAttribute("data-toggle-int")) {
+    toggleInt(t.getAttribute("data-toggle-int"));
+  } else if (t.hasAttribute("data-reset-demo")) {
+    resetDemo(); state.modal = null; render();
+  } else if (t.hasAttribute("data-dismiss-tip")) {
+    state.tip = false; render();
+  } else if (t.hasAttribute("data-sel-claim")) {
     var mid = t.getAttribute("data-map"), cid = t.getAttribute("data-sel-claim");
-    state.sel[mid] = (state.sel[mid] === cid) ? null : cid;
-    render();
+    state.sel[mid] = (state.sel[mid] === cid) ? null : cid; render();
   } else if (t.hasAttribute("data-open-product")) {
     state.product = t.getAttribute("data-open-product"); state.view = "portfolio"; render(); window.scrollTo(0,0);
   } else if (t.hasAttribute("data-back")) {
