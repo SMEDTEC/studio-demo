@@ -25,6 +25,15 @@ body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1A2433; 
 .prod-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(26,36,51,.30); border-color: #BBDFEC; }
 .dot-node { transition: transform .15s ease; }
 .dot-node:hover { transform: translate(-50%,-50%) scale(1.25); }
+.gate-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.gate-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -30px rgba(26,36,51,.45); border-color: #BBDFEC; }
+.wz-chip { transition: border-color .15s ease, background .15s ease; }
+.wz-chip:hover { border-color: #BBDFEC; }
+.wz-spin { width: 34px; height: 34px; border: 3px solid #E3E9F0; border-top-color: #00C5A8; border-radius: 50%; animation: wzspin .8s linear infinite; }
+@keyframes wzspin { to { transform: rotate(360deg); } }
+.wz-step { opacity: 0; transform: translateY(4px); animation: wzrise .5s ease forwards; }
+@keyframes wzrise { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .wz-step { opacity: 1; transform: none; animation: none; } .wz-spin { animation: none; } }
 @media (prefers-reduced-motion: reduce) { .qcs * { transition: none !important; animation: none !important; } }
 @media (max-width: 900px) {
   .qcs-shell { flex-direction: column !important; }
@@ -34,6 +43,8 @@ body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1A2433; 
   .qcs-map { grid-template-columns: 1fr !important; }
   .qcs-two { grid-template-columns: 1fr !important; }
   .qcs-board { grid-template-columns: 1fr 1fr !important; }
+  .qcs-gate { grid-template-columns: 1fr !important; }
+  .wz-grid { grid-template-columns: 1fr !important; }
 }
 </style>
 </head>
@@ -232,17 +243,20 @@ var INTEGRATIONS = [
 ];
 
 var COMPANY = "Meridian Health";
-function snapshot(){ return JSON.stringify({company:COMPANY, products:PRODUCTS, tasks:TASKS, integrations:INTEGRATIONS, meta:META}); }
+var WIZ_DONE = false;
+var FOCUS = [];
+function snapshot(){ return JSON.stringify({company:COMPANY, products:PRODUCTS, tasks:TASKS, integrations:INTEGRATIONS, meta:META, done:WIZ_DONE, focus:FOCUS}); }
 var SEED = snapshot();
-var STORE_KEY = "smedtec_studio_demo_v2";
+var STORE_KEY = "smedtec_studio_demo_v3";
 function persist(){ try{ localStorage.setItem(STORE_KEY, snapshot()); }catch(e){} }
 function loadSaved(){ try{
   var r=localStorage.getItem(STORE_KEY); if(!r) return;
   var d=JSON.parse(r);
   if(d.products && !d.products.every(function(p){ return p && CAT[p.cat] && POSTURE[p.posture] && STAGE[p.stage]; })) return;
   if(d.company)COMPANY=d.company; if(d.products)PRODUCTS=d.products; if(d.tasks)TASKS=d.tasks; if(d.integrations)INTEGRATIONS=d.integrations; if(d.meta)META=d.meta;
+  if(typeof d.done==="boolean")WIZ_DONE=d.done; if(d.focus)FOCUS=d.focus;
 }catch(e){} }
-function resetDemo(){ try{ var d=JSON.parse(SEED); COMPANY=d.company; PRODUCTS=d.products; TASKS=d.tasks; INTEGRATIONS=d.integrations; META=d.meta; }catch(e){} persist(); }
+function resetDemo(){ try{ var d=JSON.parse(SEED); COMPANY=d.company; PRODUCTS=d.products; TASKS=d.tasks; INTEGRATIONS=d.integrations; META=d.meta; }catch(e){} WIZ_DONE=false; FOCUS=[]; persist(); }
 loadSaved();
 
 /* ---- helpers ---- */
@@ -302,7 +316,13 @@ function productPlate(p, size){
 }
 
 /* ---- state ---- */
-var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{}, modal:null, tip:true };
+var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{}, modal:null, tip:true,
+  screen: WIZ_DONE ? "app" : "gate",
+  wiz: { step:0, company:"", types:[], systems:[], issues:[], building:false } };
+
+var PRODUCT_TYPES=[["skincare","Skincare"],["haircare","Hair care"],["oral","Oral care"],["monitor","Health monitors"],["therapy","Therapy devices"],["wellbeing","Wellbeing"],["acc","Accessories"]];
+var SYSTEM_OPTS=[["Slack","Slack"],["ClickUp","ClickUp"],["Monday.com","Monday.com"],["Airtable","Airtable"],["Excel","Excel"],["Other","Something else"]];
+var ISSUE_OPTS=[["claims","Claims exposure"],["supplier","Supplier control"],["evidence","Scattered evidence"],["market","Market access (US/EU/UK/AU)"],["audit","Audit readiness"],["manual","Too many spreadsheets"]];
 
 /* ---- portfolio matrix ---- */
 function axLbl(pos){
@@ -425,7 +445,7 @@ function studio(){
       '<span style="font-size:11.5px;color:'+Q.muted+';line-height:1.3;">'+names+'</span></div>';
   }).join('');
   return '<div style="display:grid;gap:18px;">'+
-    (state.tip?tipStrip():'')+
+    (WIZ_DONE ? builtStrip() : (state.tip?tipStrip():''))+
     card('display:flex;gap:26px;align-items:center;',
       ring(portfolioReady)+'<div>'+eyebrow('Portfolio readiness')+
       '<div style="font-size:19px;color:'+Q.ink+';font-weight:700;line-height:1.35;max-width:620px;letter-spacing:-.012em;">Product, supplier and compliance operations for the whole range — in one system we build around you and run with you.</div>'+
@@ -805,7 +825,142 @@ function setCompany(){ var n=val('m_company'); if(n) COMPANY=n; state.modal=null
 function toggleInt(name){ INTEGRATIONS.forEach(function(i){ if(i.name===name){ i.on=!i.on; i.sync=i.on?'just now':''; if(i.on&&i.flow==='Available') i.flow=name+' connected'; } }); persist(); render(); }
 
 var root = document.getElementById("root");
-function render(){ root.innerHTML = shell(); }
+/* ===== Gate + Setup wizard (build-to-order experience) ===== */
+function gateTopBar(){
+  return '<div style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-bottom:1px solid '+Q.hair+';"><span style="width:26px;height:26px;border-radius:7px;border:1.5px solid '+Q.green+';background:radial-gradient(120% 120% at 28% 18%, '+Q.gold+'55, transparent 62%);display:grid;place-items:center;font-size:12px;font-weight:700;color:'+Q.green+';">S</span><span style="font-size:18px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</span></div>';
+}
+function eyebrowCentered(t){ return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:12px;">'+t+'</div>'; }
+function gateCard(key,title,desc,cta){
+  var icon = key==='sample'
+    ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="4.5" width="18" height="13" rx="2" stroke="'+Q.gold+'" stroke-width="1.6"/><path d="M3 9.5 H21 M8 17.5 v2.5 M16 17.5 v2.5 M7 20 h10" stroke="'+Q.gold+'" stroke-width="1.6" stroke-linecap="round"/></svg>'
+    : '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3 v6 M12 15 v6 M3 12 h6 M15 12 h6" stroke="'+Q.gold+'" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" stroke="'+Q.gold+'" stroke-width="1.6"/></svg>';
+  return '<button class="gate-card" data-gate="'+key+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:16px;padding:26px 24px;box-shadow:0 1px 2px rgba(26,36,51,.03);display:flex;flex-direction:column;gap:14px;min-height:228px;">'+
+    '<span style="width:48px;height:48px;border-radius:12px;background:'+Q.gold+'12;border:1px solid '+Q.gold+'33;display:grid;place-items:center;">'+icon+'</span>'+
+    '<div style="font-size:21px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;">'+title+'</div>'+
+    '<div style="font-size:13px;color:'+Q.muted+';line-height:1.55;flex:1;">'+desc+'</div>'+
+    '<span style="display:inline-flex;align-items:center;gap:8px;color:'+Q.goldDeep+';font-weight:600;font-size:13.5px;">'+cta+' <span style="font-size:16px;">\u2192</span></span>'+
+  '</button>';
+}
+function gateScreen(){
+  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
+    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:44px 22px;">'+
+      '<div style="width:100%;max-width:880px;">'+
+        '<div style="text-align:center;margin-bottom:34px;">'+eyebrowCentered('SMEDTEC Studio · demonstration')+
+          '<div style="font-size:33px;font-weight:700;color:'+Q.ink+';letter-spacing:-.025em;line-height:1.12;">Every Studio is built to order</div>'+
+          '<div style="color:'+Q.muted+';font-size:14px;margin:11px auto 0;max-width:56ch;line-height:1.55;">See a ready-made sample, or build a view from your own company in about a minute. Either way, the real thing is made from scratch around your products and systems.</div>'+
+        '</div>'+
+        '<div class="qcs-gate" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">'+
+          gateCard('sample','See a sample setup','Jump into a fully populated Studio for a fictional brand — posture map, suppliers, claims and all.','Explore the sample')+
+          gateCard('build','Build your own','Answer a few quick questions — your products, your systems, your priorities — and watch a Studio assemble around them.','Build my view')+
+        '</div>'+
+        '<div style="text-align:center;margin-top:26px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.08em;color:'+Q.muted+';">VISUALISATION ONLY · NOTHING HERE IS A LIVE SYSTEM</div>'+
+      '</div>'+
+    '</div></div>';
+}
+function inputElBig(id,ph,v){ return '<input id="'+id+'" value="'+(v||'')+'" placeholder="'+(ph||'')+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:11px;padding:13px 15px;font-family:inherit;font-size:16px;color:'+Q.ink+';background:#fff;" />'; }
+function wizPick(title,desc,key,opts){
+  var sel = state.wiz[key]||[];
+  var chips = opts.map(function(o){ var on = sel.indexOf(o[0])>-1;
+    return '<button class="wz-chip" data-wiz-toggle="'+key+':'+o[0]+'" style="text-align:left;border:1px solid '+(on?Q.gold+'88':Q.hair)+';background:'+(on?Q.gold+'12':Q.surface)+';color:'+Q.ink+';border-radius:11px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;">'+
+      '<span style="width:18px;height:18px;border-radius:6px;border:1.5px solid '+(on?Q.gold:Q.hair)+';background:'+(on?Q.gold:'transparent')+';display:grid;place-items:center;color:#06231f;font-size:11px;flex:none;">'+(on?'\u2713':'')+'</span>'+
+      '<span style="font-size:13.5px;">'+o[1]+'</span></button>';
+  }).join('');
+  return '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">'+title+'</div>'+
+    '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;line-height:1.5;">'+desc+'</div>'+
+    '<div class="wz-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+chips+'</div>';
+}
+function wizSummary(){
+  function row(lbl,arr,opts){ var names=(arr||[]).map(function(k){var f=opts.filter(function(o){return o[0]===k;})[0];return f?f[1]:k;}).join(', ')||'\u2014';
+    return '<div style="display:flex;gap:12px;padding:9px 0;border-top:1px solid '+Q.line2+';"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:'+Q.muted+';width:92px;flex:none;padding-top:2px;">'+lbl+'</span><span style="font-size:13px;color:'+Q.ink+';line-height:1.5;">'+names+'</span></div>'; }
+  return '<div style="border:1px solid '+Q.hair+';border-radius:11px;padding:2px 14px;">'+row('Products',state.wiz.types,PRODUCT_TYPES)+row('Systems',state.wiz.systems,SYSTEM_OPTS)+row('Priorities',state.wiz.issues,ISSUE_OPTS)+'</div>';
+}
+function wizardBuilding(){
+  var steps=["Creating your products","Connecting your systems","Plotting the posture map","Surfacing your priorities","Finishing your Studio"];
+  var lines = steps.map(function(s,i){ return '<div class="wz-step" style="animation-delay:'+(i*0.45)+'s;display:flex;align-items:center;gap:10px;font-size:13.5px;color:'+Q.ink+';margin-bottom:11px;"><span style="width:16px;height:16px;border-radius:99px;background:'+Q.sage+';color:#fff;display:grid;place-items:center;font-size:10px;flex:none;">\u2713</span>'+s+'</div>'; }).join('');
+  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
+    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px;">'+
+      '<div style="width:100%;max-width:460px;text-align:center;">'+
+        '<div class="wz-spin" style="margin:0 auto 22px;"></div>'+
+        '<div style="font-size:20px;font-weight:700;color:'+Q.ink+';letter-spacing:-.01em;margin-bottom:6px;">Building '+(state.wiz.company||'your Studio')+'</div>'+
+        '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:24px;">Assembling your view from your answers.</div>'+
+        '<div style="text-align:left;display:inline-block;">'+lines+'</div>'+
+      '</div>'+
+    '</div></div>';
+}
+function wizardScreen(){
+  if(state.wiz.building) return wizardBuilding();
+  var step = state.wiz.step;
+  var labels = ["Company","Products","Systems","Priorities","Build"];
+  var dots = labels.map(function(s,i){ var on=i<=step;
+    return '<div style="display:flex;align-items:center;gap:8px;"><span style="width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:600;background:'+(i<step?Q.gold:(i===step?Q.gold+'1A':'transparent'))+';color:'+(i<step?'#06231f':(i===step?Q.goldDeep:Q.muted))+';border:1px solid '+(on?Q.gold+'66':Q.hair)+';">'+(i<step?'\u2713':(i+1))+'</span><span style="font-size:11.5px;color:'+(i===step?Q.ink:Q.muted)+';font-weight:'+(i===step?600:400)+';">'+s+'</span></div>';
+  }).join('<span style="flex:1;height:1px;background:'+Q.hair+';margin:0 7px;"></span>');
+  var body, nextLabel="Continue";
+  if(step===0){
+    body = '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">What\u2019s your company called?</div>'+
+      '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;">This becomes the name on your Studio.</div>'+inputElBig('wz_company','e.g. Northwind Health', state.wiz.company);
+  } else if(step===1){ body = wizPick('What do you make?','Pick the categories that apply — your Studio is seeded with example SKUs for each.','types',PRODUCT_TYPES);
+  } else if(step===2){ body = wizPick('Which systems do you use?','Your Studio will show as connected to these. A real build wires into them for real.','systems',SYSTEM_OPTS);
+  } else if(step===3){ body = wizPick('What\u2019s slowing you down?','Pick your priorities — they decide what your Studio puts front and centre.','issues',ISSUE_OPTS);
+  } else {
+    body = '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">Ready to build '+(state.wiz.company||'your Studio')+'</div>'+
+      '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;max-width:52ch;line-height:1.55;">We\u2019ll assemble a Studio from your answers: example products, your systems connected, and your priorities surfaced.</div>'+wizSummary();
+    nextLabel="Build my Studio";
+  }
+  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
+    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px;">'+
+      '<div style="width:100%;max-width:620px;">'+
+        '<div style="display:flex;align-items:center;margin-bottom:26px;">'+dots+'</div>'+
+        card('padding:28px;', body)+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">'+
+          (step>0 ? '<button data-wiz-back style="border:1px solid '+Q.hair+';background:'+Q.surface+';color:'+Q.muted+';border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;">Back</button>'
+                  : '<button data-gate="home" style="border:none;background:transparent;color:'+Q.muted+';font-size:13px;cursor:pointer;">\u2190 Back to start</button>')+
+          (step<4 ? '<button data-wiz-next style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:10px;padding:10px 20px;font-size:13px;cursor:pointer;">'+nextLabel+' \u2192</button>'
+                  : '<button data-wiz-build style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:10px;padding:10px 22px;font-size:13.5px;cursor:pointer;">Build my Studio \u2192</button>')+
+        '</div>'+
+      '</div>'+
+    '</div></div>';
+}
+function builtStrip(){
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:'+Q.gold+'0F;border:1px solid '+Q.gold+'3D;border-radius:13px;padding:13px 16px;">'+
+    '<span style="font-size:12.5px;color:'+Q.ink+';line-height:1.45;"><strong style="color:'+Q.goldDeep+';">Built for '+COMPANY+'.</strong>'+(FOCUS.length?' Focus: '+FOCUS.join(' · ')+'.':'')+' This view came from your answers — a real build is bespoke and wired to your systems.</span>'+
+    '<button data-rebuild style="flex:none;border:1px solid '+Q.gold+'66;background:'+Q.gold+'12;color:'+Q.goldDeep+';border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;">Rebuild</button></div>';
+}
+function buildFromWizard(){
+  var w=state.wiz;
+  COMPANY = (w.company||'').trim() || 'Your Company';
+  var types = (w.types&&w.types.length)?w.types:['skincare','monitor'];
+  var POST={skincare:'cosmetic',haircare:'cosmetic',oral:'watch',monitor:'device',therapy:'device',wellbeing:'watch',acc:'none'};
+  var SAMPLE={skincare:['Daily Moisturiser','Vitamin C Serum'],haircare:['Nourishing Shampoo','Repair Conditioner'],oral:['Whitening Toothpaste','Sonic Toothbrush'],monitor:['Digital Thermometer','Pulse Oximeter'],therapy:['TENS Relief Unit','Heat Therapy Pad'],wellbeing:['Smart Scale','Activity Band'],acc:['Sleep Mask','Travel Case']};
+  var PFX={skincare:'SKN',haircare:'HAIR',oral:'ORAL',monitor:'MON',therapy:'THR',wellbeing:'WEL',acc:'ACC'};
+  PRODUCTS=[]; META={}; var n=1;
+  types.forEach(function(cat){
+    (SAMPLE[cat]||['Product A','Product B']).forEach(function(nm){
+      var id='w'+n, post=POST[cat]||'cosmetic';
+      var ready = post==='device'?(35+Math.floor(Math.random()*25)) : post==='watch'?(56+Math.floor(Math.random()*18)) : post==='none'?(94+Math.floor(Math.random()*5)) : (80+Math.floor(Math.random()*14));
+      var mx = post==='device'?(72+Math.floor(Math.random()*16)) : post==='watch'?(42+Math.floor(Math.random()*14)) : post==='none'?(6+Math.floor(Math.random()*8)) : (14+Math.floor(Math.random()*16));
+      PRODUCTS.push({id:id,name:nm,cat:cat,posture:post,stage:'market',flagship:false,ready:ready,spec:'Example SKU created from your setup',note:'Created from your wizard answers \u2014 a real build would carry its full spec, claims and evidence.',markets:[post==='device'?'watch':'ok','ok','ok',post==='device'?'watch':'ok'],claims:[],mx:mx,my:ready});
+      META[id]={sku:(PFX[cat]||'SKU')+'-'+(100+n),owner:'You'}; n++;
+    });
+  });
+  var fl = PRODUCTS.filter(function(p){return p.posture==='device';})[0] || PRODUCTS[0];
+  if(fl) fl.flagship=true;
+  var sys=w.systems||[];
+  var KNOWN={Slack:'Alerts \u2192 #compliance',ClickUp:'Tasks \u2194 ClickUp','Monday.com':'Boards \u2194 Monday',Airtable:'Records \u2194 Airtable',Excel:'Exports \u2192 Excel'};
+  INTEGRATIONS = Object.keys(KNOWN).map(function(nm){ var on=sys.indexOf(nm)>-1; return {name:nm,flow:KNOWN[nm],sync:on?'just now':'',on:on}; });
+  if(sys.indexOf('Other')>-1) INTEGRATIONS.push({name:'Your tool',flow:'Custom API',sync:'just now',on:true});
+  var IT={claims:'Review the claims matrix',supplier:'Sign supplier quality agreement',evidence:'Bind evidence to every claim',market:'Map market access (US/EU/UK/AU)',audit:'Assemble the audit pack',manual:'Replace the tracking spreadsheets'};
+  TASKS=[]; (w.issues||[]).forEach(function(k,idx){ if(IT[k]) TASKS.push({t:IT[k],sku:'\u2014',owner:'You',due:'TBC',status:idx===0?'doing':'todo',prio:idx===0?'high':'med'}); });
+  if(!TASKS.length) TASKS.push({t:'Set up your first workstream',sku:'\u2014',owner:'You',due:'TBC',status:'todo',prio:'med'});
+  FOCUS = (w.issues||[]).map(function(k){var f=ISSUE_OPTS.filter(function(o){return o[0]===k;})[0];return f?f[1]:k;});
+  WIZ_DONE=true; persist();
+}
+
+function render(){
+  if(state.screen==="gate") root.innerHTML = gateScreen();
+  else if(state.screen==="wizard") root.innerHTML = wizardScreen();
+  else root.innerHTML = shell();
+  var L=document.getElementById("sa-launch"); if(L) L.style.display = (state.screen==="app") ? "flex" : "none";
+}
 
 root.addEventListener("click", function(e){
   if (e.target && e.target.id === "modalbg") { state.modal = null; render(); return; }
@@ -843,6 +998,26 @@ root.addEventListener("click", function(e){
     state.filter = t.getAttribute("data-filter"); render();
   } else if (t.hasAttribute("data-tab")) {
     state.tab = t.getAttribute("data-tab"); render();
+  } else if (t.hasAttribute("data-gate")) {
+    var g = t.getAttribute("data-gate");
+    if (g === "sample") { state.screen = "app"; state.view = "studio"; state.product = null; render(); window.scrollTo(0,0); }
+    else if (g === "build") { state.wiz = { step:0, company:state.wiz.company||"", types:[], systems:[], issues:[], building:false }; state.screen = "wizard"; render(); }
+    else if (g === "home") { state.screen = "gate"; render(); }
+  } else if (t.hasAttribute("data-wiz-next")) {
+    if (state.wiz.step === 0) { var ci = document.getElementById("wz_company"); if (ci) state.wiz.company = ci.value.trim(); }
+    state.wiz.step = Math.min(4, state.wiz.step + 1); render();
+  } else if (t.hasAttribute("data-wiz-back")) {
+    state.wiz.step = Math.max(0, state.wiz.step - 1); render();
+  } else if (t.hasAttribute("data-wiz-toggle")) {
+    var parts = t.getAttribute("data-wiz-toggle").split(":"), key = parts[0], val = parts[1];
+    var arr = state.wiz[key] || (state.wiz[key] = []);
+    var ix = arr.indexOf(val); if (ix > -1) arr.splice(ix,1); else arr.push(val);
+    render();
+  } else if (t.hasAttribute("data-wiz-build")) {
+    state.wiz.building = true; render();
+    setTimeout(function(){ buildFromWizard(); state.wiz.building = false; state.screen = "app"; state.view = "studio"; state.product = null; render(); window.scrollTo(0,0); }, 2600);
+  } else if (t.hasAttribute("data-rebuild")) {
+    WIZ_DONE = false; FOCUS = []; state.wiz = { step:0, company:"", types:[], systems:[], issues:[], building:false }; state.screen = "wizard"; persist(); render();
   }
 });
 
