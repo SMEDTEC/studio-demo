@@ -964,7 +964,7 @@ function render(){
 
 root.addEventListener("click", function(e){
   if (e.target && e.target.id === "modalbg") { state.modal = null; render(); return; }
-  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim],[data-add-product],[data-add-task],[data-toggle-int],[data-rename-company],[data-modal-close],[data-modal-save],[data-reset-demo],[data-dismiss-tip],[data-open-assistant]");
+  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim],[data-add-product],[data-add-task],[data-toggle-int],[data-rename-company],[data-modal-close],[data-modal-save],[data-reset-demo],[data-dismiss-tip],[data-open-assistant],[data-gate],[data-wiz-next],[data-wiz-back],[data-wiz-toggle],[data-wiz-build],[data-rebuild]");
   if (!t) return;
   if (t.hasAttribute("data-modal-save")) {
     var k = t.getAttribute("data-modal-save");
