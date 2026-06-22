@@ -68,6 +68,9 @@
   .ghost-btn{appearance:none; border:1px solid var(--hair); background:#fff; color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:5px 9px; border-radius:6px; cursor:pointer; transition:all .15s}
   .ghost-btn:hover{border-color:var(--teal); color:var(--teal-deep)}
   .ghost-btn.ok{border-color:var(--teal); color:var(--teal-deep); background:#F0FBF9}
+  .tour-cta{appearance:none; border:none; background:var(--teal); color:#06241f; font-family:inherit; font-weight:600; font-size:12.5px; letter-spacing:0; text-transform:none; padding:8px 14px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; box-shadow:0 6px 16px -8px rgba(0,160,137,.7); transition:filter .15s}
+  .tour-cta:hover{filter:brightness(1.05)}
+  .tour-cta svg{display:block}
   .sysbar .live{display:inline-flex; align-items:center; gap:7px; color:var(--teal-deep); font-weight:500}
   .sysbar .live .ld{width:8px;height:8px;border-radius:50%;background:var(--teal); animation:livedot 2s infinite}
   .sysbar .sep{color:#C7D0DA}
@@ -245,7 +248,7 @@
         <span class="sep">·</span><span id="sb-sync">last sync just now</span>
       </div>
       <div class="sb-right">
-        <button class="ghost-btn" id="btn-tour" type="button">Take the tour</button>
+        <button class="tour-cta" id="btn-tour" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M10 8.4l5.2 3.6-5.2 3.6z" fill="currentColor"/></svg>Take the tour</button>
         <button class="ghost-btn" id="btn-share" type="button">Copy share link</button>
       </div>
     </div>
@@ -783,7 +786,7 @@
     card.style.left=cx+"px"; card.style.top=cy+"px";
   }
   function startTour(){ if(state.playing) stopScenario(); tourIdx=0; var o=document.getElementById("tour"); o.classList.add("on"); o.setAttribute("aria-hidden","false"); renderTour(); }
-  function closeTour(){ var o=document.getElementById("tour"); o.classList.remove("on"); o.setAttribute("aria-hidden","true"); tourIdx=-1; tourSeen=true; try{ localStorage.setItem("smedtec_flow_tour","1"); }catch(e){} }
+  function closeTour(){ var o=document.getElementById("tour"); o.classList.remove("on"); o.setAttribute("aria-hidden","true"); tourIdx=-1; tourSeen=true; try{ sessionStorage.setItem("smedtec_flow_tour","1"); }catch(e){} }
   function tourNext(){ var step=TOUR[tourIdx]; if(step.final){ closeTour(); setScenario("report"); persist(); playScenario(); return; } tourIdx++; if(tourIdx>=TOUR.length){ closeTour(); return; } renderTour(); }
   function tourBack(){ if(tourIdx>0){ tourIdx--; renderTour(); } }
   document.getElementById("tour").addEventListener("click", function(e){ var b=e.target.closest("[data-tour]"); if(!b) return; var a=b.getAttribute("data-tour"); if(a==="skip") closeTour(); else if(a==="next") tourNext(); else if(a==="back") tourBack(); });
@@ -796,7 +799,7 @@
   applySaved(); applyEnabled(); applyCompany();
   drawIn(function(){
     countUp(); renderCounts(); startAmbient();
-    var seen=false; try{ seen=!!localStorage.getItem("smedtec_flow_tour"); }catch(e){}
+    var seen=false; try{ seen=!!sessionStorage.getItem("smedtec_flow_tour"); }catch(e){}
     if(!seen && !tourSeen){ setTimeout(function(){ if(tourIdx<0 && !state.playing) startTour(); }, 700); }
   });
   setInterval(tickSync,1000);
