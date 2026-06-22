@@ -1,1159 +1,808 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Compliance Studio — SMEDTEC (demonstration)</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SMEDTEC Studio — Connected Compliance</title>
+<meta name="description" content="See how SMEDTEC Studio wires your tools, suppliers and evidence into one compliance layer that reasons over your evidence but never decides for you." />
+<meta name="theme-color" content="#2E3F57" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232E3F57'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='5'%20fill='%2300C5A8'/%3E%3C/svg%3E" />
+<!-- Social sharing (Open Graph + Twitter). Update the URLs to your final host. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="SMEDTEC" />
+<meta property="og:title" content="SMEDTEC Studio — Connected Compliance" />
+<meta property="og:description" content="An interactive walkthrough: how SMEDTEC Studio connects your tools, suppliers and evidence into one compliance layer that reasons, but leaves every decision to you." />
+<meta property="og:url" content="https://smedtec.github.io/studio-demo/" />
+<meta property="og:image" content="https://smedtec.github.io/studio-demo/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SMEDTEC Studio — Connected Compliance" />
+<meta name="twitter:description" content="How SMEDTEC Studio connects your tools, suppliers and evidence into one compliance layer that reasons, but leaves every decision to you." />
+<meta name="twitter:image" content="https://smedtec.github.io/studio-demo/og.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-* { box-sizing: border-box; }
-html, body { margin: 0; }
-body { font-family: 'DM Sans', sans-serif; background: #FAFBFC; color: #1A2433; min-height: 100vh; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; font-variant-numeric: tabular-nums; }
-.qcs ::selection { background: rgba(0,197,168,.18); }
-.qcs ::-webkit-scrollbar { width: 9px; height: 9px; }
-.qcs ::-webkit-scrollbar-thumb { background: #E3E9F0; border-radius: 9px; }
-.qcs button { font-family: inherit; cursor: pointer; }
-.qcs button:focus-visible, .qcs [tabindex]:focus-visible { outline: 2px solid #00C5A8; outline-offset: 2px; }
-.nav-item { transition: background .15s ease, color .15s ease; }
-.nav-item:hover { background: #F3F6FA; }
-.row-hover { transition: background .15s ease; }
-.row-hover:hover { background: #F3F6FA; }
-.thread { transition: opacity .2s ease, stroke-width .2s ease; }
-.claim-chip { transition: border-color .2s ease, background .2s ease, transform .15s ease; }
-.claim-chip:hover { transform: translateX(2px); }
-.prod-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-.prod-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(26,36,51,.30); border-color: #BBDFEC; }
-.dot-node { transition: transform .15s ease; }
-.dot-node:hover { transform: translate(-50%,-50%) scale(1.25); }
-.gate-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-.gate-card:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -30px rgba(26,36,51,.45); border-color: #BBDFEC; }
-.wz-chip { transition: border-color .15s ease, background .15s ease; }
-.wz-chip:hover { border-color: #BBDFEC; }
-.wz-spin { width: 34px; height: 34px; border: 3px solid #E3E9F0; border-top-color: #00C5A8; border-radius: 50%; animation: wzspin .8s linear infinite; }
-@keyframes wzspin { to { transform: rotate(360deg); } }
-.wz-step { opacity: 0; transform: translateY(4px); animation: wzrise .5s ease forwards; }
-@keyframes wzrise { to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .wz-step { opacity: 1; transform: none; animation: none; } .wz-spin { animation: none; } }
-@media (prefers-reduced-motion: reduce) { .qcs * { transition: none !important; animation: none !important; } }
-@media (max-width: 900px) {
-  .qcs-shell { flex-direction: column !important; }
-  .qcs-side { width: 100% !important; flex-direction: row !important; overflow-x: auto !important; border-right: none !important; border-bottom: 1px solid #E3E9F0 !important; padding: 12px !important; }
-  .qcs-side .side-foot { display: none !important; }
-  .qcs-side .side-brand { display: none !important; }
-  .qcs-map { grid-template-columns: 1fr !important; }
-  .qcs-two { grid-template-columns: 1fr !important; }
-  .qcs-board { grid-template-columns: 1fr 1fr !important; }
-  .qcs-gate { grid-template-columns: 1fr !important; }
-  .wz-grid { grid-template-columns: 1fr !important; }
-}
+  :root{
+    --navy:#2E3F57; --navy-2:#243349; --teal:#00C5A8; --teal-deep:#00A089;
+    --gold:#D98A1F; --warning:#E9A23B; --ink:#1A2433; --muted:#4D6880; --bg:#FAFBFC;
+    --surface:#FFFFFF; --hair:#E4E8EE; --hair-2:#EDF0F4; --soft:#F3F6F9;
+    --shadow:0 1px 2px rgba(26,36,51,.04), 0 8px 24px rgba(26,36,51,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:"DM Sans",system-ui,sans-serif; color:var(--ink); background:var(--bg); -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; line-height:1.6;}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  header.bar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:16px clamp(16px,4vw,40px); border-bottom:1px solid var(--hair); background:var(--surface);}
+  .wordmark{font-weight:700; letter-spacing:.02em; font-size:18px; color:var(--navy)}
+  .wordmark .dot{color:var(--teal)}
+  .bar .desc{font-size:13px; color:var(--muted); max-width:44ch}
+  .bar .right{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:right}
+
+  .controls{display:flex; align-items:flex-end; gap:clamp(16px,3vw,32px); flex-wrap:wrap; padding:18px clamp(16px,4vw,40px) 14px; border-bottom:1px solid var(--hair-2); background:var(--surface);}
+  .ctl-group{display:flex; flex-direction:column; gap:8px; min-width:0}
+  .ctl-label{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+  .chips{display:flex; gap:7px; flex-wrap:wrap}
+  .chip{appearance:none; border:1px solid var(--hair); background:var(--surface); color:var(--ink); font-family:inherit; font-size:12.5px; padding:7px 12px; border-radius:999px; cursor:pointer; transition:border-color .15s, background .15s, color .15s;}
+  .chip:hover{border-color:#C9D2DD}
+  .chip[aria-pressed="true"]{background:var(--navy); border-color:var(--navy); color:#fff}
+  .chip:focus-visible, .play:focus-visible, .stack-toggle:focus-visible, .name-input:focus-visible, .node:focus-visible, .decide-btn:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+  .play{appearance:none; border:none; background:var(--teal); color:#06241f; font-family:inherit; font-weight:600; font-size:13.5px; padding:9px 18px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:filter .15s, background .15s;}
+  .play:hover{filter:brightness(1.04)}
+  .play .tri{width:0;height:0;border-left:8px solid currentColor;border-top:5px solid transparent;border-bottom:5px solid transparent}
+  .play.is-stop{background:var(--soft); color:var(--ink); border:1px solid var(--hair)}
+  .play.is-stop .tri{border:none; width:9px; height:9px; background:currentColor}
+  .name-input{font-family:inherit; font-size:13px; padding:8px 11px; border:1px solid var(--hair); border-radius:8px; width:170px; color:var(--ink); background:var(--surface);}
+  .stack{display:flex; gap:7px; flex-wrap:wrap}
+  .stack-toggle{appearance:none; border:1px dashed var(--hair); background:var(--surface); color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:11px; letter-spacing:.04em; padding:6px 10px; border-radius:7px; cursor:pointer; transition:all .15s;}
+  .stack-toggle[aria-pressed="true"]{border-style:solid; border-color:var(--teal); color:var(--teal-deep); background:#F0FBF9}
+
+  .work{display:grid; grid-template-columns:1fr 340px; gap:0; align-items:stretch}
+  .canvas-wrap{padding:clamp(12px,2.5vw,24px) clamp(14px,2.5vw,28px); min-width:0; overflow-x:auto}
+
+  .sysbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:2px 2px 14px; font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted)}
+  .sb-left{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .sb-right{display:flex; align-items:center; gap:8px}
+  .ghost-btn{appearance:none; border:1px solid var(--hair); background:#fff; color:var(--muted); font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:5px 9px; border-radius:6px; cursor:pointer; transition:all .15s}
+  .ghost-btn:hover{border-color:var(--teal); color:var(--teal-deep)}
+  .ghost-btn.ok{border-color:var(--teal); color:var(--teal-deep); background:#F0FBF9}
+  .sysbar .live{display:inline-flex; align-items:center; gap:7px; color:var(--teal-deep); font-weight:500}
+  .sysbar .live .ld{width:8px;height:8px;border-radius:50%;background:var(--teal); animation:livedot 2s infinite}
+  .sysbar .sep{color:#C7D0DA}
+  @keyframes livedot{0%{box-shadow:0 0 0 0 rgba(0,197,168,.45)}70%{box-shadow:0 0 0 7px rgba(0,197,168,0)}100%{box-shadow:0 0 0 0 rgba(0,197,168,0)}}
+
+  .stage{position:relative; width:100%; min-width:760px; aspect-ratio:1000/600; background:radial-gradient(120% 90% at 50% 0%, #fff 0%, var(--bg) 70%);}
+  .stage svg.edges{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+  .edge{fill:none; stroke:#D4DBE4; stroke-width:1.4; transition:stroke .25s, stroke-width .25s; stroke-linecap:round}
+  .edge.off{display:none}
+  .edge.active{stroke:var(--teal); stroke-width:2.2}
+  .pulse{fill:var(--teal); filter:drop-shadow(0 0 5px rgba(0,197,168,.6)); opacity:0}
+  .mote{fill:#7FD8C9; opacity:0}
+
+  .node{position:absolute; transform:translate(-50%,-50%); width:158px; min-height:62px; background:var(--surface); border:1px solid var(--hair); border-radius:12px; padding:11px 13px; box-shadow:var(--shadow); cursor:pointer; text-align:left; font-family:inherit; transition:border-color .2s, box-shadow .2s, transform .2s, opacity .2s;}
+  .node:hover{border-color:#C2CCD8; transform:translate(-50%,-50%) translateY(-1px)}
+  .node.dim{opacity:.34; filter:grayscale(.5)}
+  .node.active{border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,197,168,.18), var(--shadow)}
+  .node .n-top{display:flex; align-items:center; gap:8px}
+  .node .glyph{width:22px; height:22px; border-radius:6px; flex:none; display:grid; place-items:center; font-family:"JetBrains Mono",monospace; font-size:10px; font-weight:500; color:#fff; background:var(--navy);}
+  .node.out .glyph{background:var(--teal-deep)}
+  .node .n-name{font-weight:600; font-size:13.5px; line-height:1.2}
+  .node .n-role{font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.35}
+  .node .stat-tag{position:absolute; top:-9px; right:10px; font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:#fff; background:var(--gold); padding:2px 6px; border-radius:5px;}
+  .conn-dot{position:absolute; top:50%; width:8px; height:8px; border-radius:50%; background:var(--teal); transform:translateY(-50%); animation:conn 2.4s ease-in-out infinite}
+  .node.in .conn-dot{right:-4px}
+  .node.out .conn-dot{left:-4px}
+  .node.dim .conn-dot{background:#C2CCD8; animation:none; opacity:.5}
+  @keyframes conn{0%,100%{opacity:.4; transform:translateY(-50%) scale(.8)}50%{opacity:1; transform:translateY(-50%) scale(1.15)}}
+  .col-label{position:absolute; transform:translateX(-50%); font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#A7B4C2}
+
+  .hub{position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:256px; background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%); border-radius:16px; padding:16px 16px 14px; color:#fff; box-shadow:0 10px 30px rgba(46,63,87,.28); border:1px solid rgba(255,255,255,.06);}
+  .hub::before{content:""; position:absolute; inset:-1px; border-radius:16px; background:radial-gradient(62% 52% at 50% 28%, rgba(0,197,168,.14), transparent 70%); opacity:.3; animation:corebreath 4.6s ease-in-out infinite; pointer-events:none}
+  @keyframes corebreath{0%,100%{opacity:.22}50%{opacity:.5}}
+  .hub-ripple{position:absolute; left:50%; top:42%; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--teal); transform:translate(-50%,-50%) scale(.4); opacity:0; pointer-events:none}
+  .hub-ripple.go{animation:ripple 900ms ease-out}
+  @keyframes ripple{0%{opacity:.5; transform:translate(-50%,-50%) scale(.4)}100%{opacity:0; transform:translate(-50%,-50%) scale(3.6)}}
+  .hub .h-eyebrow{position:relative; font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:#9FE7DB}
+  .hub .h-title{position:relative; font-weight:700; font-size:16px; margin-top:5px; letter-spacing:-.01em}
+  .hub .h-sub{position:relative; font-size:11.5px; color:#B9C6D6; margin-top:3px; min-height:16px}
+  .facets{position:relative; display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:13px}
+  .facet{display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:9px; padding:8px 9px; transition:background .25s, border-color .25s, box-shadow .25s, transform .25s;}
+  .facet .f-k{flex-basis:100%; font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.1em; color:#7FD8C9; text-transform:uppercase}
+  .facet .f-name{font-size:11.5px; font-weight:500; flex:1}
+  .facet .f-count{font-family:"JetBrains Mono",monospace; font-size:13px; font-weight:600; color:#fff}
+  .facet .f-count .flag{color:var(--warning); font-size:9px; margin-left:3px}
+  .facet.glow{background:rgba(0,197,168,.18); border-color:var(--teal); box-shadow:0 0 0 2px rgba(0,197,168,.25)}
+  .facet.bump{transform:scale(1.04)}
+  .ai-bar{position:relative; margin-top:12px; border-top:1px solid rgba(255,255,255,.1); padding-top:10px; font-size:10.8px; color:#C2CEDC; display:flex; gap:8px; align-items:center; line-height:1.35}
+  .ai-bar .k{font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:#7FD8C9; border:1px solid rgba(127,216,201,.4); border-radius:4px; padding:2px 6px; flex:none}
+
+  .rail{border-left:1px solid var(--hair); background:var(--surface); padding:22px 20px; display:flex; flex-direction:column; min-height:100%}
+  .rail h2{font-size:13px; font-family:"JetBrains Mono",monospace; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:0 0 4px; display:flex; align-items:center; gap:8px}
+  .rail h2 .pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--teal); animation:conn 2s ease-in-out infinite}
+  .ticker{margin-top:14px; display:flex; flex-direction:column; gap:11px; flex:1; max-height:62vh; overflow-y:auto}
+  .tick{display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(4px); animation:tickin .35s ease forwards;}
+  @keyframes tickin{to{opacity:1; transform:none}}
+  .tick .dot{margin-top:6px; width:7px; height:7px; border-radius:50%; background:var(--teal); flex:none}
+  .tick .num{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--muted); margin-top:1px; flex:none; width:18px}
+  .tick.card-tick .card-slot{flex:1; min-width:0}
+  .tick.feed .lt{font-family:"JetBrains Mono",monospace; font-size:9.5px; color:#A7B4C2; width:auto; margin-top:2px}
+  .tick.feed .ft{color:#52677e; font-size:12.5px}
+  .rail .empty{color:var(--muted); font-size:13px; line-height:1.55; margin-top:14px}
+  .rail .empty strong{color:var(--ink); font-weight:600}
+  .feed-hint{margin-top:14px; font-size:11.5px; color:#9aa8b8; line-height:1.5}
+
+  .ai-card{border:1px solid #CFEEE8; background:#F4FBFA; border-left:3px solid var(--teal); border-radius:10px; padding:11px 12px}
+  .ai-card .card-head{display:flex; align-items:center; gap:8px; font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal-deep)}
+  .ai-mark{width:18px; height:18px; border-radius:5px; background:var(--teal); color:#06241f; font-weight:600; font-size:9px; display:grid; place-items:center; font-family:"JetBrains Mono",monospace; flex:none}
+  .reason-list{margin:9px 0 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px}
+  .reason-list li{font-size:12.5px; color:var(--ink); padding-left:16px; position:relative; line-height:1.4; opacity:0; animation:tickin .3s ease forwards}
+  .reason-list li:before{content:"\2192"; position:absolute; left:0; color:var(--teal-deep); font-family:"JetBrains Mono",monospace; font-size:11px}
+  .recommend{margin-top:10px; font-size:12.5px; line-height:1.45}
+  .recommend .rk{display:block; font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:2px}
+  .decide-row{display:flex; align-items:center; gap:8px; margin-top:11px; flex-wrap:wrap}
+  .decide-row .dk{font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+  .decide-btn{font-family:inherit; font-size:12px; padding:5px 12px; border-radius:7px; border:1px solid var(--hair); background:#fff; color:var(--ink); cursor:pointer; transition:filter .15s, background .15s}
+  .decide-btn:hover{border-color:#C9D2DD}
+  .decide-btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .decided-stamp{font-size:12px; color:var(--teal-deep); font-weight:600}
+  .decided-stamp.review{color:var(--muted)}
+
+  .action-card{border:1px solid var(--hair); border-radius:10px; background:#fff; padding:11px 12px; box-shadow:var(--shadow)}
+  .action-card .card-head{display:flex; justify-content:space-between; align-items:center; gap:8px; font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--navy)}
+  .action-card .a-title{font-weight:600; font-size:13.5px; margin-top:4px; line-height:1.3}
+  .map-row{margin-top:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+  .map-k{font-family:"JetBrains Mono",monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-right:2px}
+  .prod-chip{font-size:11.5px; background:var(--soft); border:1px solid var(--hair); border-radius:6px; padding:3px 8px; color:var(--ink)}
+  .prod-chip .sku{font-family:"JetBrains Mono",monospace; font-size:10px; color:var(--muted); margin-left:6px}
+  .a-meta{margin-top:9px; font-size:11.5px; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap}
+  .a-meta b{color:var(--ink); font-weight:500}
+  .status-badge{font-family:"JetBrains Mono",monospace; font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 7px; border-radius:5px; border:1px solid; white-space:nowrap}
+  .status-badge.is-proposed{color:#9a6a14; border-color:#EAD3A8; background:#FBF3E6}
+  .status-badge.is-approved{color:var(--teal-deep); border-color:#CFEEE8; background:#F0FBF9}
+  .status-badge.is-review{color:var(--muted); border-color:var(--hair); background:var(--soft)}
+
+  .note{padding:14px clamp(16px,4vw,40px); border-top:1px solid var(--hair); background:var(--surface); display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .note .pill{font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--navy); border:1px solid var(--hair); border-radius:6px; padding:4px 8px}
+  .note p{margin:0; font-size:12.5px; color:var(--muted); max-width:70ch}
+
+  /* Two-way view switcher — shared look across Flow and Studio */
+  .view-switch{display:inline-flex; gap:3px; padding:3px; border:1px solid var(--hair); border-radius:999px; background:var(--soft);}
+  .view-switch .vs-seg{font-family:inherit; font-size:12.5px; font-weight:600; line-height:1; padding:8px 14px; border-radius:999px; color:var(--muted); text-decoration:none; white-space:nowrap; transition:background .15s, color .15s;}
+  .view-switch .vs-seg.vs-on{background:var(--navy); color:#fff;}
+  .view-switch a.vs-seg:hover{color:var(--ink); background:var(--surface);}
+  .view-switch a.vs-seg:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+
+  .tour-overlay{position:fixed; inset:0; z-index:60; display:none}
+  .tour-overlay.on{display:block}
+  .tour-spot{position:absolute; border-radius:13px; box-shadow:0 0 0 9999px rgba(20,28,40,.58); border:2px solid var(--teal); transition:all .35s ease; pointer-events:none}
+  .tour-spot.center{box-shadow:0 0 0 9999px rgba(20,28,40,.62); border:none}
+  .tour-card{position:absolute; z-index:61; width:300px; max-width:88vw; background:#fff; border:1px solid var(--hair); border-radius:12px; padding:16px 16px 14px; box-shadow:0 18px 50px rgba(26,36,51,.28)}
+  .tour-card .tc-eyebrow{font-family:"JetBrains Mono",monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--teal-deep)}
+  .tour-card h3{margin:7px 0 6px; font-size:15.5px; color:var(--ink); letter-spacing:-.01em}
+  .tour-card p{margin:0; font-size:13px; color:var(--muted); line-height:1.5}
+  .tour-card .tc-foot{display:flex; align-items:center; justify-content:space-between; margin-top:14px; gap:10px}
+  .tc-steps{font-family:"JetBrains Mono",monospace; font-size:11px; color:#A7B4C2}
+  .tc-btns{display:flex; gap:8px}
+  .tc-btn{appearance:none; font-family:inherit; font-size:12.5px; padding:6px 13px; border-radius:7px; border:1px solid var(--hair); background:#fff; color:var(--ink); cursor:pointer; transition:all .15s}
+  .tc-btn:hover{border-color:#C9D2DD}
+  .tc-btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .tc-skip{position:absolute; top:13px; right:14px; appearance:none; border:none; background:none; color:#A7B4C2; font-family:"JetBrains Mono",monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; cursor:pointer}
+  .tc-skip:hover{color:var(--muted)}
+  .tc-btn:focus-visible, .tc-skip:focus-visible, .ghost-btn:focus-visible{outline:2px solid var(--teal); outline-offset:2px}
+  @media (max-width:900px){
+    .work{grid-template-columns:1fr}
+    .rail{border-left:none; border-top:1px solid var(--hair)}
+    .ticker{max-height:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pulse,.mote{display:none}
+    .tick,.reason-list li{animation:none; opacity:1; transform:none}
+    .node,.edge,.facet{transition:none}
+    .conn-dot,.hub::before,.sysbar .live .ld,.rail h2 .pulse-dot{animation:none}
+    .tour-spot{transition:none}
+  }
 </style>
 </head>
-<body class="qcs">
-<div id="root"></div>
+<body>
+<header class="bar">
+  <div>
+    <div class="wordmark">SMED<span class="dot">·</span>TEC</div>
+    <div class="desc">Connected Compliance — your tools, your suppliers and your evidence, wired into one live layer that reasons but never decides for you.</div>
+  </div>
+  <nav class="view-switch" aria-label="Choose view">
+    <span class="vs-seg vs-on" aria-current="page">How it works</span>
+    <a class="vs-seg" href="studio.html">What you get</a>
+  </nav>
+</header>
+
+<section class="controls" aria-label="Controls">
+  <div class="ctl-group">
+    <span class="ctl-label">Run a flow</span>
+    <div class="chips" id="scenarios" role="group" aria-label="Choose a flow"></div>
+  </div>
+  <div class="ctl-group">
+    <span class="ctl-label">&nbsp;</span>
+    <button class="play" id="play"><span class="tri"></span><span id="play-label">Play</span></button>
+  </div>
+  <div class="ctl-group" style="flex:1">
+    <span class="ctl-label">Your stack — switch tools on or off</span>
+    <div class="stack" id="stack"></div>
+  </div>
+  <div class="ctl-group">
+    <span class="ctl-label">Connected for</span>
+    <input class="name-input" id="company" type="text" placeholder="Your company" maxlength="28" aria-label="Company name" />
+  </div>
+</section>
+
+<div class="work">
+  <div class="canvas-wrap">
+    <div class="sysbar">
+      <div class="sb-left">
+        <span class="live"><span class="ld"></span>Live</span>
+        <span class="sep">·</span><span id="sb-monitor">monitoring 14 products across 4 markets</span>
+        <span class="sep">·</span><span id="sb-sync">last sync just now</span>
+      </div>
+      <div class="sb-right">
+        <button class="ghost-btn" id="btn-tour" type="button">Take the tour</button>
+        <button class="ghost-btn" id="btn-share" type="button">Copy share link</button>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <svg class="edges" id="edges" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="col-label" style="left:15%; top:2%">Inputs</div>
+      <div class="col-label" style="left:85%; top:2%">Where work lands</div>
+      <div class="hub" id="hub">
+        <span class="hub-ripple" id="hub-ripple"></span>
+        <div class="h-eyebrow">Your compliance layer</div>
+        <div class="h-title">SMEDTEC Studio</div>
+        <div class="h-sub" id="hub-sub">Owned by you. Wired to the tools below.</div>
+        <div class="facets">
+          <div class="facet" id="f-products"><span class="f-k">01</span><span class="f-name">Products</span><span class="f-count" data-final="14">0</span></div>
+          <div class="facet" id="f-claims"><span class="f-k">02</span><span class="f-name">Claims</span><span class="f-count" data-final="23" data-flag="2">0</span></div>
+          <div class="facet" id="f-suppliers"><span class="f-k">03</span><span class="f-name">Suppliers</span><span class="f-count" data-final="3">0</span></div>
+          <div class="facet" id="f-tasks"><span class="f-k">04</span><span class="f-name">Tasks</span><span class="f-count" data-final="5">0</span></div>
+        </div>
+        <div class="ai-bar"><span class="k">AI</span><span>Reasons over your evidence and drafts the action. Every decision stays with you.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="rail" aria-live="polite">
+    <h2 id="rail-title"><span class="pulse-dot"></span>Live activity</h2>
+    <div id="rail-body"></div>
+  </aside>
+</div>
+
+<div class="tour-overlay" id="tour" aria-hidden="true">
+  <div class="tour-spot" id="tour-spot"></div>
+  <div class="tour-card" id="tour-card" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="note">
+  <span class="pill">Visualisation only</span>
+  <span class="pill">AI reasons · you decide</span>
+  <p>A real build wires to your actual tools and suppliers — nothing here is templated. The AI surfaces what's affected and drafts each action; approving it is always yours.</p>
+  <a class="play" href="studio.html" style="text-decoration:none">See what your Studio would look like<span class="tri"></span></a>
+</div>
+
 <script>
-"use strict";
-
-/* ---- SMEDTEC consultancy tokens (teal = working accent; gold = statutory only) ---- */
-var Q = {
-  porcelain:"#FAFBFC", surface:"#FFFFFF", surface2:"#F3F6FA", ink:"#1A2433",
-  muted:"#4D6880", hair:"#E3E9F0", gold:"#00C5A8", goldDeep:"#0A8C7C",
-  statGold:"#D98A1F", champagne:"#D9F2EC", green:"#2E3F57", sage:"#00A878",
-  sageFill:"#D8F0E6", amber:"#E9A23B", clay:"#D64545", ink70:"rgba(26,36,51,.70)", line2:"#EEF2F7"
-};
-
-var CAT = {
-  skincare:{label:"Skincare"}, haircare:{label:"Hair care"}, oral:{label:"Oral care"},
-  monitor:{label:"Health monitor"}, therapy:{label:"Therapy device"}, wellbeing:{label:"Wellbeing"}, acc:{label:"Accessory"}
-};
-var POSTURE = {
-  cosmetic:{c:Q.sage,label:"Cosmetic"}, watch:{c:Q.amber,label:"Cosmetic / OTC \u00b7 watch"},
-  device:{c:Q.green,label:"Device pathway"}, none:{c:Q.muted,label:"Unregulated"}
-};
-var STAGE = {
-  concept:{label:"Concept",c:Q.muted}, dev:{label:"In development",c:Q.amber},
-  prelaunch:{label:"Pre-launch",c:Q.gold}, market:{label:"In market",c:Q.sage}, iterate:{label:"Iterating",c:Q.clay}
-};
-
-/* ---- anonymised fictional portfolio: "Meridian Health" (consumer health & beauty) ---- */
-var PRODUCTS = [
-  {id:"tens", name:"ReliefTENS Pain Therapy Unit", cat:"therapy", posture:"device", stage:"iterate", flagship:true, ready:34,
-   spec:"Dual-channel TENS \u00b7 electrode pads \u00b7 15 modes",
-   note:"Flagship. The \u201Crelieves arthritis pain\u201D line is the live exposure \u2014 a disease claim. Anchor marketing on symptomatic relief until the evidence supports more.",
-   markets:["flag","watch","watch","watch"], claims:["c7","c8"], mx:88, my:30},
-  {id:"therm", name:"Digital Ear Thermometer", cat:"monitor", posture:"device", stage:"market", ready:58,
-   spec:"Infrared tympanic thermometer \u00b7 1-second read",
-   note:"Medical device \u2014 clinical-accuracy and electrical-safety evidence carry the posture; the accuracy claim must be bound.",
-   markets:["ok","ok","ok","watch"], claims:["c4"], mx:72, my:60},
-  {id:"oxi", name:"Fingertip Pulse Oximeter", cat:"monitor", posture:"device", stage:"market", ready:50,
-   spec:"SpO2 & pulse rate \u00b7 OLED display",
-   note:"Measures a physiological parameter \u2014 device pathway; SpO2 accuracy is the claim to substantiate.",
-   markets:["ok","ok","ok","watch"], claims:["c5"], mx:78, my:52},
-  {id:"bp", name:"Upper-Arm Blood Pressure Monitor", cat:"monitor", posture:"device", stage:"prelaunch", ready:40,
-   spec:"Oscillometric \u00b7 cuff 22\u201342 cm \u00b7 app sync",
-   note:"Pre-launch is the moment to lock the validation set and the measurement claim before any marketing goes out.",
-   markets:["watch","watch","planned","watch"], claims:["c6"], mx:80, my:42},
-  {id:"scale", name:"Smart Body-Composition Scale", cat:"wellbeing", posture:"watch", stage:"market", ready:64,
-   spec:"Weight + bioimpedance estimates \u00b7 app",
-   note:"Bioimpedance body-fat outputs sit between wellness and medical depending on the claim \u2014 keep them indicative.",
-   markets:["ok","ok","ok","watch"], claims:["c9"], mx:55, my:62},
-  {id:"brush", name:"SonicCare Electric Toothbrush", cat:"oral", posture:"cosmetic", stage:"market", ready:82,
-   spec:"Sonic brush \u00b7 pressure sensor \u00b7 2-minute timer",
-   note:"General consumer oral-care device \u2014 clean unless plaque or gingivitis claims are added.",
-   markets:["ok","ok","ok","ok"], claims:["c1"], mx:34, my:82},
-  {id:"paste", name:"Whitening Fluoride Toothpaste", cat:"oral", posture:"watch", stage:"market", ready:70,
-   spec:"Fluoride 1450 ppm \u00b7 gentle whitening",
-   note:"Fluoride is an OTC anti-cavity active in the US (monograph); whitening is cosmetic \u2014 split the claims by market.",
-   markets:["watch","ok","ok","ok"], claims:["c1","c10"], mx:42, my:68},
-  {id:"spf", name:"Daily Defence Moisturiser SPF 30", cat:"skincare", posture:"watch", stage:"market", ready:66,
-   spec:"Daily facial moisturiser \u00b7 broad-spectrum SPF 30",
-   note:"SPF is an OTC sunscreen drug in the US and TGA-regulated in AU \u2014 the sun-protection claim drives the posture, not the moisturiser base.",
-   markets:["watch","ok","ok","flag"], claims:["c2","c11"], mx:46, my:64},
-  {id:"vitc", name:"Vitamin C Day Cream", cat:"skincare", posture:"cosmetic", stage:"market", ready:84,
-   spec:"Antioxidant day cream \u00b7 conventional application",
-   note:"Conventional cosmetic \u2014 keep claims appearance-based and the posture stays clean.",
-   markets:["ok","ok","ok","ok"], claims:["c2","c3"], mx:18, my:84},
-  {id:"lotion", name:"Hand & Body Lotion", cat:"skincare", posture:"cosmetic", stage:"market", ready:90,
-   spec:"Everyday moisturising lotion",
-   note:"Conventional cosmetic \u2014 the cleanest posture in the range.",
-   markets:["ok","ok","ok","ok"], claims:["c2"], mx:12, my:90},
-  {id:"shampoo", name:"Anti-Dandruff Shampoo", cat:"haircare", posture:"watch", stage:"market", ready:60,
-   spec:"Zinc pyrithione \u00b7 weekly use",
-   note:"Anti-dandruff is a medicated/OTC claim in some markets \u2014 \u201Ctreats dandruff\u201D tips it over the line; \u201Creduces flakes\u201D is softer.",
-   markets:["watch","watch","ok","watch"], claims:["c12","c13"], mx:48, my:58},
-  {id:"lipbalm", name:"Lip Balm SPF 15", cat:"skincare", posture:"watch", stage:"market", ready:72,
-   spec:"Moisturising lip balm \u00b7 SPF 15",
-   note:"Same SPF/OTC question as the moisturiser, at lower exposure.",
-   markets:["watch","ok","ok","watch"], claims:["c2","c11"], mx:40, my:70},
-  {id:"mask", name:"Weighted Sleep Mask", cat:"acc", posture:"none", stage:"market", ready:96,
-   spec:"Mulberry silk \u00b7 light-blocking accessory",
-   note:"Unregulated accessory.",
-   markets:["ok","ok","ok","ok"], claims:[], mx:5, my:96},
-  {id:"band", name:"Wellbeing Activity Band", cat:"wellbeing", posture:"watch", stage:"concept", ready:10,
-   spec:"Concept \u00b7 wearable activity & sleep tracker",
-   note:"Concept. If it edges into physiological measurement it gains a device posture \u2014 set the claim scope before any spend.",
-   markets:["planned","planned","planned","planned"], claims:["c9"], mx:58, my:16}
-];
-
-var CLAIMS = [
-  {id:"c1", text:"Removes surface stains for a whiter smile", kind:"Cosmetic", risk:"ok"},
-  {id:"c2", text:"Moisturises for up to 24 hours", kind:"Cosmetic", risk:"ok"},
-  {id:"c3", text:"Improves the look of dull, tired skin", kind:"Cosmetic", risk:"ok"},
-  {id:"c4", text:"Clinically accurate temperature readings", kind:"Device", risk:"watch"},
-  {id:"c5", text:"Measures blood-oxygen saturation (SpO2)", kind:"Device", risk:"watch"},
-  {id:"c6", text:"Tracks your blood pressure at home", kind:"Device", risk:"watch"},
-  {id:"c7", text:"Relieves muscle and joint pain", kind:"Device", risk:"watch"},
-  {id:"c8", text:"Relieves the pain of arthritis", kind:"Disease", risk:"flag"},
-  {id:"c9", text:"Estimates your body-fat percentage", kind:"Borderline", risk:"watch"},
-  {id:"c10", text:"Helps prevent tooth decay", kind:"OTC / drug", risk:"flag"},
-  {id:"c11", text:"Protects against UVA/UVB rays (SPF 30)", kind:"OTC / drug", risk:"flag"},
-  {id:"c12", text:"Reduces dandruff and flaking", kind:"Borderline", risk:"watch"},
-  {id:"c13", text:"Treats the cause of dandruff", kind:"Disease", risk:"flag"}
-];
-var CLAIM = {}; CLAIMS.forEach(function(c){ CLAIM[c.id]=c; });
-
-var EVIDENCE = [
-  {id:"e1", name:"Electrical safety", std:"IEC 60601-1", prov:"Independent", status:"accepted"},
-  {id:"e8", name:"Preservative efficacy & stability", std:"ISO 11930", prov:"Independent", status:"accepted"},
-  {id:"e2", name:"Electromagnetic compatibility", std:"IEC 60601-1-2", prov:"Independent", status:"progress"},
-  {id:"e3", name:"Clinical accuracy validation", std:"ISO 80601 / ISO 81060-2", prov:"Independent", status:"progress"},
-  {id:"e4", name:"Skin-contact biocompatibility", std:"ISO 10993-1/-5/-10", prov:"Independent", status:"progress"},
-  {id:"e7", name:"Cosmetic safety assessment", std:"CPSR / safety substantiation", prov:"Independent", status:"progress"},
-  {id:"e9", name:"SPF & broad-spectrum testing", std:"ISO 24444 / ISO 24443", prov:"Independent", status:"progress"},
-  {id:"e6", name:"Battery safety", std:"IEC 62133", prov:"Manufacturer", status:"reval"},
-  {id:"e5", name:"Usability / human factors", std:"IEC 62366-1", prov:"\u2014", status:"planned"},
-  {id:"e10", name:"Dermatological tolerance (HRIPT)", std:"Controlled study", prov:"Independent", status:"planned"}
-];
-var LINKS = { c1:["e8"], c2:["e7","e8"], c3:["e7"], c4:["e3","e1"], c5:["e3","e1"], c6:["e3","e1"], c7:["e1","e4"], c8:[], c9:["e3"], c10:[], c11:["e9"], c12:["e7","e10"], c13:[] };
-var STATUS = {
-  accepted:{label:"Accepted",c:Q.sage}, progress:{label:"In progress",c:Q.amber},
-  reval:{label:"Revalidate",c:Q.clay}, planned:{label:"Planned",c:Q.muted}
-};
-var TESTS = [
-  {name:"Electrical safety", std:"IEC 60601-1", decision:"Accept", lab:"Accredited lab", gate:"M4", status:"accepted"},
-  {name:"Electromagnetic compatibility", std:"IEC 60601-1-2", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
-  {name:"Clinical accuracy validation", std:"ISO 80601 / 81060", decision:"Repeat", lab:"CRO", gate:"M6", status:"progress"},
-  {name:"Skin-contact biocompatibility", std:"ISO 10993-1", decision:"Repeat", lab:"Specialist lab", gate:"M5", status:"progress"},
-  {name:"Cosmetic safety assessment", std:"CPSR", decision:"Accept", lab:"Independent", gate:"M4", status:"progress"},
-  {name:"SPF & broad-spectrum", std:"ISO 24444", decision:"Repeat", lab:"Accredited lab", gate:"M5", status:"progress"},
-  {name:"Usability / human factors", std:"IEC 62366-1", decision:"New", lab:"Specialist", gate:"M6", status:"planned"}
-];
-var RISKS = [
-  {hz:"Inaccurate measurement (temperature / SpO2 / BP)", harm:"Missed or delayed care", ctrl:"Clinical-accuracy validation (ISO 80601 / 81060)", state:"open"},
-  {hz:"Electrical fault or battery overheating", harm:"Shock or burn", ctrl:"IEC 60601-1 safety; IEC 62133 battery", state:"controlled"},
-  {hz:"Skin reaction to electrodes / probe", harm:"Irritation / sensitisation", ctrl:"Skin-contact biocompatibility (ISO 10993)", state:"open"},
-  {hz:"Use without reading the instructions", harm:"Incorrect readings / improper therapy", ctrl:"Usability engineering; clear IFU", state:"controlled"}
-];
-var VIGILANCE = [
-  {ev:"Skin redness under TENS electrodes", market:"EU", sev:"Non-serious", due:"Trend review", state:"Under review"},
-  {ev:"Thermometer reading variance reported", market:"US", sev:"Expected", due:"Log only", state:"Recorded"}
-];
-var MARKET_ACCESS = [
-  {region:"US", body:"FDA / MoCRA", items:"Device listing & registration \u00b7 OTC monograph (SPF, fluoride) \u00b7 MoCRA cosmetic listing", state:"progress"},
-  {region:"EU", body:"MDR 2017/745 \u00b7 Reg. 1223/2009", items:"Device conformity (CE) \u00b7 cosmetic Responsible Person & safety report", state:"progress"},
-  {region:"UK", body:"UKCA / MHRA \u00b7 UK Cosmetics Reg.", items:"UKCA device marking \u00b7 UK Responsible Person \u00b7 SCPN", state:"planned"},
-  {region:"AU", body:"TGA / AICIS", items:"ARTG device inclusion \u00b7 sunscreen (therapeutic) position \u00b7 chemical introduction", state:"flag"}
-];
-var NAV = [
-  {k:"studio", label:"Studio"}, {k:"portfolio", label:"Product"},
-  {k:"supplier", label:"Supplier"}, {k:"compliance", label:"Compliance"}
-];
-
-var SUPPLIERS = [
-  {name:"Consumer-electronics device OEM", loc:"Shenzhen, CN", scope:"Thermometer \u00b7 oximeter \u00b7 BP monitor \u00b7 TENS",
-   attrs:{ "ISO 13485":"Certified", "ISO 22716":"\u2014", "Quality agreement":"In review", "Change control":"In place", "Incoming acceptance":"Defined" },
-   audit:"Desktop done \u00b7 on-site due", risk:"watch"},
-  {name:"Personal-care contract manufacturer", loc:"European Union", scope:"Creams \u00b7 lotions \u00b7 SPF \u00b7 lip balm",
-   attrs:{ "ISO 13485":"\u2014", "ISO 22716":"Certified", "Quality agreement":"Signed", "Change control":"In place", "Incoming acceptance":"Defined" },
-   audit:"On-site complete", risk:"ok"},
-  {name:"Oral-care manufacturer", loc:"United Kingdom", scope:"Toothpaste \u00b7 electric toothbrush",
-   attrs:{ "ISO 13485":"Partial", "ISO 22716":"Certified", "Quality agreement":"In review", "Change control":"Partial", "Incoming acceptance":"Defining" },
-   audit:"Planned", risk:"watch"}
-];
-
-var META = {
-  tens:{sku:"THR-010",owner:"A. Marsh"}, therm:{sku:"MON-001",owner:"A. Marsh"}, oxi:{sku:"MON-002",owner:"A. Marsh"},
-  bp:{sku:"MON-003",owner:"A. Marsh"}, scale:{sku:"WEL-020",owner:"K. Owens"}, brush:{sku:"ORAL-030",owner:"R. Diaz"},
-  paste:{sku:"ORAL-031",owner:"R. Diaz"}, spf:{sku:"SKN-040",owner:"T. Cole"}, vitc:{sku:"SKN-041",owner:"T. Cole"},
-  lotion:{sku:"SKN-042",owner:"T. Cole"}, shampoo:{sku:"HAIR-050",owner:"T. Cole"}, lipbalm:{sku:"SKN-043",owner:"T. Cole"},
-  mask:{sku:"ACC-060",owner:"R. Diaz"}, band:{sku:"WEL-021",owner:"K. Owens"}
-};
-
-var TASKS = [
-  {t:"Clinical-accuracy validation pack to lab", sku:"MON-001", owner:"A. Marsh", due:"12 Jul", status:"doing", prio:"high"},
-  {t:"EMC retest \u2014 oximeter", sku:"MON-002", owner:"A. Marsh", due:"18 Jul", status:"review", prio:"high"},
-  {t:"Electrical-safety sign-off \u2014 thermometer", sku:"MON-001", owner:"A. Marsh", due:"02 Jul", status:"done", prio:"med"},
-  {t:"TENS \u2014 reframe arthritis claim", sku:"THR-010", owner:"A. Marsh", due:"15 Jul", status:"todo", prio:"high"},
-  {t:"Skin-contact biocompatibility \u2014 electrodes", sku:"THR-010", owner:"A. Marsh", due:"22 Jul", status:"doing", prio:"med"},
-  {t:"CPSR \u2014 vitamin C day cream", sku:"SKN-041", owner:"T. Cole", due:"28 Jun", status:"done", prio:"med"},
-  {t:"Claims matrix v2 review", sku:"\u2014", owner:"T. Cole", due:"10 Jul", status:"review", prio:"med"},
-  {t:"SPF testing \u2014 moisturiser & lip balm", sku:"SKN-040", owner:"T. Cole", due:"20 Jul", status:"todo", prio:"high"},
-  {t:"Fluoride OTC monograph position (US)", sku:"ORAL-031", owner:"R. Diaz", due:"25 Jul", status:"todo", prio:"high"},
-  {t:"Sign quality agreement \u2014 device OEM", sku:"MON-001", owner:"A. Marsh", due:"16 Jul", status:"doing", prio:"med"},
-  {t:"UK SCPN notification \u2014 cosmetics", sku:"\u2014", owner:"R. Diaz", due:"30 Jul", status:"doing", prio:"low"},
-  {t:"Anti-dandruff shampoo \u2014 claim split by market", sku:"HAIR-050", owner:"T. Cole", due:"05 Aug", status:"todo", prio:"med"}
-];
-
-var INTEGRATIONS = [
-  {name:"ClickUp", flow:"Tasks ↔ ClickUp", sync:"4m ago", on:true},
-  {name:"Slack", flow:"Alerts → #compliance", sync:"live", on:true},
-  {name:"Monday.com", flow:"Boards ↔ Monday", sync:"11m ago", on:true},
-  {name:"Airtable", flow:"Records ↔ Airtable", sync:"2m ago", on:true},
-  {name:"Excel", flow:"Exports → Excel", sync:"1h ago", on:true},
-  {name:"Jira", flow:"Available", sync:"", on:false}
-];
-
-var COMPANY = "Meridian Health";
-var WIZ_DONE = false;
-var FOCUS = [];
-function snapshot(){ return JSON.stringify({company:COMPANY, products:PRODUCTS, tasks:TASKS, integrations:INTEGRATIONS, meta:META, done:WIZ_DONE, focus:FOCUS}); }
-var SEED = snapshot();
-var STORE_KEY = "smedtec_studio_demo_v3";
-function persist(){ try{ localStorage.setItem(STORE_KEY, snapshot()); }catch(e){} }
-function loadSaved(){ try{
-  var r=localStorage.getItem(STORE_KEY); if(!r) return;
-  var d=JSON.parse(r);
-  if(d.products && !d.products.every(function(p){ return p && CAT[p.cat] && POSTURE[p.posture] && STAGE[p.stage]; })) return;
-  if(d.company)COMPANY=d.company; if(d.products)PRODUCTS=d.products; if(d.tasks)TASKS=d.tasks; if(d.integrations)INTEGRATIONS=d.integrations; if(d.meta)META=d.meta;
-  if(typeof d.done==="boolean")WIZ_DONE=d.done; if(d.focus)FOCUS=d.focus;
-}catch(e){} }
-function resetDemo(){ try{ var d=JSON.parse(SEED); COMPANY=d.company; PRODUCTS=d.products; TASKS=d.tasks; INTEGRATIONS=d.integrations; META=d.meta; }catch(e){} WIZ_DONE=false; FOCUS=[]; persist(); }
-loadSaved();
-
-/* ---- helpers ---- */
-function riskColor(r){ return r==="ok"?Q.sage:r==="watch"?Q.amber:Q.clay; }
-function riskLabel(r){ return r==="ok"?"Substantiated":r==="watch"?"Watch":"Exposed"; }
-function mktColor(s){ return s==="ok"?Q.sage:s==="watch"?Q.amber:s==="flag"?Q.clay:Q.muted; }
-
-function card(extra, inner){
-  return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:13px;box-shadow:0 1px 1px rgba(26,36,51,.02);padding:22px;'+(extra||'')+'">'+inner+'</div>';
-}
-function eyebrow(t){
-  return '<div style="display:flex;align-items:center;gap:9px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:12px;"><span style="width:18px;height:1.5px;background:'+Q.gold+';display:inline-block;flex:none;"></span>'+t+'</div>';
-}
-function pill(color, t){
-  return '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;font-weight:500;letter-spacing:.03em;color:'+color+';border:1px solid '+color+'4D;background:'+color+'10;padding:3px 9px;border-radius:999px;white-space:nowrap;">'+t+'</span>';
-}
-function moduleHeader(eb, title, blurb){
-  return '<div style="margin-bottom:18px;">'+eyebrow(eb)+
-    '<div style="font-size:24px;color:'+Q.ink+';font-weight:700;letter-spacing:-.02em;line-height:1.18;">'+title+'</div>'+
-    (blurb?'<div style="color:'+Q.muted+';font-size:13px;margin-top:7px;max-width:660px;line-height:1.55;">'+blurb+'</div>':'')+'</div>';
-}
-function ring(pct, size, label){
-  size = size || 120; label = label || "READY";
-  var r = size/2 - 14, circ = 2*Math.PI*r, off = circ*(1 - pct/100);
-  return '<div style="position:relative;width:'+size+'px;height:'+size+'px;flex:none;">'+
-    '<svg width="'+size+'" height="'+size+'" style="transform:rotate(-90deg);">'+
-    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+Q.hair+'" stroke-width="10"/>'+
-    '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+Q.gold+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'"/></svg>'+
-    '<div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;"><div>'+
-    '<div style="font-size:'+(size*0.26)+'px;color:'+Q.ink+';font-weight:700;">'+pct+'<span style="font-size:'+(size*0.12)+'px;">%</span></div>'+
-    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:'+Q.muted+';letter-spacing:.1em;">'+label+'</div></div></div></div>';
-}
-function glyph(cat, size, color){
-  size = size || 40; color = color || Q.goldDeep;
-  var st = 'stroke="'+color+'" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"';
-  var inner = '';
-  if (cat === "monitor") {
-    inner = '<rect x="7" y="11" width="26" height="18" rx="4" '+st+'/><path d="M11 20 h4 l2 -5 l3 10 l2 -5 h6" '+st+'/>';
-  } else if (cat === "therapy") {
-    inner = '<rect x="10" y="9" width="20" height="22" rx="5" '+st+'/><path d="M21 13 l-5 8 h5 l-3 7" '+st+'/>';
-  } else if (cat === "skincare") {
-    inner = '<path d="M20 6 C24 13, 28 17, 28 23 a8 8 0 0 1 -16 0 C12 17, 16 13, 20 6 Z" '+st+'/><path d="M16 23 a4 4 0 0 0 4 4" '+st+'/>';
-  } else if (cat === "haircare") {
-    inner = '<rect x="14" y="15" width="12" height="17" rx="3" '+st+'/><path d="M17 15 v-4 h6 v4" '+st+'/><path d="M16 22 h8" '+st+'/>';
-  } else if (cat === "oral") {
-    inner = '<rect x="9" y="24" width="22" height="6" rx="3" '+st+'/><path d="M13 24 v-3 M17 24 v-4 M21 24 v-4 M25 24 v-3" '+st+'/><path d="M9 12 h13 a3 3 0 0 1 0 6 H9" '+st+'/>';
-  } else if (cat === "wellbeing") {
-    inner = '<path d="M20 30 C12 24 9 17 15 13 C18.5 11 20 14 20 15 C20 14 21.5 11 25 13 C31 17 28 24 20 30 Z" '+st+'/>';
-  } else {
-    inner = '<path d="M20 8 L31 20 L20 32 L9 20 Z" '+st+'/>';
-  }
-  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 40 40" fill="none" aria-hidden="true">'+inner+'</svg>';
-}
-function productPlate(p, size){
-  size = size || 64;
-  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:14px;flex:none;background:linear-gradient(150deg, '+Q.surface2+', '+Q.champagne+');border:1px solid '+Q.hair+';display:grid;place-items:center;">'+glyph(p.cat, size*0.56)+'</div>';
-}
-
-/* ---- state ---- */
-var state = { view:"studio", product:null, filter:"all", tab:"claims", sel:{}, modal:null, tip:true,
-  screen: WIZ_DONE ? "app" : "gate",
-  wiz: { step:0, company:"", types:[], systems:[], issues:[], building:false } };
-
-var PRODUCT_TYPES=[["skincare","Skincare"],["haircare","Hair care"],["oral","Oral care"],["monitor","Health monitors"],["therapy","Therapy devices"],["wellbeing","Wellbeing"],["acc","Accessories"]];
-var SYSTEM_OPTS=[["Slack","Slack"],["ClickUp","ClickUp"],["Monday.com","Monday.com"],["Airtable","Airtable"],["Excel","Excel"],["Other","Something else"]];
-var ISSUE_OPTS=[["claims","Claims exposure"],["supplier","Supplier control"],["evidence","Scattered evidence"],["market","Market access (US/EU/UK/AU)"],["audit","Audit readiness"],["manual","Too many spreadsheets"]];
-
-/* ---- portfolio matrix ---- */
-function axLbl(pos){
-  var base = "position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;color:"+Q.muted+";text-transform:uppercase;";
-  if (pos === "left") return base+"left:10px;top:50%;transform:translateY(-50%);";
-  if (pos === "right") return base+"right:10px;top:50%;transform:translateY(-50%);";
-  if (pos === "top") return base+"top:8px;left:50%;transform:translateX(-50%);";
-  return base+"bottom:8px;left:50%;transform:translateX(-50%);";
-}
-function portfolioMatrix(){
-  var H = 380;
-  var dots = PRODUCTS.map(function(p){
-    var c = POSTURE[p.posture].c, sz = p.flagship?15:11;
-    var ring = p.flagship ? "box-shadow:0 0 0 5px "+Q.statGold+"2E;" : "box-shadow:0 1px 3px rgba(26,36,51,.25);";
-    var fl = p.flagship ? '<span style="position:absolute;left:50%;top:-21px;transform:translateX(-50%);white-space:nowrap;font-family:\'JetBrains Mono\',monospace;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:'+Q.statGold+';">Flagship</span>' : '';
-    return '<button class="dot-node" data-open-product="'+p.id+'" title="'+p.name+' — '+POSTURE[p.posture].label+' · readiness '+p.my+'/100" style="position:absolute;left:'+p.mx+'%;top:'+(100-p.my)+'%;transform:translate(-50%,-50%);border:none;background:transparent;padding:0;">'+fl+
-      '<span style="display:block;width:'+sz+'px;height:'+sz+'px;border-radius:99px;background:'+c+';'+ring+'border:2px solid #fff;"></span></button>';
-  }).join('');
-  var legend = Object.keys(POSTURE).map(function(k){ var v=POSTURE[k];
-    return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:'+Q.muted+';"><span style="width:9px;height:9px;border-radius:99px;background:'+v.c+';"></span> '+v.label+'</span>';
-  }).join('');
-  var quad = function(txt, pos){ return '<span style="position:absolute;'+pos+'font-family:\'JetBrains Mono\',monospace;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:'+Q.muted+'88;">'+txt+'</span>'; };
-  var tick = function(v, pos){ return '<span style="position:absolute;'+pos+'font-family:\'JetBrains Mono\',monospace;font-size:8px;color:'+Q.muted+'77;">'+v+'</span>'; };
-  var grid = 'background-image:linear-gradient('+Q.hair+'88 1px, transparent 1px), linear-gradient(90deg, '+Q.hair+'88 1px, transparent 1px);background-size:25% 25%, 25% 25%;';
-  return card('padding:0;overflow:hidden;box-shadow:0 1px 2px rgba(26,36,51,.04), 0 26px 52px -34px rgba(26,36,51,.5);',
-    '<div style="padding:18px 22px 13px;border-bottom:1px solid '+Q.hair+';display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">'+
-      '<div>'+eyebrow('Portfolio posture map')+
-        '<div style="font-size:21px;color:'+Q.ink+';font-weight:700;letter-spacing:-.015em;">Every product, plotted by posture and readiness</div>'+
-        '<div style="color:'+Q.muted+';font-size:12.5px;margin-top:5px;max-width:58ch;">The range isn\'t one problem — it\'s a spread. Each point is a product; select one to open its record.</div></div>'+
-      '<div style="display:flex;gap:14px;flex-wrap:wrap;">'+legend+'</div>'+
-    '</div>'+
-    '<div style="position:relative;padding:30px 26px 14px 44px;">'+
-      '<span style="position:absolute;left:12px;top:calc(50% - 12px);transform:translateY(-50%) rotate(-90deg);transform-origin:center;font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:'+Q.muted+';white-space:nowrap;">Readiness →</span>'+
-      '<div style="position:relative;height:'+H+'px;border:1px solid '+Q.hair+';border-radius:8px;overflow:hidden;background:#fff;">'+
-        '<div style="position:absolute;inset:0;'+grid+'opacity:.7;"></div>'+
-        '<div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:'+Q.hair+';"></div>'+
-        '<div style="position:absolute;top:50%;left:0;right:0;height:1px;background:'+Q.hair+';"></div>'+
-        quad('Cosmetic · ready','top:9px;left:11px;')+quad('Device · ready','top:9px;right:11px;')+
-        quad('Cosmetic · early','bottom:9px;left:11px;')+quad('Device · exposed','bottom:9px;right:11px;')+
-        tick('100','top:4px;left:5px;')+tick('0','bottom:4px;left:5px;')+
-        dots+
-      '</div>'+
-      '<div style="text-align:center;margin-top:11px;font-family:\'JetBrains Mono\',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:'+Q.muted+';">Cosmetic &nbsp;→&nbsp; Device pathway</div>'+
-    '</div>'
-  );
-}
-
-/* ---- substantiation map ---- */
-function substantiationMap(mapId, claimIds, evidenceIds, title, compact){
-  var claims = (claimIds || CLAIMS.map(function(c){return c.id;})).map(function(id){return CLAIM[id];}).filter(Boolean);
-  var evList = (evidenceIds || EVIDENCE.map(function(e){return e.id;})).map(function(id){
-    return EVIDENCE.filter(function(e){return e.id===id;})[0];
-  }).filter(Boolean);
-  var H = compact ? 280 : 392;
-  var sel = state.sel[mapId] || null;
-  var n = claims.length, m = evList.length, W = 150;
-  var evIndex = {}; evList.forEach(function(e,j){ evIndex[e.id]=j; });
-  function cY(i){ return ((i+0.5)/n)*H; }
-  function eY(j){ return ((j+0.5)/m)*H; }
-  var threads = [];
-  claims.forEach(function(c,i){ (LINKS[c.id]||[]).forEach(function(eid){
-    var j = evIndex[eid]; if (j == null) return; threads.push({cid:c.id, y1:cY(i), y2:eY(j)});
-  }); });
-  var threadSvg = threads.map(function(t){
-    var active = sel===t.cid, dim = sel && !active;
-    var w = active?2.4:1.2, op = dim?0.08:active?0.95:0.34;
-    return '<path class="thread" d="M 0 '+t.y1+' C '+(W*0.5)+' '+t.y1+', '+(W*0.5)+' '+t.y2+', '+W+' '+t.y2+'" fill="none" stroke="'+Q.gold+'" stroke-width="'+w+'" opacity="'+op+'"/>';
-  }).join('');
-  var claimChips = claims.map(function(c){
-    var active = sel===c.id, dim = sel && !active;
-    return '<button class="claim-chip" data-sel-claim="'+c.id+'" data-map="'+mapId+'" style="text-align:left;border:1px solid '+(active?riskColor(c.risk):Q.hair)+';background:'+(active?riskColor(c.risk)+'10':Q.surface)+';opacity:'+(dim?0.4:1)+';border-radius:9px;padding:7px 11px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-size:12.5px;color:'+Q.ink+';line-height:1.3;">'+c.text+'</span>'+
-      '<span style="width:8px;height:8px;border-radius:99px;background:'+riskColor(c.risk)+';flex:none;"></span></div></button>';
-  }).join('');
-  var evCards = evList.map(function(e){
-    var linked = sel && (LINKS[sel]||[]).indexOf(e.id) > -1, dim = sel && !linked, s = STATUS[e.status];
-    return '<div style="border:1px solid '+(linked?Q.gold:Q.hair)+';background:'+(linked?Q.gold+'10':Q.surface)+';opacity:'+(dim?0.4:1)+';border-radius:9px;padding:6px 11px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><span style="font-size:12px;color:'+Q.ink+';line-height:1.25;">'+e.name+'</span>'+
-      '<span style="width:8px;height:8px;border-radius:99px;background:'+s.c+';flex:none;"></span></div>'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:2px;">'+e.std+'</div></div>';
-  }).join('');
-  return card('padding:0;overflow:hidden;',
-    '<div style="padding:18px 20px 8px;border-bottom:1px solid '+Q.hair+';">'+eyebrow('The substantiation map')+
-      '<div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+title+'</div>'+
-      '<div style="color:'+Q.muted+';font-size:12.5px;margin-top:4px;">Select a claim to follow its evidence. Claims with thin or no threads are the commercial exposure.</div></div>'+
-    '<div class="qcs-map" style="display:grid;grid-template-columns:1fr '+W+'px 1fr;padding:16px 18px 20px;">'+
-      '<div style="display:flex;flex-direction:column;justify-content:space-around;height:'+H+'px;">'+claimChips+'</div>'+
-      '<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="'+H+'" preserveAspectRatio="none" style="overflow:visible;" aria-hidden="true">'+threadSvg+'</svg>'+
-      '<div style="display:flex;flex-direction:column;justify-content:space-around;height:'+H+'px;">'+evCards+'</div></div>'
-  );
-}
-
-/* ---- studio ---- */
-function studio(){
-  var inMarket = PRODUCTS.filter(function(p){return p.stage==="market"||p.stage==="iterate";}).length;
-  var device = PRODUCTS.filter(function(p){return p.posture==="device";}).length;
-  var flagged = CLAIMS.filter(function(c){return c.risk==="flag";}).length;
-  var pipeline = PRODUCTS.filter(function(p){return ["concept","dev","prelaunch"].indexOf(p.stage)>-1;}).length;
-  var portfolioReady = Math.round(PRODUCTS.reduce(function(a,p){return a+p.ready;},0)/PRODUCTS.length);
-  var openTasks = TASKS.filter(function(t){return t.status!=="done";}).length;
-  var tiles = [
-    {label:"SKUs tracked", v:PRODUCTS.length, sub:inMarket+" in market · "+pipeline+" in pipeline", c:Q.gold, go:"portfolio"},
-    {label:"Open tasks", v:openTasks, sub:"across the project board", c:Q.amber, go:"portfolio"},
-    {label:"Suppliers managed", v:SUPPLIERS.length, sub:"qualification & change control", c:Q.green, go:"supplier"},
-    {label:"Exposed claims", v:flagged, sub:"OTC & disease claims", c:Q.clay, go:"compliance"}
-  ];
-  var tileHtml = tiles.map(function(t){
-    return '<button class="prod-card" data-nav="'+t.go+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:13px;padding:16px 17px 15px;box-shadow:0 1px 1px rgba(26,36,51,.02);">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';letter-spacing:.1em;text-transform:uppercase;">'+t.label+'</span>'+
-      '<span style="width:7px;height:7px;border-radius:99px;background:'+t.c+';box-shadow:0 0 0 4px '+t.c+'1A;"></span></div>'+
-      '<div style="font-size:34px;color:'+Q.ink+';font-weight:700;margin-top:8px;letter-spacing:-.025em;line-height:1;">'+t.v+'</div>'+
-      '<div style="color:'+Q.muted+';font-size:11.5px;margin-top:5px;">'+t.sub+'</div></button>';
-  }).join('');
-  var lifecycle = Object.keys(STAGE).map(function(k){
-    var s = STAGE[k], items = PRODUCTS.filter(function(p){return p.stage===k;});
-    var names = items.slice(0,2).map(function(p){return p.name.split("·")[0].split("—")[0].trim();}).join(", ") + (items.length>2?"…":"");
-    return '<div style="display:flex;align-items:center;gap:12px;"><span style="width:8px;height:8px;border-radius:99px;background:'+s.c+';flex:none;"></span>'+
-      '<span style="font-size:13px;color:'+Q.ink+';width:110px;flex:none;">'+s.label+'</span>'+
-      '<span style="font-size:18px;color:'+Q.ink+';font-weight:700;">'+items.length+'</span>'+
-      '<span style="font-size:11.5px;color:'+Q.muted+';line-height:1.3;">'+names+'</span></div>';
-  }).join('');
-  return '<div style="display:grid;gap:18px;">'+
-    (WIZ_DONE ? builtStrip() : (state.tip?tipStrip():''))+
-    card('display:flex;gap:26px;align-items:center;',
-      ring(portfolioReady)+'<div>'+eyebrow('Portfolio readiness')+
-      '<div style="font-size:19px;color:'+Q.ink+';font-weight:700;line-height:1.35;max-width:620px;letter-spacing:-.012em;">Product, supplier and compliance operations for the whole range — in one system we build around you and run with you.</div>'+
-      '<div style="color:'+Q.muted+';font-size:12.5px;margin-top:7px;max-width:620px;">Each product carries its own posture, stage and evidence. The score is held down by the powered medical devices and the OTC and disease-claim exposures — not by the everyday cosmetics, which are already close to clean.</div></div>')+
-    portfolioMatrix()+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:14px;">'+tileHtml+'</div>'+
-    integrationsPanel()+
-    '<div class="qcs-two" style="display:grid;grid-template-columns:1.55fr 1fr;gap:18px;">'+
-      substantiationMap('studio', null, null, 'The flagship, claim by claim', false)+
-      card('', eyebrow('Lifecycle snapshot')+'<div style="display:grid;gap:10px;margin-top:8px;">'+lifecycle+'</div>')+
-    '</div></div>';
-}
-
-/* ---- PM dashboard pieces ---- */
-function initials(n){ return n.split(/[ .]+/).filter(Boolean).map(function(x){return x[0];}).slice(0,2).join("").toUpperCase(); }
-
-function integrationsPanel(){
-  var tiles = INTEGRATIONS.map(function(i){
-    var dot = i.on ? Q.sage : Q.muted;
-    var statusText = i.on ? ("Connected · synced "+i.sync) : "Available";
-    return '<button data-toggle-int="'+i.name+'" style="text-align:left;width:100%;background:#fff;border:1px solid '+(i.on?Q.gold+'4D':Q.hair)+';border-radius:11px;padding:12px 13px;opacity:'+(i.on?1:0.7)+';cursor:pointer;">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13.5px;color:'+Q.ink+';font-weight:600;">'+i.name+'</span><span style="width:8px;height:8px;border-radius:99px;background:'+dot+';"></span></div>'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';margin-top:6px;">'+i.flow+'</div>'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+(i.on?Q.goldDeep:Q.muted)+';margin-top:3px;">'+statusText+'</div></button>';
-  }).join('');
-  return card('', eyebrow('Integrations · your stack')+
-    '<div style="font-size:12.5px;color:'+Q.muted+';margin:-4px 0 12px;">Two-way sync with the tools your team already uses. Anything with an API can be wired in — click a tool to connect or disconnect.</div>'+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:10px;">'+tiles+'</div>');
-}
-
-function skuTable(list){
-  var cols = "0.9fr 2fr 1fr 1fr 1.1fr 1fr";
-  var rows = list.map(function(p,i){
-    var meta = META[p.id] || {}, st = STAGE[p.stage], last = i===list.length-1;
-    var mk = ["US","EU","UK","AU"].map(function(m,idx){
-      return '<span title="'+m+'" style="width:9px;height:9px;border-radius:3px;background:'+mktColor(p.markets[idx])+';display:inline-block;margin-right:3px;"></span>';
-    }).join('');
-    return '<div class="row-hover" data-open-product="'+p.id+'" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:12px 18px;border-bottom:'+(last?'none':'1px solid '+Q.hair)+';font-size:12.5px;color:'+Q.ink+';cursor:pointer;">'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';">'+(meta.sku||"—")+'</div>'+
-      '<div style="display:flex;align-items:center;gap:9px;padding-right:8px;">'+glyph(p.cat,22)+'<span>'+p.name+'</span></div>'+
-      '<div>'+pill(st.c,st.label)+'</div>'+
-      '<div style="font-size:12px;color:'+Q.ink70+';">'+(meta.owner||"—")+'</div>'+
-      '<div>'+mk+'</div>'+
-      '<div>'+pill(POSTURE[p.posture].c, POSTURE[p.posture].label)+'</div></div>';
-  }).join('');
-  return tableShell(cols, ["SKU","Product","Stage","Owner","Markets","Posture"], rows);
-}
-
-function projectBoard(){
-  var colDefs = [["todo","To do",Q.muted],["doing","In progress",Q.amber],["review","In review",Q.gold],["done","Done",Q.sage]];
-  var prioColor = function(p){ return p==="high"?Q.clay:p==="med"?Q.amber:Q.muted; };
-  var columns = colDefs.map(function(c){
-    var key=c[0], label=c[1], headC=c[2];
-    var items = TASKS.filter(function(t){return t.status===key;});
-    var cardsH = items.map(function(t){
-      return '<div style="background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:9px;padding:10px 11px;margin-bottom:9px;">'+
-        '<div style="font-size:12.5px;color:'+Q.ink+';line-height:1.3;">'+t.t+'</div>'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:8px;">'+
-          '<span style="display:inline-flex;align-items:center;gap:6px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';"><span style="width:6px;height:6px;border-radius:99px;background:'+prioColor(t.prio)+';"></span>'+(t.sku!=="—"?t.sku:"cross-cutting")+'</span>'+
-          '<span style="display:flex;align-items:center;gap:6px;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';">'+t.due+'</span>'+
-          '<span style="width:21px;height:21px;border-radius:99px;background:'+Q.surface2+';border:1px solid '+Q.hair+';display:grid;place-items:center;font-size:8.5px;font-weight:700;color:'+Q.ink70+';">'+initials(t.owner)+'</span></span>'+
-        '</div></div>';
-    }).join('') || '<div style="font-size:11px;color:'+Q.muted+';padding:6px 2px;">—</div>';
-    return '<div style="background:'+Q.surface2+';border:1px solid '+Q.hair+';border-radius:11px;padding:12px;">'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:'+Q.ink+';"><span style="width:7px;height:7px;border-radius:99px;background:'+headC+';"></span>'+label+'</span><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';">'+items.length+'</span></div>'+cardsH+'</div>';
-  }).join('');
-  return '<div>'+
-    '<div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">'+
-      '<div>'+eyebrow('Project board')+'<div style="font-size:20px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">Workstreams across the range</div></div>'+
-      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;color:'+Q.goldDeep+';display:inline-flex;align-items:center;gap:7px;"><span style="width:7px;height:7px;border-radius:99px;background:'+Q.sage+';"></span>Synced with ClickUp · 4m ago</span>'+addBtn('data-add-task','+ Add task')+'</div>'+
-    '</div>'+
-    '<div class="qcs-board" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;">'+columns+'</div></div>';
-}
-
-/* ---- product ---- */
-function product(){
-  var filters = [["all","All"],["monitor","Monitors"],["therapy","Therapy"],["oral","Oral care"],["skincare","Skincare"],["haircare","Hair"],["wellbeing","Wellbeing"],["acc","Accessories"]];
-  var list = state.filter==="all" ? PRODUCTS : PRODUCTS.filter(function(p){return p.cat===state.filter;});
-  var filterHtml = filters.map(function(f){ var k=f[0], l=f[1], on=state.filter===k;
-    return '<button data-filter="'+k+'" style="border:1px solid '+(on?Q.gold:Q.hair)+';background:'+(on?Q.gold+'14':Q.surface)+';color:'+(on?Q.goldDeep:Q.muted)+';border-radius:999px;padding:6px 14px;font-size:12.5px;">'+l+'</button>';
-  }).join('');
-  var cards = list.map(function(p){
-    var post = POSTURE[p.posture], st = STAGE[p.stage];
-    var mkts = ["US","EU","UK","AU"].map(function(m,i){
-      return '<span style="flex:1;display:grid;place-items:center;gap:3px;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';">'+m+'<span style="width:8px;height:8px;border-radius:3px;background:'+mktColor(p.markets[i])+';"></span></span>';
-    }).join('');
-    var flag = p.flagship ? '<span style="font-size:9px;color:'+Q.goldDeep+';border:1px solid '+Q.gold+'55;border-radius:99px;padding:1px 6px;font-family:\'JetBrains Mono\',monospace;">FLAGSHIP</span>' : '';
-    return '<button class="prod-card" data-open-product="'+p.id+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:14px;padding:18px;">'+
-      '<div style="display:flex;gap:14px;align-items:flex-start;">'+productPlate(p)+
-        '<div style="min-width:0;flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.04em;color:'+Q.muted+';text-transform:uppercase;">'+CAT[p.cat].label+'</span>'+flag+'</div>'+
-        '<div style="font-size:16.5px;color:'+Q.ink+';font-weight:600;line-height:1.25;">'+p.name+'</div></div></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">'+pill(post.c,post.label)+pill(st.c,st.label)+'</div>'+
-      '<div style="display:flex;align-items:center;gap:10px;margin-top:14px;"><div style="flex:1;height:6px;border-radius:99px;background:'+Q.hair+';overflow:hidden;"><div style="width:'+p.ready+'%;height:100%;background:'+Q.gold+';"></div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';">'+p.ready+'%</span></div>'+
-      '<div style="display:flex;gap:6px;margin-top:12px;">'+mkts+'</div></button>';
-  }).join('');
-  return '<div>'+
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">'+
-    moduleHeader('Product management','Your range, by SKU','Every SKU as a live record — code, stage, owner, markets and posture. Open a row for the full product passport.')+
-    addBtn('data-add-product','+ Add product')+'</div>'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">'+filterHtml+'</div>'+
-    skuTable(list)+
-    '<div style="margin-top:36px;">'+projectBoard()+'</div>'+
-    '<div style="margin-top:36px;border-top:1px solid '+Q.hair+';padding-top:24px;">'+roadmap()+'</div></div>';
-}
-
-/* ---- product detail ---- */
-function productDetail(p){
-  var post = POSTURE[p.posture], st = STAGE[p.stage], claimIds = p.claims;
-  var linkedSet = {}; claimIds.forEach(function(id){ (LINKS[id]||[]).forEach(function(e){ linkedSet[e]=1; }); });
-  var linkedEv = Object.keys(linkedSet);
-  var mktRows = ["US","EU","UK","AU"].map(function(m,i){
-    var v = p.markets[i], lbl = v==="ok"?"Clear":v==="watch"?"Watch":v==="flag"?"Attention":"Planned";
-    return '<div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:13px;color:'+Q.ink+';">'+m+'</span>'+pill(mktColor(v),lbl)+'</div>';
-  }).join('');
-  var claimRows = claimIds.length===0 ? '<div style="font-size:13px;color:'+Q.muted+';">No regulated claims — accessory.</div>' :
-    claimIds.map(function(id){ var c=CLAIM[id];
-      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid '+Q.hair+';padding-bottom:7px;"><span style="font-size:12.5px;color:'+Q.ink+';">'+c.text+'</span>'+pill(riskColor(c.risk),riskLabel(c.risk))+'</div>';
-    }).join('');
-  var subEv = linkedEv.length ? linkedEv : EVIDENCE.slice(0,5).map(function(e){return e.id;});
-  var subMap = claimIds.length>0 ? substantiationMap('product-'+p.id, claimIds, subEv, "This product's claims, traced to evidence", true) : '';
-  return '<div style="display:grid;gap:18px;">'+
-    '<button data-back="1" style="border:none;background:transparent;color:'+Q.goldDeep+';font-family:\'JetBrains Mono\',monospace;font-size:11.5px;letter-spacing:.04em;padding:0;width:fit-content;">← Portfolio</button>'+
-    card('display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;',
-      productPlate(p,96)+'<div style="flex:1;min-width:240px;">'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.06em;color:'+Q.muted+';text-transform:uppercase;">'+CAT[p.cat].label+'</div>'+
-      '<div style="font-size:26px;color:'+Q.ink+';font-weight:700;margin-top:2px;letter-spacing:-.01em;">'+p.name+'</div>'+
-      '<div style="font-size:12.5px;color:'+Q.ink70+';margin-top:6px;font-family:\'JetBrains Mono\',monospace;">'+p.spec+'</div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">'+pill(post.c,post.label)+pill(st.c,st.label)+pill(Q.gold,p.ready+'% ready')+'</div></div>'+
-      '<div style="flex:none;">'+ring(p.ready,92)+'</div>')+
-    card('border-left:3px solid '+post.c+';background:'+post.c+'08;', eyebrow('Posture note')+'<div style="font-size:14px;color:'+Q.ink+';line-height:1.5;">'+p.note+'</div>')+
-    '<div class="qcs-two" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">'+
-      card('', eyebrow('Market availability')+'<div style="display:grid;gap:10px;margin-top:6px;">'+mktRows+'</div>')+
-      card('', eyebrow('Claims on this product')+'<div style="display:grid;gap:8px;margin-top:6px;">'+claimRows+'</div>')+
-    '</div>'+
-    subMap+
-    '<button class="row-hover" data-nav="compliance" style="border:1px solid '+Q.hair+';background:'+Q.surface+';border-radius:12px;padding:14px 18px;text-align:left;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13.5px;color:'+Q.ink+';">Open the cross-portfolio compliance modules</span><span style="color:'+Q.goldDeep+';font-family:\'JetBrains Mono\',monospace;font-size:12px;">Evidence · Testing · Risk →</span></button>'+
-  '</div>';
-}
-
-/* ---- roadmap ---- */
-function roadmap(){
-  var lanes = Object.keys(STAGE).map(function(k){
-    var s = STAGE[k], items = PRODUCTS.filter(function(p){return p.stage===k;});
-    var chips = items.length===0 ? '<span style="font-size:12px;color:'+Q.muted+';padding-top:8px;">—</span>' :
-      items.map(function(p){
-        return '<button class="prod-card" data-open-product="'+p.id+'" style="border:1px solid '+Q.hair+';background:'+Q.surface+';border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;text-align:left;">'+
-          glyph(p.cat,26)+'<span><span style="display:block;font-size:12.5px;color:'+Q.ink+';line-height:1.2;">'+p.name+'</span>'+
-          '<span style="display:block;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+POSTURE[p.posture].c+';margin-top:2px;">'+POSTURE[p.posture].label+'</span></span></button>';
-      }).join('');
-    return '<div style="display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:start;">'+
-      '<div style="display:flex;align-items:center;gap:8px;padding-top:6px;"><span style="width:9px;height:9px;border-radius:99px;background:'+s.c+';flex:none;"></span><span style="font-size:15px;color:'+Q.ink+';font-weight:600;">'+s.label+'</span></div>'+
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;">'+chips+'</div></div>';
-  }).join('');
-  return '<div>'+moduleHeader('Roadmap','The range across its lifecycle','From concept to in-market, with the live remediations called out. Pipeline products are where posture is cheapest to set — before any spend is committed.')+
-    '<div style="display:grid;gap:14px;">'+lanes+'</div></div>';
-}
-
-/* ---- supplier ---- */
-function supplier(){
-  function vc(v){
-    if (["Certified","In place","Signed","Defined","On-site complete"].indexOf(v) > -1) return Q.sage;
-    if (v === "Unconfirmed") return Q.clay;
-    if (v === "—") return Q.muted;
-    return Q.amber;
-  }
-  var cards = SUPPLIERS.map(function(s){
-    var attrs = Object.keys(s.attrs).map(function(k){ var v=s.attrs[k];
-      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid '+Q.hair+';padding:7px 0;">'+
-        '<span style="font-size:12.5px;color:'+Q.muted+';">'+k+'</span>'+
-        '<span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:'+Q.ink+';"><span style="width:8px;height:8px;border-radius:99px;background:'+vc(v)+';"></span>'+v+'</span></div>';
-    }).join('');
-    return card('', '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'+
-      '<div><div style="font-size:16.5px;color:'+Q.ink+';font-weight:600;">'+s.name+'</div>'+
-      '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';margin-top:3px;text-transform:uppercase;letter-spacing:.04em;">'+s.loc+' · '+s.scope+'</div></div>'+
-      pill(s.risk==="ok"?Q.sage:Q.amber, s.risk==="ok"?"Qualified":"In qualification")+'</div>'+
-      '<div style="margin-top:12px;">'+attrs+'</div>'+
-      '<div style="margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';">Audit · '+s.audit+'</div>');
-  }).join('');
-  var sumItems = [
-    ["Certifications","ISO 13485 / ISO 22716 on file and current"],
-    ["Quality agreement","Signed and in force per supplier"],
-    ["Change control","Notified before it ships, not after"],
-    ["Manufacturer data","Their reports audited, not assumed"]
-  ];
-  var sum = sumItems.map(function(it){
-    return '<div style="background:'+Q.surface2+';border:1px solid '+Q.hair+';border-radius:10px;padding:14px;">'+
-      '<div style="font-size:13px;color:'+Q.ink+';font-weight:600;">'+it[0]+'</div>'+
-      '<div style="font-size:12px;color:'+Q.muted+';margin-top:3px;">'+it[1]+'</div></div>';
-  }).join('');
-  return '<div>'+moduleHeader('Supplier management','Your manufacturers, under control','Each contract manufacturer pulled into a controlled workflow — certifications, quality agreement, change control and incoming acceptance — so the data behind every product is yours, audited and current.')+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(300px,1fr));gap:16px;">'+cards+'</div>'+
-    '<div style="margin-top:26px;">'+eyebrow('What &ldquo;under control&rdquo; means')+'<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:12px;">'+sum+'</div></div></div>';
-}
-
-/* ---- compliance modules ---- */
-function tableShell(cols, labels, rows){
-  var head = labels.map(function(l){return '<div>'+l+'</div>';}).join('');
-  return card('padding:0;overflow:hidden;',
-    '<div style="display:grid;grid-template-columns:'+cols+';background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;padding:12px 20px;">'+head+'</div>'+rows);
-}
-function trow(cols, cells, last){
-  return '<div class="row-hover" style="display:grid;grid-template-columns:'+cols+';align-items:center;padding:14px 20px;border-bottom:'+(last?'none':'1px solid '+Q.line2)+';font-size:13px;color:'+Q.ink+';">'+cells+'</div>';
-}
-function evidenceModule(){
-  var cols = "2.2fr 1.4fr 1fr 1fr";
-  var rows = EVIDENCE.map(function(e,i){ var s=STATUS[e.status];
-    return trow(cols, '<div style="padding-right:10px;">'+e.name+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11.5px;color:'+Q.muted+';">'+e.std+'</div><div style="color:'+(e.prov==="Manufacturer"?Q.clay:Q.ink70)+';font-size:12.5px;">'+e.prov+'</div><div>'+pill(s.c,s.label)+'</div>', i===EVIDENCE.length-1);
-  }).join('');
-  return '<div>'+moduleHeader('Evidence portal','The substantiation file','Every report and study in one place, tagged by standard, provenance and state. Independent and accredited data carries the weight; manufacturer data is flagged for revalidation.')+tableShell(cols,["Evidence","Standard","Provenance","State"],rows)+'</div>';
-}
-function claimsModule(){
-  var markets = ["US","EU","UK","AU"];
-  var grid = {c5:["flag","flag","flag","flag"], c6:["flag","flag","flag","flag"], c9:["flag","flag","flag","flag"], c8:["flag","flag","flag","flag"], c7:["ok","watch","watch","watch"], c3:["ok","ok","ok","watch"]};
-  var cols = "2.4fr 1fr 1.4fr";
-  var rows = CLAIMS.map(function(c,i){
-    return trow(cols, '<div style="padding-right:10px;">'+c.text+'</div><div style="font-size:12px;color:'+Q.muted+';">'+c.kind+'</div><div>'+pill(riskColor(c.risk),riskLabel(c.risk))+'</div>', i===CLAIMS.length-1);
-  }).join('');
-  function cell(v){ return '<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:'+riskColor(v)+';" title="'+riskLabel(v)+'"></span>'; }
-  var matrixRows = '<div></div>' + markets.map(function(m){return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';text-align:center;">'+m+'</div>';}).join('');
-  Object.keys(grid).forEach(function(cid){
-    matrixRows += '<div style="font-size:12.5px;color:'+Q.ink+';padding:9px 0;border-top:1px solid '+Q.hair+';">'+CLAIM[cid].text+'</div>' +
-      grid[cid].map(function(v){return '<div style="display:grid;place-items:center;border-top:1px solid '+Q.hair+';">'+cell(v)+'</div>';}).join('');
-  });
-  var matrix = card('', eyebrow('Per-market matrix')+'<div style="display:grid;grid-template-columns:2.2fr repeat(4, 1fr);margin-top:6px;">'+matrixRows+'</div>'+
-    '<div style="margin-top:12px;font-size:12px;color:'+Q.muted+';border-top:1px dashed '+Q.hair+';padding-top:10px;">Note · Australia flags the sunscreen (SPF) line as therapeutic and a chemical-introduction question — held against the per-market position until resolved.</div>');
-  return '<div>'+moduleHeader('Claims governance','The compliance line, claim by claim, market by market','Every claim held against the line in each market — nothing goes live without bound evidence. The exposures span the range: disease claims on the therapy device, and the OTC drug claims on the SPF and fluoride lines.')+
-    '<div style="display:grid;gap:16px;">'+tableShell(cols,["Claim","Type","Position"],rows)+matrix+'</div></div>';
-}
-function testingModule(){
-  function dColor(d){ return d==="Accept"?Q.sage:d==="Bridge"?Q.amber:d==="Repeat"?Q.gold:Q.clay; }
-  var cols = "2fr 1.1fr 1fr 1fr 0.8fr 1fr";
-  var rows = TESTS.map(function(t,i){ var s=STATUS[t.status];
-    return trow(cols, '<div style="padding-right:8px;">'+t.name+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.muted+';">'+t.std+'</div><div>'+pill(dColor(t.decision),t.decision)+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+t.lab+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+Q.muted+';">'+t.gate+'</div><div>'+pill(s.c,s.label)+'</div>', i===TESTS.length-1);
-  }).join('');
-  return '<div>'+moduleHeader('Testing programme','Accept, bridge, or repeat — per test','Existing manufacturer data is audited first, then each test is accepted as-is, bridged with a justification, or independently repeated. The plan funds genuine gaps, not duplicates.')+
-    tableShell(cols,["Test","Standard","Decision","Lab","Gate","State"],rows)+
-    '<div style="margin-top:12px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.statGold+';">Accredited testing billed at cost — no consultancy margin on pass-through lab costs.</div></div>';
-}
-function riskVigilanceModule(){
-  function sColor(s){ return s==="controlled"?Q.sage:Q.clay; }
-  var rc = "2fr 1.2fr 2fr 1fr";
-  var riskRows = RISKS.map(function(r,i){
-    return trow(rc, '<div style="padding-right:8px;">'+r.hz+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+r.harm+'</div><div style="font-size:12.5px;color:'+Q.ink70+';padding-right:8px;">'+r.ctrl+'</div><div>'+pill(sColor(r.state), r.state==="controlled"?"Controlled":"Open")+'</div>', i===RISKS.length-1);
-  }).join('');
-  var vc = "2fr 0.8fr 1fr 1.2fr 1fr";
-  var vigRows = VIGILANCE.map(function(v,i){
-    return trow(vc, '<div>'+v.ev+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:'+Q.muted+';">'+v.market+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+v.sev+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+v.due+'</div><div>'+pill(v.state==="Recorded"?Q.sage:Q.amber, v.state)+'</div>', i===VIGILANCE.length-1);
-  }).join('');
-  return '<div style="display:grid;gap:18px;">'+
-    '<div>'+moduleHeader('Risk file · ISO 14971','Live risk register','The static manufacturer file becomes a living register — each hazard traced to a control and the evidence that verifies it.')+tableShell(rc,["Hazard","Harm","Control","State"],riskRows)+'</div>'+
-    '<div>'+moduleHeader('Post-market surveillance','Adverse-event intake','Recordkeeping and serious-event reporting are a live obligation across markets — intake, triage and trending in one workflow.')+tableShell(vc,["Event","Market","Severity","Action","State"],vigRows)+'</div></div>';
-}
-function supplierModule(){
-  var items = [
-    {k:"ISO 13485 (QMS)", v:"Unconfirmed", c:Q.clay},
-    {k:"ISO 22716 (GMP)", v:"Requested", c:Q.amber},
-    {k:"Quality agreement", v:"Drafting", c:Q.amber},
-    {k:"Change control", v:"In place", c:Q.sage},
-    {k:"Incoming acceptance", v:"Defined", c:Q.sage}
-  ];
-  var cardsHtml = items.map(function(it){
-    return card('padding:16px;', '<div style="font-size:12.5px;color:'+Q.muted+';">'+it.k+'</div><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><span style="width:9px;height:9px;border-radius:99px;background:'+it.c+';"></span><span style="font-size:18px;color:'+Q.ink+';font-weight:600;">'+it.v+'</span></div>');
-  }).join('');
-  return '<div>'+moduleHeader('Supplier file','The manufacturer, under control','The contract manufacturer pulled into a controlled workflow: certifications, quality agreement, change control and incoming acceptance — the supplier side of a device-grade operation.')+
-    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px,1fr));gap:14px;">'+cardsHtml+'</div></div>';
-}
-function marketAccessModule(){
-  var cols = "0.6fr 1.2fr 2.4fr 1fr";
-  function sColor(s){ return s==="flag"?Q.clay:s==="progress"?Q.amber:Q.muted; }
-  function sLabel(s){ return s==="flag"?"Attention":s==="progress"?"In progress":"Planned"; }
-  var rows = MARKET_ACCESS.map(function(m,i){
-    return trow(cols, '<div style="font-size:17px;color:'+Q.ink+';font-weight:600;">'+m.region+'</div><div style="font-size:12.5px;color:'+Q.ink70+';">'+m.body+'</div><div style="font-size:12.5px;color:'+Q.ink70+';padding-right:8px;">'+m.items+'</div><div>'+pill(sColor(m.state),sLabel(m.state))+'</div>', i===MARKET_ACCESS.length-1);
-  }).join('');
-  return '<div>'+moduleHeader('Market access','Compliant in every market sold','Registration, responsible-person and notification duties tracked per region — including the open Australian position on classification and ingredient introduction.')+
-    tableShell(cols,["Region","Framework","Obligations","State"],rows)+'</div>';
-}
-function compliance(){
-  var tabs = [["claims","Claims"],["evidence","Evidence"],["testing","Testing"],["risk","Risk &amp; post-market"],["market","Markets"]];
-  var tabHtml = tabs.map(function(t){ var k=t[0], l=t[1], on=state.tab===k;
-    return '<button data-tab="'+k+'" style="border:none;background:'+(on?Q.surface2:'transparent')+';color:'+(on?Q.ink:Q.muted)+';border-radius:8px;padding:8px 14px;font-size:13px;font-weight:'+(on?600:400)+';border-bottom:2px solid '+(on?Q.gold:'transparent')+';">'+l+'</button>';
-  }).join('');
-  var map = {claims:claimsModule, evidence:evidenceModule, testing:testingModule, risk:riskVigilanceModule, market:marketAccessModule};
-  var body = map[state.tab]();
-  return '<div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid '+Q.hair+';padding-bottom:12px;">'+tabHtml+'</div>'+body+'</div>';
-}
-
-/* ---- shell ---- */
-function content(){
-  var selected = state.product ? PRODUCTS.filter(function(p){return p.id===state.product;})[0] : null;
-  if (selected) return productDetail(selected);
-  if (state.view === "portfolio") return product();
-  if (state.view === "supplier") return supplier();
-  if (state.view === "compliance") return compliance();
-  return studio();
-}
-function shell(){
-  var selected = state.product;
-  var navItem = NAV.filter(function(n){return n.k===state.view;})[0];
-  var headerTitle = selected ? "Product record" : (navItem ? navItem.label : "");
-  var nav = NAV.map(function(n){
-    var active = (!selected && state.view===n.k) || (selected && n.k==="portfolio");
-    return '<button class="nav-item" data-nav="'+n.k+'" style="position:relative;text-align:left;border:none;border-radius:9px;padding:10px 12px 10px 16px;background:'+(active?Q.surface2:'transparent')+';color:'+(active?Q.ink:Q.muted)+';font-size:13.5px;font-weight:'+(active?600:500)+';display:flex;align-items:center;white-space:nowrap;">'+
-      '<span style="position:absolute;left:4px;top:50%;transform:translateY(-50%);width:3px;height:'+(active?16:0)+'px;border-radius:2px;background:'+Q.gold+';"></span>'+n.label+'</button>';
-  }).join('');
-  return '<div class="qcs-shell" style="display:flex;min-height:100vh;">'+
-    '<aside class="qcs-side" style="width:250px;flex:none;background:'+Q.surface+';border-right:1px solid '+Q.hair+';display:flex;flex-direction:column;padding:18px;">'+
-      '<div class="side-brand" style="padding:4px 6px 18px;border-bottom:1px solid '+Q.hair+';margin-bottom:14px;"><div style="display:flex;align-items:center;gap:10px;"><span style="width:26px;height:26px;border-radius:7px;flex:none;border:1.5px solid '+Q.green+';background:radial-gradient(120% 120% at 28% 18%, '+Q.gold+'55, transparent 62%);display:grid;place-items:center;font-size:12px;font-weight:700;color:'+Q.green+';">S</span><div style="font-size:19px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</div></div><div style="font-family:\'JetBrains Mono\',monospace;font-size:8.5px;letter-spacing:.14em;color:'+Q.goldDeep+';margin-top:9px;">PRODUCT · SUPPLIER · COMPLIANCE</div></div>'+
-      '<nav style="display:flex;flex-direction:column;gap:2px;">'+nav+'</nav>'+
-      '<div class="side-foot" style="margin-top:auto;padding-top:16px;border-top:1px solid '+Q.hair+';"><div style="font-size:11px;color:'+Q.muted+';line-height:1.5;">A <span style="color:'+Q.ink+';font-weight:600;">SMEDTEC</span> build · in your brand</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:9.5px;color:'+Q.muted+';margin-top:3px;">Illustration · anonymised sample data</div><button data-reset-demo style="margin-top:10px;border:none;background:transparent;color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.04em;text-decoration:underline;cursor:pointer;padding:0;">Reset demo data</button></div>'+
-    '</aside>'+
-    '<main style="flex:1;min-width:0;">'+
-      '<div style="background:'+Q.surface2+';border-bottom:1px solid '+Q.hair+';color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.06em;padding:9px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;"><span style="display:inline-flex;align-items:center;gap:8px;"><span style="width:6px;height:6px;border-radius:99px;background:'+Q.gold+';flex:none;"></span>ILLUSTRATION · A SMEDTEC BUILD FOR A FICTIONAL BRAND</span><span style="color:'+Q.goldDeep+';">Visualisation only · every build is bespoke, never templated</span></div>'+
-      '<header style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 28px;border-bottom:1px solid '+Q.hair+';background:'+Q.surface+';box-shadow:0 1px 0 rgba(26,36,51,.03);">'+
-        '<div style="display:flex;align-items:center;gap:14px;"><button data-gate="home" title="Back to start" style="display:inline-flex;align-items:center;gap:7px;border:1px solid '+Q.hair+';background:'+Q.surface+';color:'+Q.muted+';border-radius:9px;padding:7px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;">\u2190 Start</button><div><div style="font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.1em;color:'+Q.muted+';text-transform:uppercase;"><span data-rename-company style="cursor:pointer;border-bottom:1px dashed '+Q.muted+'66;">'+COMPANY+'</span> · full range</div><div style="font-size:19px;color:'+Q.ink+';font-weight:700;letter-spacing:-.01em;">'+headerTitle+'</div></div></div>'+
-        '<div style="display:flex;align-items:center;gap:16px;"><div style="text-align:right;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:'+Q.muted+';">MARKETS</div><div style="font-size:13px;color:'+Q.ink+';">US · EU · UK · AU</div></div><span style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:'+Q.goldDeep+';border:1px solid '+Q.gold+'55;background:'+Q.gold+'14;padding:5px 12px;border-radius:999px;">'+PRODUCTS.length+' products</span></div>'+
-      '</header>'+
-      '<div style="padding:28px;max-width:1180px;">'+content()+'</div>'+
-      '<div style="padding:14px 28px;border-top:1px solid '+Q.hair+';background:'+Q.surface+';color:'+Q.muted+';font-size:11.5px;line-height:1.55;">Note · This is a visualisation only. Every Studio is built from scratch around your own products and systems — never from a template. It is here purely to help you understand what the product can do.</div>'+
-    '</main></div>' + modalView();
-}
-
-/* ---- interactive: make-it-yours ---- */
-function val(id){ var el=document.getElementById(id); return el?String(el.value).trim():""; }
-function addBtn(attr, label){ return '<button '+attr+' style="flex:none;border:1px solid '+Q.gold+'66;background:'+Q.gold+'12;color:'+Q.goldDeep+';border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;">'+label+'</button>'; }
-function tipStrip(){
-  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:'+Q.gold+'0F;border:1px solid '+Q.gold+'3D;border-radius:13px;padding:13px 16px;">'+
-    '<span style="font-size:12.5px;color:'+Q.ink+';line-height:1.45;max-width:58ch;"><strong style="color:'+Q.goldDeep+';">Make it yours.</strong> Add a product or a task, connect a tool, or let the assistant set it up \u2014 changes are saved in your browser for this demo.</span>'+
-    '<span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'+addBtn('data-open-assistant','Try the assistant \u2192')+'<button data-dismiss-tip style="border:none;background:transparent;color:'+Q.muted+';font-family:\'JetBrains Mono\',monospace;font-size:10.5px;letter-spacing:.04em;cursor:pointer;padding:4px 8px;">DISMISS</button></span></div>';
-}
-function field(label, inner){ return '<label style="display:block;margin-bottom:13px;"><span style="display:block;font-family:\'JetBrains Mono\',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:'+Q.muted+';margin-bottom:5px;">'+label+'</span>'+inner+'</label>'; }
-function inputEl(id, ph, v){ return '<input id="'+id+'" value="'+(v||'')+'" placeholder="'+(ph||'')+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;color:'+Q.ink+';background:#fff;" />'; }
-function selectEl(id, opts){ return '<select id="'+id+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;color:'+Q.ink+';background:#fff;">'+opts.map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('')+'</select>'; }
-
-function modalView(){
-  if(!state.modal) return '';
-  var body='', title='', btn='Add';
-  if(state.modal==='product'){ title='Add a product';
-    body = field('Product name', inputEl('m_name','e.g. Vitamin C Day Cream'))
-      + field('Category', selectEl('m_cat', Object.keys(CAT).map(function(k){return [k,CAT[k].label];})))
-      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('Stage', selectEl('m_stage', Object.keys(STAGE).map(function(k){return [k,STAGE[k].label];})))+'</div>'
-      + '<div style="flex:1;">'+field('Posture', selectEl('m_posture', Object.keys(POSTURE).map(function(k){return [k,POSTURE[k].label];})))+'</div></div>';
-  } else if(state.modal==='task'){ title='Add a task';
-    body = field('Task', inputEl('m_title','e.g. Draft claims matrix'))
-      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('SKU (optional)', inputEl('m_sku','e.g. SER-002'))+'</div>'
-      + '<div style="flex:1;">'+field('Owner', inputEl('m_owner','You'))+'</div></div>'
-      + '<div style="display:flex;gap:10px;"><div style="flex:1;">'+field('Due', inputEl('m_due','e.g. 20 Aug'))+'</div>'
-      + '<div style="flex:1;">'+field('Priority', selectEl('m_prio',[['high','High'],['med','Medium'],['low','Low']]))+'</div></div>'
-      + field('Column', selectEl('m_status',[['todo','To do'],['doing','In progress'],['review','In review'],['done','Done']]));
-  } else if(state.modal==='company'){ title='Rename the workspace'; btn='Save';
-    body = field('Company name', inputEl('m_company','', COMPANY));
-  }
-  return '<div id="modalbg" style="position:fixed;inset:0;background:rgba(26,36,51,.45);display:grid;place-items:center;z-index:60;padding:20px;">'+
-    '<div style="background:#fff;border-radius:16px;box-shadow:0 30px 80px -28px rgba(26,36,51,.6);width:100%;max-width:440px;padding:24px;">'+
-      eyebrow('SMEDTEC Studio')+
-      '<div style="font-size:20px;font-weight:700;color:'+Q.ink+';letter-spacing:-.01em;margin-bottom:16px;">'+title+'</div>'+
-      body+
-      '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px;">'+
-        '<button data-modal-close style="border:1px solid '+Q.hair+';background:#fff;color:'+Q.muted+';border-radius:9px;padding:9px 16px;font-size:13px;cursor:pointer;">Cancel</button>'+
-        '<button data-modal-save="'+state.modal+'" style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:9px;padding:9px 18px;font-size:13px;cursor:pointer;">'+btn+'</button>'+
-      '</div></div></div>';
-}
-function addProduct(){
-  var name=val('m_name'); if(!name){ state.modal=null; render(); return; }
-  var cat=val('m_cat')||'skincare', id='p'+Date.now();
-  var pfx={monitor:'MON',therapy:'THR',skincare:'SKN',haircare:'HAIR',oral:'ORAL',wellbeing:'WEL',acc:'ACC'}[cat]||'SKU';
-  var sku=pfx+'-'+(Math.floor(Math.random()*900)+100);
-  PRODUCTS.push({id:id,name:name,cat:cat,posture:val('m_posture')||'cosmetic',stage:val('m_stage')||'concept',ready:15,spec:'Added in this demo',note:'Added in this demo session \u2014 in a real build this would carry its full spec, claims and evidence.',markets:['planned','planned','planned','planned'],claims:[],mx:40+Math.floor(Math.random()*25),my:12+Math.floor(Math.random()*18)});
-  META[id]={sku:sku,owner:'You'};
-  state.modal=null; persist(); render();
-}
-function addTask(){
-  var t=val('m_title'); if(!t){ state.modal=null; render(); return; }
-  TASKS.push({t:t,sku:val('m_sku')||'\u2014',owner:val('m_owner')||'You',due:val('m_due')||'\u2014',status:val('m_status')||'todo',prio:val('m_prio')||'med'});
-  state.modal=null; persist(); render();
-}
-function setCompany(){ var n=val('m_company'); if(n) COMPANY=n; state.modal=null; persist(); render(); }
-function toggleInt(name){ INTEGRATIONS.forEach(function(i){ if(i.name===name){ i.on=!i.on; i.sync=i.on?'just now':''; if(i.on&&i.flow==='Available') i.flow=name+' connected'; } }); persist(); render(); }
-
-var root = document.getElementById("root");
-/* ===== Gate + Setup wizard (build-to-order experience) ===== */
-function gateTopBar(){
-  return '<div style="display:flex;align-items:center;gap:10px;padding:16px 24px;border-bottom:1px solid '+Q.hair+';"><span style="width:26px;height:26px;border-radius:7px;border:1.5px solid '+Q.green+';background:radial-gradient(120% 120% at 28% 18%, '+Q.gold+'55, transparent 62%);display:grid;place-items:center;font-size:12px;font-weight:700;color:'+Q.green+';">S</span><span style="font-size:18px;letter-spacing:.14em;color:'+Q.green+';font-weight:700;">SMED<span style="color:'+Q.gold+';">·</span>TEC</span></div>';
-}
-function eyebrowCentered(t){ return '<div style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:'+Q.goldDeep+';margin-bottom:12px;">'+t+'</div>'; }
-function gateCard(key,title,desc,cta){
-  var icon = key==='sample'
-    ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="3" y="4.5" width="18" height="13" rx="2" stroke="'+Q.gold+'" stroke-width="1.6"/><path d="M3 9.5 H21 M8 17.5 v2.5 M16 17.5 v2.5 M7 20 h10" stroke="'+Q.gold+'" stroke-width="1.6" stroke-linecap="round"/></svg>'
-    : '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 3 v6 M12 15 v6 M3 12 h6 M15 12 h6" stroke="'+Q.gold+'" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" stroke="'+Q.gold+'" stroke-width="1.6"/></svg>';
-  return '<button class="gate-card" data-gate="'+key+'" style="text-align:left;background:'+Q.surface+';border:1px solid '+Q.hair+';border-radius:16px;padding:26px 24px;box-shadow:0 1px 2px rgba(26,36,51,.03);display:flex;flex-direction:column;gap:14px;min-height:228px;">'+
-    '<span style="width:48px;height:48px;border-radius:12px;background:'+Q.gold+'12;border:1px solid '+Q.gold+'33;display:grid;place-items:center;">'+icon+'</span>'+
-    '<div style="font-size:21px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;">'+title+'</div>'+
-    '<div style="font-size:13px;color:'+Q.muted+';line-height:1.55;flex:1;">'+desc+'</div>'+
-    '<span style="display:inline-flex;align-items:center;gap:8px;color:'+Q.goldDeep+';font-weight:600;font-size:13.5px;">'+cta+' <span style="font-size:16px;">\u2192</span></span>'+
-  '</button>';
-}
-function gateScreen(){
-  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
-    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:44px 22px;">'+
-      '<div style="width:100%;max-width:880px;">'+
-        '<div style="text-align:center;margin-bottom:34px;">'+eyebrowCentered('SMEDTEC Studio · demonstration')+
-          '<div style="font-size:33px;font-weight:700;color:'+Q.ink+';letter-spacing:-.025em;line-height:1.12;">Every Studio is built to order</div>'+
-          '<div style="color:'+Q.muted+';font-size:14px;margin:11px auto 0;max-width:56ch;line-height:1.55;">See a ready-made sample, or build a view from your own company in about a minute. Either way, the real thing is made from scratch around your products and systems.</div>'+
-        '</div>'+
-        '<div class="qcs-gate" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">'+
-          gateCard('sample','See a sample setup','Jump into a fully populated Studio for a fictional brand — posture map, suppliers, claims and all.','Explore the sample')+
-          gateCard('build','Build your own','Answer a few quick questions — your products, your systems, your priorities — and watch a Studio assemble around them.','Build my view')+
-        '</div>'+
-        '<div style="text-align:center;margin-top:26px;font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.08em;color:'+Q.muted+';">VISUALISATION ONLY · NOTHING HERE IS A LIVE SYSTEM</div>'+
-      '</div>'+
-    '</div></div>';
-}
-function inputElBig(id,ph,v){ return '<input id="'+id+'" value="'+(v||'')+'" placeholder="'+(ph||'')+'" style="width:100%;border:1px solid '+Q.hair+';border-radius:11px;padding:13px 15px;font-family:inherit;font-size:16px;color:'+Q.ink+';background:#fff;" />'; }
-function wizPick(title,desc,key,opts){
-  var sel = state.wiz[key]||[];
-  var chips = opts.map(function(o){ var on = sel.indexOf(o[0])>-1;
-    return '<button class="wz-chip" data-wiz-toggle="'+key+':'+o[0]+'" style="text-align:left;border:1px solid '+(on?Q.gold+'88':Q.hair)+';background:'+(on?Q.gold+'12':Q.surface)+';color:'+Q.ink+';border-radius:11px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;">'+
-      '<span style="width:18px;height:18px;border-radius:6px;border:1.5px solid '+(on?Q.gold:Q.hair)+';background:'+(on?Q.gold:'transparent')+';display:grid;place-items:center;color:#06231f;font-size:11px;flex:none;">'+(on?'\u2713':'')+'</span>'+
-      '<span style="font-size:13.5px;">'+o[1]+'</span></button>';
-  }).join('');
-  return '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">'+title+'</div>'+
-    '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;line-height:1.5;">'+desc+'</div>'+
-    '<div class="wz-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'+chips+'</div>';
-}
-function wizSummary(){
-  function row(lbl,arr,opts){ var names=(arr||[]).map(function(k){var f=opts.filter(function(o){return o[0]===k;})[0];return f?f[1]:k;}).join(', ')||'\u2014';
-    return '<div style="display:flex;gap:12px;padding:9px 0;border-top:1px solid '+Q.line2+';"><span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:'+Q.muted+';width:92px;flex:none;padding-top:2px;">'+lbl+'</span><span style="font-size:13px;color:'+Q.ink+';line-height:1.5;">'+names+'</span></div>'; }
-  return '<div style="border:1px solid '+Q.hair+';border-radius:11px;padding:2px 14px;">'+row('Products',state.wiz.types,PRODUCT_TYPES)+row('Systems',state.wiz.systems,SYSTEM_OPTS)+row('Priorities',state.wiz.issues,ISSUE_OPTS)+'</div>';
-}
-function wizardBuilding(){
-  var steps=["Creating your products","Connecting your systems","Plotting the posture map","Surfacing your priorities","Finishing your Studio"];
-  var lines = steps.map(function(s,i){ return '<div class="wz-step" style="animation-delay:'+(i*0.45)+'s;display:flex;align-items:center;gap:10px;font-size:13.5px;color:'+Q.ink+';margin-bottom:11px;"><span style="width:16px;height:16px;border-radius:99px;background:'+Q.sage+';color:#fff;display:grid;place-items:center;font-size:10px;flex:none;">\u2713</span>'+s+'</div>'; }).join('');
-  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
-    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px;">'+
-      '<div style="width:100%;max-width:460px;text-align:center;">'+
-        '<div class="wz-spin" style="margin:0 auto 22px;"></div>'+
-        '<div style="font-size:20px;font-weight:700;color:'+Q.ink+';letter-spacing:-.01em;margin-bottom:6px;">Building '+(state.wiz.company||'your Studio')+'</div>'+
-        '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:24px;">Assembling your view from your answers.</div>'+
-        '<div style="text-align:left;display:inline-block;">'+lines+'</div>'+
-      '</div>'+
-    '</div></div>';
-}
-function wizardScreen(){
-  if(state.wiz.building) return wizardBuilding();
-  var step = state.wiz.step;
-  var labels = ["Company","Products","Systems","Priorities","Build"];
-  var dots = labels.map(function(s,i){ var on=i<=step;
-    return '<div style="display:flex;align-items:center;gap:8px;"><span style="width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-family:\'JetBrains Mono\',monospace;font-size:10px;font-weight:600;background:'+(i<step?Q.gold:(i===step?Q.gold+'1A':'transparent'))+';color:'+(i<step?'#06231f':(i===step?Q.goldDeep:Q.muted))+';border:1px solid '+(on?Q.gold+'66':Q.hair)+';">'+(i<step?'\u2713':(i+1))+'</span><span style="font-size:11.5px;color:'+(i===step?Q.ink:Q.muted)+';font-weight:'+(i===step?600:400)+';">'+s+'</span></div>';
-  }).join('<span style="flex:1;height:1px;background:'+Q.hair+';margin:0 7px;"></span>');
-  var body, nextLabel="Continue";
-  if(step===0){
-    body = '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">What\u2019s your company called?</div>'+
-      '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;">This becomes the name on your Studio.</div>'+inputElBig('wz_company','e.g. Northwind Health', state.wiz.company);
-  } else if(step===1){ body = wizPick('What do you make?','Pick the categories that apply — your Studio is seeded with example SKUs for each.','types',PRODUCT_TYPES);
-  } else if(step===2){ body = wizPick('Which systems do you use?','Your Studio will show as connected to these. A real build wires into them for real.','systems',SYSTEM_OPTS);
-  } else if(step===3){ body = wizPick('What\u2019s slowing you down?','Pick your priorities — they decide what your Studio puts front and centre.','issues',ISSUE_OPTS);
-  } else {
-    body = '<div style="font-size:22px;font-weight:700;color:'+Q.ink+';letter-spacing:-.015em;margin-bottom:6px;">Ready to build '+(state.wiz.company||'your Studio')+'</div>'+
-      '<div style="font-size:13px;color:'+Q.muted+';margin-bottom:18px;max-width:52ch;line-height:1.55;">We\u2019ll assemble a Studio from your answers: example products, your systems connected, and your priorities surfaced.</div>'+wizSummary();
-    nextLabel="Build my Studio";
-  }
-  return '<div style="min-height:100vh;display:flex;flex-direction:column;background:'+Q.porcelain+';">'+gateTopBar()+
-    '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:34px 22px;">'+
-      '<div style="width:100%;max-width:620px;">'+
-        '<div style="display:flex;align-items:center;margin-bottom:26px;">'+dots+'</div>'+
-        card('padding:28px;', body)+
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;">'+
-          (step>0 ? '<button data-wiz-back style="border:1px solid '+Q.hair+';background:'+Q.surface+';color:'+Q.muted+';border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;">Back</button>'
-                  : '<button data-gate="home" style="border:none;background:transparent;color:'+Q.muted+';font-size:13px;cursor:pointer;">\u2190 Back to start</button>')+
-          (step<4 ? '<button data-wiz-next style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:10px;padding:10px 20px;font-size:13px;cursor:pointer;">'+nextLabel+' \u2192</button>'
-                  : '<button data-wiz-build style="border:none;background:'+Q.gold+';color:#06231f;font-weight:600;border-radius:10px;padding:10px 22px;font-size:13.5px;cursor:pointer;">Build my Studio \u2192</button>')+
-        '</div>'+
-      '</div>'+
-    '</div></div>';
-}
-function builtStrip(){
-  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:'+Q.gold+'0F;border:1px solid '+Q.gold+'3D;border-radius:13px;padding:13px 16px;">'+
-    '<span style="font-size:12.5px;color:'+Q.ink+';line-height:1.45;"><strong style="color:'+Q.goldDeep+';">Built for '+COMPANY+'.</strong>'+(FOCUS.length?' Focus: '+FOCUS.join(' · ')+'.':'')+' This view came from your answers — a real build is bespoke and wired to your systems.</span>'+
-    '<button data-rebuild style="flex:none;border:1px solid '+Q.gold+'66;background:'+Q.gold+'12;color:'+Q.goldDeep+';border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;">Rebuild</button></div>';
-}
-function buildFromWizard(){
-  var w=state.wiz;
-  COMPANY = (w.company||'').trim() || 'Your Company';
-  var types = (w.types&&w.types.length)?w.types:['skincare','monitor'];
-  var POST={skincare:'cosmetic',haircare:'cosmetic',oral:'watch',monitor:'device',therapy:'device',wellbeing:'watch',acc:'none'};
-  var SAMPLE={skincare:['Daily Moisturiser','Vitamin C Serum'],haircare:['Nourishing Shampoo','Repair Conditioner'],oral:['Whitening Toothpaste','Sonic Toothbrush'],monitor:['Digital Thermometer','Pulse Oximeter'],therapy:['TENS Relief Unit','Heat Therapy Pad'],wellbeing:['Smart Scale','Activity Band'],acc:['Sleep Mask','Travel Case']};
-  var PFX={skincare:'SKN',haircare:'HAIR',oral:'ORAL',monitor:'MON',therapy:'THR',wellbeing:'WEL',acc:'ACC'};
-  PRODUCTS=[]; META={}; var n=1;
-  types.forEach(function(cat){
-    (SAMPLE[cat]||['Product A','Product B']).forEach(function(nm){
-      var id='w'+n, post=POST[cat]||'cosmetic';
-      var ready = post==='device'?(35+Math.floor(Math.random()*25)) : post==='watch'?(56+Math.floor(Math.random()*18)) : post==='none'?(94+Math.floor(Math.random()*5)) : (80+Math.floor(Math.random()*14));
-      var mx = post==='device'?(72+Math.floor(Math.random()*16)) : post==='watch'?(42+Math.floor(Math.random()*14)) : post==='none'?(6+Math.floor(Math.random()*8)) : (14+Math.floor(Math.random()*16));
-      PRODUCTS.push({id:id,name:nm,cat:cat,posture:post,stage:'market',flagship:false,ready:ready,spec:'Example SKU created from your setup',note:'Created from your wizard answers \u2014 a real build would carry its full spec, claims and evidence.',markets:[post==='device'?'watch':'ok','ok','ok',post==='device'?'watch':'ok'],claims:[],mx:mx,my:ready});
-      META[id]={sku:(PFX[cat]||'SKU')+'-'+(100+n),owner:'You'}; n++;
-    });
-  });
-  var fl = PRODUCTS.filter(function(p){return p.posture==='device';})[0] || PRODUCTS[0];
-  if(fl) fl.flagship=true;
-  var sys=w.systems||[];
-  var KNOWN={Slack:'Alerts \u2192 #compliance',ClickUp:'Tasks \u2194 ClickUp','Monday.com':'Boards \u2194 Monday',Airtable:'Records \u2194 Airtable',Excel:'Exports \u2192 Excel'};
-  INTEGRATIONS = Object.keys(KNOWN).map(function(nm){ var on=sys.indexOf(nm)>-1; return {name:nm,flow:KNOWN[nm],sync:on?'just now':'',on:on}; });
-  if(sys.indexOf('Other')>-1) INTEGRATIONS.push({name:'Your tool',flow:'Custom API',sync:'just now',on:true});
-  var IT={claims:'Review the claims matrix',supplier:'Sign supplier quality agreement',evidence:'Bind evidence to every claim',market:'Map market access (US/EU/UK/AU)',audit:'Assemble the audit pack',manual:'Replace the tracking spreadsheets'};
-  TASKS=[]; (w.issues||[]).forEach(function(k,idx){ if(IT[k]) TASKS.push({t:IT[k],sku:'\u2014',owner:'You',due:'TBC',status:idx===0?'doing':'todo',prio:idx===0?'high':'med'}); });
-  if(!TASKS.length) TASKS.push({t:'Set up your first workstream',sku:'\u2014',owner:'You',due:'TBC',status:'todo',prio:'med'});
-  FOCUS = (w.issues||[]).map(function(k){var f=ISSUE_OPTS.filter(function(o){return o[0]===k;})[0];return f?f[1]:k;});
-  WIZ_DONE=true; persist();
-}
-
-function render(){
-  if(state.screen==="gate") root.innerHTML = gateScreen();
-  else if(state.screen==="wizard") root.innerHTML = wizardScreen();
-  else root.innerHTML = shell();
-  var L=document.getElementById("sa-launch"); if(L) L.style.display = (state.screen==="app") ? "flex" : "none";
-}
-
-root.addEventListener("click", function(e){
-  if (e.target && e.target.id === "modalbg") { state.modal = null; render(); return; }
-  var t = e.target.closest("[data-nav],[data-open-product],[data-back],[data-filter],[data-tab],[data-sel-claim],[data-add-product],[data-add-task],[data-toggle-int],[data-rename-company],[data-modal-close],[data-modal-save],[data-reset-demo],[data-dismiss-tip],[data-open-assistant],[data-gate],[data-wiz-next],[data-wiz-back],[data-wiz-toggle],[data-wiz-build],[data-rebuild]");
-  if (!t) return;
-  if (t.hasAttribute("data-modal-save")) {
-    var k = t.getAttribute("data-modal-save");
-    if (k === "product") addProduct(); else if (k === "task") addTask(); else if (k === "company") setCompany();
-  } else if (t.hasAttribute("data-modal-close")) {
-    state.modal = null; render();
-  } else if (t.hasAttribute("data-add-product")) {
-    state.modal = "product"; render();
-  } else if (t.hasAttribute("data-add-task")) {
-    state.modal = "task"; render();
-  } else if (t.hasAttribute("data-open-assistant")) {
-    if (window.openAssistant) window.openAssistant();
-  } else if (t.hasAttribute("data-rename-company")) {
-    state.modal = "company"; render();
-  } else if (t.hasAttribute("data-toggle-int")) {
-    toggleInt(t.getAttribute("data-toggle-int"));
-  } else if (t.hasAttribute("data-reset-demo")) {
-    resetDemo(); state.modal = null; render();
-  } else if (t.hasAttribute("data-dismiss-tip")) {
-    state.tip = false; render();
-  } else if (t.hasAttribute("data-sel-claim")) {
-    var mid = t.getAttribute("data-map"), cid = t.getAttribute("data-sel-claim");
-    state.sel[mid] = (state.sel[mid] === cid) ? null : cid; render();
-  } else if (t.hasAttribute("data-open-product")) {
-    state.product = t.getAttribute("data-open-product"); state.view = "portfolio"; render(); window.scrollTo(0,0);
-  } else if (t.hasAttribute("data-back")) {
-    state.product = null; render();
-  } else if (t.hasAttribute("data-nav")) {
-    state.product = null; state.view = t.getAttribute("data-nav"); render(); window.scrollTo(0,0);
-  } else if (t.hasAttribute("data-filter")) {
-    state.filter = t.getAttribute("data-filter"); render();
-  } else if (t.hasAttribute("data-tab")) {
-    state.tab = t.getAttribute("data-tab"); render();
-  } else if (t.hasAttribute("data-gate")) {
-    var g = t.getAttribute("data-gate");
-    if (g === "sample") { resetDemo(); state.screen = "app"; state.view = "studio"; state.product = null; render(); window.scrollTo(0,0); }
-    else if (g === "build") { state.wiz = { step:0, company:state.wiz.company||"", types:[], systems:[], issues:[], building:false }; state.screen = "wizard"; render(); }
-    else if (g === "home") { state.screen = "gate"; render(); }
-  } else if (t.hasAttribute("data-wiz-next")) {
-    if (state.wiz.step === 0) { var ci = document.getElementById("wz_company"); if (ci) state.wiz.company = ci.value.trim(); }
-    state.wiz.step = Math.min(4, state.wiz.step + 1); render();
-  } else if (t.hasAttribute("data-wiz-back")) {
-    state.wiz.step = Math.max(0, state.wiz.step - 1); render();
-  } else if (t.hasAttribute("data-wiz-toggle")) {
-    var parts = t.getAttribute("data-wiz-toggle").split(":"), key = parts[0], val = parts[1];
-    var arr = state.wiz[key] || (state.wiz[key] = []);
-    var ix = arr.indexOf(val); if (ix > -1) arr.splice(ix,1); else arr.push(val);
-    render();
-  } else if (t.hasAttribute("data-wiz-build")) {
-    state.wiz.building = true; render();
-    setTimeout(function(){ buildFromWizard(); state.wiz.building = false; state.screen = "app"; state.view = "studio"; state.product = null; render(); window.scrollTo(0,0); }, 2600);
-  } else if (t.hasAttribute("data-rebuild")) {
-    WIZ_DONE = false; FOCUS = []; state.wiz = { step:0, company:"", types:[], systems:[], issues:[], building:false }; state.screen = "wizard"; persist(); render();
-  }
-});
-
-/* ===== Studio Assistant — scripted illustration (not a live AI) ===== */
 (function(){
-  var css = document.createElement("style");
-  css.textContent = ""
-    + "#sa-launch{position:fixed;right:22px;bottom:22px;z-index:80;display:flex;align-items:center;gap:10px;}"
-    + "#sa-launch .lbl{background:#fff;border:1px solid "+Q.hair+";color:"+Q.ink+";font-size:12.5px;font-weight:600;padding:8px 12px;border-radius:999px;box-shadow:0 10px 24px -16px rgba(26,36,51,.5);}"
-    + "#sa-launch .btn{width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(140deg,#00C5A8,#0a8c7c);box-shadow:0 14px 30px -10px rgba(0,150,128,.6);display:grid;place-items:center;}"
-    + "#sa-panel{position:fixed;right:22px;bottom:22px;z-index:81;width:374px;max-width:calc(100vw - 32px);height:566px;max-height:calc(100vh - 44px);background:#fff;border:1px solid "+Q.hair+";border-radius:18px;box-shadow:0 40px 90px -28px rgba(26,36,51,.6);display:none;flex-direction:column;overflow:hidden;font-family:'DM Sans',sans-serif;}"
-    + "#sa-panel.open{display:flex;}"
-    + ".sa-head{background:radial-gradient(120% 160% at 90% -30%, rgba(0,197,168,.32), transparent 55%), linear-gradient(180deg,#33455f,#293850);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:11px;}"
-    + ".sa-head .mk{width:30px;height:30px;border-radius:8px;border:1.5px solid rgba(255,255,255,.4);background:radial-gradient(120% 120% at 28% 18%, rgba(0,197,168,.6), transparent 62%);display:grid;place-items:center;flex:none;}"
-    + ".sa-head .t{font-weight:700;font-size:14px;letter-spacing:-.01em;}"
-    + ".sa-head .tag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;color:#bfe9e0;margin-top:2px;}"
-    + ".sa-head .x{margin-left:auto;background:transparent;border:none;color:#cdd9e6;font-size:20px;cursor:pointer;line-height:1;}"
-    + ".sa-note{background:"+Q.surface2+";border-bottom:1px solid "+Q.hair+";color:"+Q.muted+";font-size:10.5px;line-height:1.45;padding:8px 14px;}"
-    + ".sa-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:"+Q.porcelain+";}"
-    + ".sa-b{max-width:85%;font-size:12.5px;line-height:1.45;padding:9px 12px;border-radius:13px;}"
-    + ".sa-ai{align-self:flex-start;background:#fff;border:1px solid "+Q.hair+";color:"+Q.ink+";border-bottom-left-radius:5px;}"
-    + ".sa-me{align-self:flex-end;background:"+Q.gold+"14;border:1px solid "+Q.gold+"40;color:"+Q.ink+";border-bottom-right-radius:5px;}"
-    + ".sa-step{align-self:flex-start;display:flex;align-items:center;gap:9px;font-size:12px;color:"+Q.ink+";background:#fff;border:1px solid "+Q.hair+";border-radius:10px;padding:7px 11px;max-width:92%;}"
-    + ".sa-step .ck{width:16px;height:16px;border-radius:99px;background:"+Q.sage+";color:#fff;display:grid;place-items:center;font-size:10px;flex:none;}"
-    + ".sa-typing{align-self:flex-start;display:flex;gap:4px;padding:11px 12px;background:#fff;border:1px solid "+Q.hair+";border-radius:13px;border-bottom-left-radius:5px;}"
-    + ".sa-typing i{width:6px;height:6px;border-radius:99px;background:"+Q.muted+";opacity:.5;animation:sablink 1s infinite;}"
-    + ".sa-typing i:nth-child(2){animation-delay:.2s;} .sa-typing i:nth-child(3){animation-delay:.4s;}"
-    + "@keyframes sablink{0%,60%,100%{opacity:.25;}30%{opacity:.9;}}"
-    + ".sa-sugs{display:flex;flex-wrap:wrap;gap:7px;padding:10px 12px;border-top:1px solid "+Q.hair+";background:#fff;}"
-    + ".sa-sugs button{font-size:11.5px;color:"+Q.goldDeep+";border:1px solid "+Q.gold+"55;background:"+Q.gold+"10;border-radius:999px;padding:6px 11px;cursor:pointer;}"
-    + ".sa-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid "+Q.hair+";background:#fff;}"
-    + ".sa-input input{flex:1;border:1px solid "+Q.hair+";border-radius:10px;padding:9px 11px;font-family:inherit;font-size:12.5px;color:"+Q.ink+";}"
-    + ".sa-input .send{border:none;background:"+Q.gold+";color:#06231f;font-weight:600;border-radius:10px;padding:0 15px;cursor:pointer;font-size:12.5px;}"
-    + "@media (prefers-reduced-motion: reduce){ .sa-typing i{animation:none;} }";
-  document.head.appendChild(css);
+  "use strict";
 
-  function spark(c){ return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2 L13.6 8.4 L20 10 L13.6 11.6 L12 18 L10.4 11.6 L4 10 L10.4 8.4 Z" fill="'+c+'"/><circle cx="18.6" cy="4.6" r="1.4" fill="'+c+'"/></svg>'; }
-
-  var launch = document.createElement("div");
-  launch.id = "sa-launch";
-  launch.innerHTML = '<span class="lbl">Studio Assistant</span><button class="btn" aria-label="Open assistant">'+spark("#06231f")+'</button>';
-  document.body.appendChild(launch);
-
-  var panel = document.createElement("div");
-  panel.id = "sa-panel";
-  panel.innerHTML = ""
-    + '<div class="sa-head"><span class="mk">'+spark("#bfe9e0")+'</span><div><div class="t">Studio Assistant</div><div class="tag">DEMONSTRATION · SCRIPTED</div></div><button class="x" aria-label="Close">×</button></div>'
-    + '<div class="sa-note">An illustration of the Studio assistant. Responses are scripted to show what it would do — a real build would be connected to your data and act for real.</div>'
-    + '<div class="sa-msgs" id="sa-msgs"></div>'
-    + '<div class="sa-sugs" id="sa-sugs"></div>'
-    + '<div class="sa-input"><input id="sa-in" placeholder="Ask the assistant…" /><button class="send" id="sa-send">Send</button></div>';
-  document.body.appendChild(panel);
-
-  var msgs = panel.querySelector("#sa-msgs");
-  var sugBar = panel.querySelector("#sa-sugs");
-  var greeted = false, setupDone = false;
-
-  function scroll(){ msgs.scrollTop = msgs.scrollHeight; }
-  function ai(html){ var d=document.createElement("div"); d.className="sa-b sa-ai"; d.innerHTML=html; msgs.appendChild(d); scroll(); }
-  function me(text){ var d=document.createElement("div"); d.className="sa-b sa-me"; d.textContent=text; msgs.appendChild(d); scroll(); }
-  function step(text){ var d=document.createElement("div"); d.className="sa-step"; d.innerHTML='<span class="ck">✓</span><span>'+text+'</span>'; msgs.appendChild(d); scroll(); }
-  function typing(){ var d=document.createElement("div"); d.className="sa-typing"; d.innerHTML="<i></i><i></i><i></i>"; msgs.appendChild(d); scroll(); return d; }
-  function after(ms, fn){ setTimeout(fn, ms); }
-
-  var SUGS = [
-    ["What is SMEDTEC Studio?", "about"],
-    ["Set up a starter portfolio", "setup"],
-    ["Check my claims for risks", "claims"],
-    ["Connect ClickUp", "clickup"]
+  var NODES = [
+    {id:"sup",  side:"in",  x:150, y:120, glyph:"SUP", name:"Suppliers / OEM", role:"Specs, certificates, test reports",
+      flowIn:"Conformity certificates, bills of materials and declarations from each manufacturer.",
+      flowOut:"Requests for missing documents, and the current status of everything you've asked for.",
+      owned:"Their documents live in your system, version-stamped and searchable."},
+    {id:"lab",  side:"in",  x:150, y:255, glyph:"LAB", name:"Test labs", role:"Biocompatibility, SPF, safety reports",
+      flowIn:"Test reports as they're issued, matched to the product and claim they support.",
+      flowOut:"What still needs testing, and which reports are close to expiry.",
+      owned:"Every report is tied to the claim it backs, so evidence gaps are visible at a glance."},
+    {id:"pim",  side:"in",  x:150, y:390, glyph:"PIM", name:"Commerce / PIM", role:"Products, SKUs, markets",
+      flowIn:"Your product catalogue, variants and the markets each one sells into.",
+      flowOut:"Compliance status per SKU, so a product can't quietly ship somewhere it isn't cleared.",
+      owned:"One product list, shared with the system rather than re-keyed into it."},
+    {id:"reg",  side:"in",  x:150, y:520, glyph:"REG", name:"Rule changes", role:"Regulation updates by market", stat:"Statutory",
+      flowIn:"Changes to the rules in each market you sell into, drawn from regulatory sources.",
+      flowOut:"Which of your products and claims a change actually touches.",
+      owned:"You see a rule change as a short list of affected SKUs, not a 40-page bulletin."},
+    {id:"slack", side:"out", x:850, y:120, glyph:"MSG", name:"Slack", role:"Alerts and approvals",
+      flowIn:"Approvals and replies from your team, fed back against the right item.",
+      flowOut:"Short, specific alerts: a certificate expiring, a claim now unsupported.",
+      owned:"Alerts land where your team already works, not in a tool they have to remember to open."},
+    {id:"tasks", side:"out", x:850, y:255, glyph:"TSK", name:"Project tool", role:"Tasks and owners",
+      flowIn:"When a task is completed, the system marks the underlying item resolved.",
+      flowOut:"Tasks with a named owner whenever something needs doing, with the context attached.",
+      owned:"Work shows up in your existing board — ClickUp, Monday, Asana — not a separate to-do list."},
+    {id:"data", side:"out", x:850, y:390, glyph:"REG2", name:"Your registers", role:"Airtable / Excel",
+      flowIn:"The spreadsheets and tables you already keep, read in rather than replaced.",
+      flowOut:"A clean, current copy of each register, written back so your records stay in sync.",
+      owned:"Your existing way of working is connected, not thrown away."},
+    {id:"email", side:"out", x:850, y:520, glyph:"@", name:"Email", role:"External comms",
+      flowIn:"Replies from suppliers and partners, logged against the request that prompted them.",
+      flowOut:"Document requests and chasers to suppliers, sent and tracked.",
+      owned:"Every external request has a trail, so nothing depends on one person's inbox."}
   ];
-  sugBar.innerHTML = SUGS.map(function(s,i){ return '<button data-sg="'+i+'">'+s[0]+'</button>'; }).join("");
 
-  function addProductSilent(name, cat, posture, stage){
-    var id = "p"+Date.now()+Math.floor(Math.random()*99);
-    var pfx = {monitor:"MON",therapy:"THR",skincare:"SKN",haircare:"HAIR",oral:"ORAL",wellbeing:"WEL",acc:"ACC"}[cat] || "SKU";
-    PRODUCTS.push({id:id,name:name,cat:cat,posture:posture,stage:stage,ready:25,spec:"Added by the assistant",note:"Created by the Studio assistant in this demo session.",markets:["ok","ok","ok","planned"],claims:[],mx:30+Math.floor(Math.random()*40),my:20+Math.floor(Math.random()*28)});
-    META[id] = {sku:pfx+"-"+(Math.floor(Math.random()*900)+100), owner:"You"};
-    try{ persist(); }catch(e){}
+  var EDGES = [
+    {id:"e-sup",node:"sup",dir:"in"},{id:"e-lab",node:"lab",dir:"in"},{id:"e-pim",node:"pim",dir:"in"},{id:"e-reg",node:"reg",dir:"in"},
+    {id:"e-slack",node:"slack",dir:"out"},{id:"e-tasks",node:"tasks",dir:"out"},{id:"e-data",node:"data",dir:"out"},{id:"e-email",node:"email",dir:"out"}
+  ];
+  var HUB = {cx:500, cy:300, left:380, right:620, halfH:78};
+
+  var SCENARIOS = [
+    {id:"report", label:"Supplier test report arrives", steps:[
+      {edge:"e-sup", facet:"f-suppliers", text:"A supplier uploads a new test report. Studio takes it in and files it against the right product."},
+      {facet:"f-claims", text:"It matches the report to the claim it supports and checks that claim is backed by valid, in-date evidence."},
+      {facet:"f-claims", ai:{id:"r1", reason:["This report supplies the stability data the 'brightens skin tone' claim relies on.","A separate biocompatibility certificate for the same product expires in 21 days.","Nothing here is wrong, but one piece of supporting evidence is about to lapse."], recommend:"Renew the expiring certificate before it affects the product's status."}},
+      {facet:"f-tasks", edge:"e-tasks", action:{id:"ra1", linked:"r1", title:"Renew expiring certificate", product:"Radiance Vitamin C Serum", sku:"SKN-014", claim:"Brightens and evens skin tone", owner:"Regulatory", lands:"Project tool", status:"Awaiting your approval"}},
+      {edge:"e-slack", text:"A short alert goes to your channel so the renewal doesn't wait on someone noticing."}
+    ]},
+    {id:"claim", label:"You add a product claim", steps:[
+      {facet:"f-claims", text:"You add a new claim to a product: 'suitable for sensitive skin'."},
+      {facet:"f-claims", ai:{id:"c1", reason:["A 'sensitive skin' claim is best supported by human repeat-insult patch test (HRIPT) data.","The product has a current safety assessment, but no irritation study on file.","So the claim is plausible, but not yet substantiated by the evidence held."], recommend:"Hold the claim until irritation data is in, and request the test."}},
+      {facet:"f-suppliers", edge:"e-email", action:{id:"ca1", linked:"c1", title:"Hold claim, request irritation test", product:"Calm Sensitive Moisturiser", sku:"SKN-022", claim:"Suitable for sensitive skin", owner:"Regulatory", lands:"Email", status:"Awaiting your approval"}},
+      {facet:"f-products", text:"Until you approve and the data lands, the claim stays off the live product. The range only says what it can prove."}
+    ]},
+    {id:"rule", label:"A market changes its rules", steps:[
+      {edge:"e-reg", facet:"f-products", text:"A market updates its requirements. Studio reads the change and finds every SKU it touches."},
+      {facet:"f-claims", text:"It checks which claims and evidence are affected, and which now fall short."},
+      {facet:"f-tasks", edge:"e-tasks", action:{id:"ru1", title:"Re-label affected SKUs to the new limit", product:"Daily SPF 30 Fluid", sku:"SKN-031", claim:"SPF 30 broad spectrum", owner:"Product", lands:"Project tool", status:"Awaiting your approval"}},
+      {edge:"e-data", text:"Your registers update to match the new rule, not the old one."},
+      {edge:"e-slack", text:"And one alert tells the team what changed and what it means for you."}
+    ]},
+    {id:"market", label:"Product enters a new market", steps:[
+      {edge:"e-pim", facet:"f-products", text:"A SKU is set to launch in a new market. Studio maps that market's requirements to the product."},
+      {facet:"f-claims", text:"It checks which evidence transfers across and what's specific to the new market."},
+      {facet:"f-suppliers", ai:{id:"m1", reason:["The product's existing test pack already covers the EU and UK requirements.","The new market also needs a local responsible-person declaration and an ingredient registration.","The hardware is unchanged, so most evidence carries over: only the local paperwork is missing."], recommend:"Carry the existing evidence across; request only the two market-specific documents."}},
+      {facet:"f-suppliers", edge:"e-sup", action:{id:"ma1", linked:"m1", title:"Request local declarations for launch", product:"Micro-Roller", sku:"DEV-007", claim:"Enhances serum absorption", owner:"Regulatory", lands:"Suppliers / OEM", status:"Awaiting your approval"}}
+    ]},
+    {id:"adverse", label:"A customer reports a reaction", steps:[
+      {edge:"e-email", facet:"f-products", reverse:true, text:"A customer reaction is reported through support. Studio logs it against the exact product and batch."},
+      {facet:"f-claims", ai:{id:"v1", reason:["This is the first report for this product in 90 days, so not yet a trend.","The reaction described is mild and transient, not a serious undesirable effect.","Under cosmetic vigilance a serious effect would be reportable; on current information, this is not.","But a second similar report would change that picture."], recommend:"Record and monitor, and set a threshold to re-flag if a second similar report arrives. Whether something is reportable is a regulated judgement, so it stays your call."}},
+      {facet:"f-tasks", edge:"e-data", action:{id:"va1", linked:"v1", title:"Record in vigilance log, set monitoring threshold", product:"Calm Sensitive Moisturiser", sku:"SKN-022", claim:"\u2014", owner:"Quality", lands:"Your registers", status:"Awaiting your approval"}},
+      {edge:"e-slack", text:"The decision and its reasoning are recorded against the product, so the trail is there if a regulator ever asks."}
+    ]},
+    {id:"retailer", label:"A retailer requests your pack", steps:[
+      {edge:"e-email", facet:"f-products", reverse:true, text:"A retailer asks for your compliance pack before listing a product. Studio pulls the request in."},
+      {facet:"f-claims", text:"It assembles the pack from evidence already held: safety assessment, test reports, declarations."},
+      {facet:"f-claims", ai:{id:"t1", reason:["The safety assessment, ingredient list and stability data are present and current.","The latest batch test certificate is missing from the file.","The pack is most of the way there; sending it now would mean a follow-up and a delay."], recommend:"Request the one missing certificate from the supplier, then release the complete pack."}},
+      {facet:"f-suppliers", edge:"e-sup", action:{id:"ta1", linked:"t1", title:"Request missing certificate, then release pack", product:"Recover TENS Device", sku:"THR-003", claim:"Relieves muscle pain", owner:"Regulatory", lands:"Suppliers / OEM", status:"Awaiting your approval"}},
+      {edge:"e-tasks", text:"A task tracks the gap so the pack goes out complete, not piecemeal."}
+    ]}
+  ];
+
+  var FEED_LINES = [
+    "CPSR on file \u00b7 SKN-022 \u00b7 safety assessment current",
+    "MoCRA product listing confirmed \u00b7 SKN-014 \u00b7 US",
+    "UK SCPN notification verified \u00b7 SKN-031",
+    "EU CPNP notification verified \u00b7 SKN-014",
+    "UKCA technical file updated \u00b7 THR-003",
+    "510(k) status current \u00b7 THR-003 \u00b7 US",
+    "Annex III screen passed \u00b7 no restricted actives \u00b7 SKN-031",
+    "INCI / ingredient check \u00b7 SKN-022 \u00b7 all permitted",
+    "ISO 13485 audit action closed \u00b7 OEM-1",
+    "Batch test certificate received \u00b7 OEM-1 \u00b7 THR-003",
+    "SPF test renewed \u00b7 SKN-031 \u00b7 ISO 24444",
+    "Stability data within shelf life \u00b7 12 SKUs",
+    "Responsible Person details current \u00b7 EU & UK",
+    "TGA listing check \u00b7 DEV-007 \u00b7 AU",
+    "Claim substantiation reviewed \u00b7 \u0027brightens\u0027 evidenced \u00b7 SKN-014",
+    "Vigilance log \u00b7 0 serious undesirable effects this quarter",
+    "Rule monitor \u00b7 no changes across UK, EU, US or AU today",
+    "Evidence check passed \u00b7 11 SKUs cleared for EU",
+    "Posture recalculated \u00b7 14 products in sync",
+    "Supplier declaration requested \u00b7 awaiting reply"
+  ];
+
+  var BASE_COUNTS = {products:14, claims:23, claimsFlag:2, suppliers:3, tasks:5};
+  var state = { company:"", enabled:{}, scenario:"report", playing:false, token:0, railMode:"ambient", sync:0, counts:Object.assign({},BASE_COUNTS), lastFeed:-1 };
+  NODES.forEach(function(n){ state.enabled[n.id] = true; });
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var stage = document.getElementById("stage");
+  var svg = document.getElementById("edges");
+  var SVGNS = "http://www.w3.org/2000/svg";
+  var nodeEls = {}, edgeEls = {};
+
+  function pct(v,total){ return v/total*100; }
+  function nodeById(id){ for(var i=0;i<NODES.length;i++){ if(NODES[i].id===id) return NODES[i]; } return null; }
+  function edgeMeta(id){ for(var i=0;i<EDGES.length;i++){ if(EDGES[i].id===id) return EDGES[i]; } return null; }
+  function nodeAnchor(n){ var hw=86; return n.side==="in" ? {x:n.x+hw,y:n.y} : {x:n.x-hw,y:n.y}; }
+  function hubAnchor(side,y){ var hy=Math.max(HUB.cy-HUB.halfH+12, Math.min(HUB.cy+HUB.halfH-12,y)); return side==="in"?{x:HUB.left,y:hy}:{x:HUB.right,y:hy}; }
+
+  function buildNodes(){
+    NODES.forEach(function(n){
+      var el=document.createElement("button");
+      el.className="node "+n.side;
+      el.style.left=pct(n.x,1000)+"%"; el.style.top=pct(n.y,600)+"%";
+      el.setAttribute("data-node",n.id);
+      el.setAttribute("aria-label",n.name+" \u2014 "+n.role);
+      el.innerHTML=(n.stat?'<span class="stat-tag">'+n.stat+'</span>':'')+
+        '<span class="conn-dot"></span>'+
+        '<div class="n-top"><span class="glyph">'+n.glyph+'</span><span class="n-name">'+n.name+'</span></div>'+
+        '<div class="n-role">'+n.role+'</div>';
+      stage.appendChild(el); nodeEls[n.id]=el;
+    });
   }
-  function addTaskSilent(t, owner, status, prio){ TASKS.push({t:t,sku:"—",owner:owner,due:"TBC",status:status,prio:prio}); try{ persist(); }catch(e){} }
-  function toggleIntSilent(name, on){ INTEGRATIONS.forEach(function(i){ if(i.name===name){ i.on=on; i.sync=on?"just now":""; if(on&&i.flow==="Available") i.flow=name+" connected"; } }); try{ persist(); }catch(e){} }
+  function buildEdges(){
+    EDGES.forEach(function(e){
+      var n=nodeById(e.node), a=nodeAnchor(n), b=hubAnchor(e.dir,n.y);
+      var from=e.dir==="in"?a:b, to=e.dir==="in"?b:a, midx=(from.x+to.x)/2;
+      var d="M"+from.x+","+from.y+" C"+midx+","+from.y+" "+midx+","+to.y+" "+to.x+","+to.y;
+      var path=document.createElementNS(SVGNS,"path");
+      path.setAttribute("d",d); path.setAttribute("class","edge"); path.setAttribute("id",e.id);
+      svg.appendChild(path); edgeEls[e.id]={path:path};
+    });
+  }
+  function buildScenarioChips(){
+    var wrap=document.getElementById("scenarios");
+    SCENARIOS.forEach(function(s){
+      var b=document.createElement("button"); b.className="chip"; b.textContent=s.label;
+      b.setAttribute("data-scenario",s.id); b.setAttribute("aria-pressed",s.id===state.scenario?"true":"false");
+      wrap.appendChild(b);
+    });
+  }
+  function buildStackToggles(){
+    var wrap=document.getElementById("stack");
+    NODES.forEach(function(n){
+      var b=document.createElement("button"); b.className="stack-toggle"; b.textContent=n.name;
+      b.setAttribute("data-toggle",n.id); b.setAttribute("aria-pressed","true");
+      wrap.appendChild(b);
+    });
+  }
+  function applyEnabled(){
+    NODES.forEach(function(n){ nodeEls[n.id].classList.toggle("dim",!state.enabled[n.id]); });
+    EDGES.forEach(function(e){ edgeEls[e.id].path.classList.toggle("off",!state.enabled[e.node]); });
+  }
+  function setScenario(id){
+    state.scenario=id;
+    document.querySelectorAll("#scenarios .chip").forEach(function(c){ c.setAttribute("aria-pressed",c.getAttribute("data-scenario")===id?"true":"false"); });
+  }
 
-  function runSetup(){
-    if(setupDone){ ai("I’ve already set up a starter portfolio — open the <b>Product</b> tab to see it."); return; }
-    setupDone = true;
-    var t = typing();
-    after(750, function(){
-      t.remove();
-      ai("On it. I’ll create a starter portfolio, map markets, connect a tool and draft the first tasks.");
-      after(800,  function(){ addProductSilent("Vitamin C Day Cream","skincare","cosmetic","market"); step("Created SKU · Vitamin C Day Cream"); });
-      after(1600, function(){ addProductSilent("Daily SPF 30 Moisturiser","skincare","watch","market"); step("Created SKU · Daily SPF 30 Moisturiser"); });
-      after(2400, function(){ addProductSilent("Digital Ear Thermometer","monitor","device","market"); step("Created SKU · Digital Ear Thermometer"); });
-      after(3200, function(){ toggleIntSilent("ClickUp", true); step("Connected ClickUp — tasks now sync"); });
-      after(4000, function(){ addTaskSilent("Biocompatibility test pack","You","doing","high"); addTaskSilent("Draft claims matrix","You","todo","med"); step("Drafted 2 tasks on the board"); });
-      after(4800, function(){ step("Flagged 1 claim that needs evidence"); });
-      after(5600, function(){ ai("Done — your starter Studio is ready. Open the <b>Product</b> tab to explore it, or use <b>Reset demo data</b> to start over."); render(); });
+  function clearFacets(){ ["f-products","f-claims","f-suppliers","f-tasks"].forEach(function(f){ document.getElementById(f).classList.remove("glow"); }); }
+  function clearEdges(){ EDGES.forEach(function(e){ edgeEls[e.id].path.classList.remove("active"); }); }
+  function clearNodes(){ Object.keys(nodeEls).forEach(function(k){ nodeEls[k].classList.remove("active"); }); }
+
+  function renderCounts(){
+    document.querySelector("#f-products .f-count").textContent=state.counts.products;
+    var cl=document.querySelector("#f-claims .f-count"); cl.innerHTML=state.counts.claims+(state.counts.claimsFlag>0?' <span class="flag">'+state.counts.claimsFlag+'\u26a0</span>':'');
+    document.querySelector("#f-suppliers .f-count").textContent=state.counts.suppliers;
+    document.querySelector("#f-tasks .f-count").textContent=state.counts.tasks;
+  }
+  function bump(id){ var el=document.getElementById(id); if(!el) return; el.classList.add("bump"); setTimeout(function(){ el.classList.remove("bump"); },420); }
+  function rippleHub(){ if(reduceMotion) return; var r=document.getElementById("hub-ripple"); r.classList.remove("go"); void r.offsetWidth; r.classList.add("go"); }
+
+  function showDetail(n){
+    if(state.playing) return;
+    state.railMode="detail";
+    document.getElementById("rail-title").innerHTML='<span class="pulse-dot"></span>What flows through';
+    var html='<div style="margin-top:6px">'+
+      '<div class="a-title" style="font-size:15px">'+n.name+'</div>'+
+      '<div class="recommend"><span class="rk">'+(n.side==="in"?"Into Studio":"Out of Studio")+'</span>'+(n.side==="in"?n.flowIn:n.flowOut)+'</div>'+
+      '<div class="recommend"><span class="rk">'+(n.side==="in"?"Back to "+n.name:"Back into Studio")+'</span>'+(n.side==="in"?n.flowOut:n.flowIn)+'</div>'+
+      '<div class="prod-chip" style="display:inline-block;margin-top:10px;border-color:#CFEEE8;background:#F0FBF9;color:#00A089">'+n.owned+'</div>'+
+      '<div class="feed-hint">Press Play to watch this connection carry a real event \u2014 or tap another tile.</div>'+
+      '</div>';
+    document.getElementById("rail-body").innerHTML=html;
+    Object.keys(nodeEls).forEach(function(k){ nodeEls[k].classList.toggle("active",k===n.id); });
+    clearFacets(); clearEdges();
+  }
+
+  function sleep(ms){ return new Promise(function(res){ setTimeout(res,ms); }); }
+
+  function runPulse(edgeId,token,reverse){
+    return new Promise(function(resolve){
+      var path=edgeEls[edgeId].path; path.classList.add("active");
+      if(reduceMotion){ resolve(); return; }
+      var len=path.getTotalLength();
+      var dot=document.createElementNS(SVGNS,"circle"); dot.setAttribute("r","5"); dot.setAttribute("class","pulse"); dot.style.opacity="1"; svg.appendChild(dot);
+      var dur=760,start=null;
+      function frame(ts){
+        if(token!==state.token){ if(dot.parentNode) svg.removeChild(dot); resolve(); return; }
+        if(start===null) start=ts;
+        var t=Math.min((ts-start)/dur,1), at=reverse?(1-t):t, pt=path.getPointAtLength(len*at);
+        dot.setAttribute("cx",pt.x); dot.setAttribute("cy",pt.y);
+        if(t<1) requestAnimationFrame(frame); else { if(dot.parentNode) svg.removeChild(dot); resolve(); }
+      }
+      requestAnimationFrame(frame);
     });
   }
 
-  function intent(key){
-    if(key==="about"){
-      var t=typing(); after(700,function(){ t.remove();
-        ai("SMEDTEC Studio is a bespoke product, supplier and compliance system. We build it as a <b>project</b>, on <b>your own infrastructure</b>, and you <b>own it</b> at the end — no subscription, just the small cost of running the back-end tools."); });
-    } else if(key==="clickup"){
-      var t=typing(); after(650,function(){ t.remove(); ai("Connecting ClickUp…");
-        after(550,function(){ toggleIntSilent("ClickUp", true); step("ClickUp connected — tasks sync both ways"); render(); ai("Done. Your project board will stay in step with ClickUp."); }); });
-    } else if(key==="claims"){
-      var t=typing(); after(750,function(){ t.remove();
-        ai("I checked every claim against the line in each market. Four need attention:");
-        after(500,function(){ step("“Relieves the pain of arthritis” — disease claim"); });
-        after(1000,function(){ step("“Helps prevent tooth decay” — OTC drug claim"); });
-        after(1500,function(){ step("“Protects against UVA/UVB (SPF 30)” — OTC drug claim"); });
-        after(2000,function(){ step("“Treats the cause of dandruff” — disease claim"); });
-        after(2500,function(){ ai("I’ve opened the <b>Claims</b> tab and flagged these, so nothing goes live unsubstantiated."); state.view="compliance"; state.tab="claims"; state.product=null; render(); });
-      });
-    } else if(key==="setup"){ runSetup(); }
+  function num(i){ return (i<9?"0":"")+(i+1); }
+  function tickHTML(i,text){ return '<div class="tick"><span class="num">'+num(i)+'</span><span class="dot"></span><span>'+text+'</span></div>'; }
+  function aiCardHTML(i,ai){
+    var reasons=ai.reason.map(function(r,k){ return '<li style="animation-delay:'+(k*180)+'ms">'+r+'</li>'; }).join("");
+    return '<div class="tick card-tick"><span class="num">'+num(i)+'</span><div class="card-slot">'+
+      '<div class="ai-card" data-aicard="'+ai.id+'">'+
+      '<div class="card-head"><span class="ai-mark">AI</span>Studio AI \u00b7 reasons, never decides</div>'+
+      '<ul class="reason-list">'+reasons+'</ul>'+
+      '<div class="recommend"><span class="rk">Recommends</span>'+ai.recommend+'</div>'+
+      '<div class="decide-row" data-decide-row="'+ai.id+'"><span class="dk">Your decision</span>'+
+      '<button class="decide-btn primary" data-decide="approve" data-did="'+ai.id+'">Approve</button>'+
+      '<button class="decide-btn" data-decide="review" data-did="'+ai.id+'">Send for review</button>'+
+      '</div></div></div></div>';
+  }
+  function actionCardHTML(i,a){
+    var claimChip=(a.claim&&a.claim!=="\u2014")?'<span class="prod-chip">Claim: '+a.claim+'</span>':'';
+    return '<div class="tick card-tick"><span class="num">'+num(i)+'</span><div class="card-slot">'+
+      '<div class="action-card" data-actcard="'+a.id+'" data-linked="'+(a.linked||"")+'" data-lands="'+a.lands+'">'+
+      '<div class="card-head"><span>Proposed action</span><span class="status-badge is-proposed" data-status>'+a.status+'</span></div>'+
+      '<div class="a-title">'+a.title+'</div>'+
+      '<div class="map-row"><span class="map-k">Mapped to</span><span class="prod-chip">'+a.product+'<span class="sku">'+a.sku+'</span></span>'+claimChip+'</div>'+
+      '<div class="a-meta"><span><b>Owner</b> '+a.owner+'</span><span><b>Lands in</b> '+a.lands+'</span></div>'+
+      '</div></div></div>';
   }
 
-  function openPanel(){
-    panel.classList.add("open"); launch.style.display="none";
-    if(!greeted){ greeted=true; ai("Hi — I’m a scripted illustration of the SMEDTEC Studio assistant. Pick a suggestion below to see how setup would work."); }
+  var ticker=null;
+
+  function playScenario(){
+    var token=++state.token;
+    state.playing=true; state.railMode="flow"; setPlayUI(true);
+    state.counts=Object.assign({},BASE_COUNTS); renderCounts();
+    clearFacets(); clearEdges(); clearNodes();
+    document.getElementById("rail-title").innerHTML='<span class="pulse-dot"></span>The flow';
+    var body=document.getElementById("rail-body");
+    ticker=document.createElement("div"); ticker.className="ticker"; body.innerHTML=""; body.appendChild(ticker);
+
+    var sc=SCENARIOS.filter(function(s){return s.id===state.scenario;})[0];
+    var steps=sc.steps.filter(function(st){ if(st.action) return true; if(!st.edge) return true; return state.enabled[edgeMeta(st.edge).node]; });
+
+    var i=0;
+    function next(){
+      if(token!==state.token) return;
+      if(i>=steps.length){ finish(token); return; }
+      var st=steps[i];
+      clearEdges(); clearNodes();
+      if(st.facet){ clearFacets(); document.getElementById(st.facet).classList.add("glow"); rippleHub(); }
+      resetSync();
+      var pulseP;
+      if(st.ai){
+        ticker.insertAdjacentHTML("beforeend",aiCardHTML(i,st.ai));
+        pulseP=sleep(reduceMotion?700:1300);
+      } else if(st.action){
+        var em=st.edge?edgeMeta(st.edge):null;
+        if(em&&state.enabled[em.node]) nodeEls[em.node].classList.add("active");
+        ticker.insertAdjacentHTML("beforeend",actionCardHTML(i,st.action));
+        state.counts.tasks+=1; renderCounts(); bump("f-tasks");
+        pulseP=(em&&state.enabled[em.node])?runPulse(st.edge,token,st.reverse):sleep(reduceMotion?600:760);
+      } else {
+        if(st.edge&&state.enabled[edgeMeta(st.edge).node]) nodeEls[edgeMeta(st.edge).node].classList.add("active");
+        ticker.insertAdjacentHTML("beforeend",tickHTML(i,st.text));
+        pulseP=st.edge?runPulse(st.edge,token,st.reverse):sleep(reduceMotion?500:680);
+      }
+      ticker.scrollTop=ticker.scrollHeight;
+      pulseP.then(function(){ if(token!==state.token) return; i++; setTimeout(next,240); });
+    }
+    next();
   }
-  function closePanel(){ panel.classList.remove("open"); launch.style.display="flex"; }
-  function send(){ var inp=panel.querySelector("#sa-in"); var v=inp.value.trim(); if(!v) return; me(v); inp.value="";
-    var t=typing(); after(750,function(){ t.remove(); ai("In a live build I’d act on that directly. For this illustration, try one of the suggestions below."); }); }
 
-  launch.querySelector(".btn").addEventListener("click", openPanel);
-  panel.querySelector(".x").addEventListener("click", closePanel);
-  sugBar.addEventListener("click", function(e){ var b=e.target.closest("[data-sg]"); if(!b) return; var i=+b.getAttribute("data-sg"); me(SUGS[i][0]); intent(SUGS[i][1]); });
-  panel.querySelector("#sa-send").addEventListener("click", send);
-  panel.querySelector("#sa-in").addEventListener("keydown", function(e){ if(e.key==="Enter") send(); });
+  function finish(token){
+    if(token!==state.token) return;
+    state.playing=false; setPlayUI(false); clearEdges();
+    setTimeout(function(){ if(token===state.token){ clearFacets(); clearNodes(); startAmbient(); } },1400);
+  }
+  function stopScenario(){ state.token++; state.playing=false; setPlayUI(false); clearEdges(); clearNodes(); clearFacets(); startAmbient(); }
+  function setPlayUI(playing){
+    var btn=document.getElementById("play"), label=document.getElementById("play-label");
+    if(playing){ btn.classList.add("is-stop"); label.textContent="Stop"; } else { btn.classList.remove("is-stop"); label.textContent="Play"; }
+  }
 
-  window.openAssistant = openPanel;
+  function decide(did,choice){
+    var aicard=document.querySelector('[data-aicard="'+did+'"]');
+    if(aicard){
+      var row=aicard.querySelector('[data-decide-row]');
+      if(row) row.innerHTML='<span class="dk">Your decision</span><span class="decided-stamp'+(choice==="review"?" review":"")+'">'+(choice==="approve"?"Approved by you":"Sent for review by you")+'</span>';
+    }
+    var act=document.querySelector('[data-linked="'+did+'"]');
+    if(act){
+      var badge=act.querySelector('[data-status]');
+      if(badge){
+        if(choice==="approve"){ badge.className="status-badge is-approved"; badge.textContent="Approved \u00b7 sent to "+(act.getAttribute("data-lands")||"your tools"); state.counts.tasks=Math.max(0,state.counts.tasks-1); renderCounts(); bump("f-tasks"); }
+        else { badge.className="status-badge is-review"; badge.textContent="Held for review"; }
+      }
+    }
+  }
+
+  function applyCompany(){
+    var sub=document.getElementById("hub-sub"), mon=document.getElementById("sb-monitor");
+    if(state.company&&state.company.trim()){
+      sub.textContent="Built for "+state.company.trim()+". Owned by you.";
+      mon.textContent="monitoring "+state.company.trim()+"'s 14 products across 4 markets";
+    } else {
+      sub.textContent="Owned by you. Wired to the tools below.";
+      mon.textContent="monitoring 14 products across 4 markets";
+    }
+  }
+
+  /* ---- ambient life ---- */
+  function startAmbient(){
+    state.railMode="ambient";
+    document.getElementById("rail-title").innerHTML='<span class="pulse-dot"></span>Live activity';
+    var body=document.getElementById("rail-body");
+    ticker=document.createElement("div"); ticker.className="ticker"; body.innerHTML="";
+    var hint=document.createElement("p"); hint.className="feed-hint";
+    hint.textContent="Your systems stay in sync in the background. Press Play above to watch a real event move through them, or tap any tile.";
+    body.appendChild(ticker); body.appendChild(hint);
+    var seed=[2,5,0,8].map(function(k){return FEED_LINES[k];});
+    seed.forEach(function(line){ ticker.insertAdjacentHTML("afterbegin",feedHTML(line)); });
+  }
+  function feedHTML(line){ return '<div class="tick feed"><span class="num lt">live</span><span class="dot" style="background:#9FD8CD"></span><span class="ft">'+line+'</span></div>'; }
+  function addFeedLine(){
+    if(state.railMode!=="ambient"||state.playing||!ticker) return;
+    var idx; do{ idx=Math.floor(Math.random()*FEED_LINES.length); }while(idx===state.lastFeed); state.lastFeed=idx;
+    ticker.insertAdjacentHTML("afterbegin",feedHTML(FEED_LINES[idx]));
+    while(ticker.children.length>7) ticker.removeChild(ticker.lastChild);
+    resetSync();
+  }
+  function ambientMote(){
+    if(reduceMotion||state.railMode!=="ambient"||state.playing) return;
+    var live=EDGES.filter(function(e){return state.enabled[e.node];});
+    if(!live.length) return;
+    var e=live[Math.floor(Math.random()*live.length)];
+    var path=edgeEls[e.id].path, len=path.getTotalLength();
+    var dot=document.createElementNS(SVGNS,"circle"); dot.setAttribute("r","3.2"); dot.setAttribute("class","mote"); svg.appendChild(dot);
+    var dur=1500,start=null, rev=(e.dir==="out");
+    function frame(ts){
+      if(state.playing){ if(dot.parentNode) svg.removeChild(dot); return; }
+      if(start===null) start=ts;
+      var t=Math.min((ts-start)/dur,1), at=rev?(1-t):t, pt=path.getPointAtLength(len*at);
+      dot.setAttribute("cx",pt.x); dot.setAttribute("cy",pt.y);
+      dot.style.opacity=String(0.42*Math.sin(Math.PI*t));
+      if(t<1) requestAnimationFrame(frame); else { if(dot.parentNode) svg.removeChild(dot); }
+    }
+    requestAnimationFrame(frame);
+  }
+  function resetSync(){ state.sync=0; document.getElementById("sb-sync").textContent="last sync just now"; }
+  function tickSync(){ state.sync+=1; var t=state.sync; document.getElementById("sb-sync").textContent="last sync "+(t<=1?"just now":t+"s ago"); }
+
+  /* ---- load sequence ---- */
+  function countUp(){
+    document.querySelectorAll(".facet .f-count").forEach(function(el){
+      var fin=parseInt(el.getAttribute("data-final"),10), flag=el.getAttribute("data-flag");
+      if(reduceMotion){ el.innerHTML=fin+(flag?' <span class="flag">'+flag+'\u26a0</span>':''); return; }
+      var v=0, steps=Math.max(1,fin), inc=Math.ceil(fin/18), iv=setInterval(function(){
+        v+=inc; if(v>=fin){ v=fin; clearInterval(iv); el.innerHTML=fin+(flag?' <span class="flag">'+flag+'\u26a0</span>':''); }
+        else el.textContent=v;
+      },32);
+    });
+  }
+  function drawIn(done){
+    if(reduceMotion){ done(); return; }
+    EDGES.forEach(function(e,k){
+      var p=edgeEls[e.id].path, len=p.getTotalLength();
+      p.style.transition="none"; p.style.strokeDasharray=len; p.style.strokeDashoffset=len;
+      void p.getBBox();
+      setTimeout(function(){ p.style.transition="stroke-dashoffset .6s ease"; p.style.strokeDashoffset="0"; },120+k*85);
+    });
+    setTimeout(function(){
+      EDGES.forEach(function(e){ var p=edgeEls[e.id].path; p.style.transition=""; p.style.strokeDasharray=""; p.style.strokeDashoffset=""; });
+      done();
+    },120+EDGES.length*85+650);
+  }
+
+  document.addEventListener("click",function(e){
+    var t=e.target.closest("[data-scenario],[data-toggle],[data-node],[data-decide],#play");
+    if(!t) return;
+    if(t.id==="play"){ if(state.playing) stopScenario(); else playScenario(); return; }
+    if(t.hasAttribute("data-decide")){ decide(t.getAttribute("data-did"),t.getAttribute("data-decide")); return; }
+    if(t.hasAttribute("data-scenario")){ if(state.playing) stopScenario(); setScenario(t.getAttribute("data-scenario")); persist(); return; }
+    if(t.hasAttribute("data-toggle")){ var id=t.getAttribute("data-toggle"); state.enabled[id]=!state.enabled[id]; t.setAttribute("aria-pressed",state.enabled[id]?"true":"false"); applyEnabled(); persist(); return; }
+    if(t.hasAttribute("data-node")){ showDetail(nodeById(t.getAttribute("data-node"))); return; }
+  });
+  document.addEventListener("mouseover",function(e){
+    var t=e.target.closest("[data-node]"); if(!t||state.playing) return;
+    var n=nodeById(t.getAttribute("data-node")); if(!state.enabled[n.id]) return;
+    var ed=EDGES.filter(function(x){return x.node===n.id;})[0]; if(ed) edgeEls[ed.id].path.classList.add("active");
+  });
+  document.addEventListener("mouseout",function(e){
+    var t=e.target.closest("[data-node]"); if(!t||state.playing) return;
+    var n=nodeById(t.getAttribute("data-node"));
+    var ed=EDGES.filter(function(x){return x.node===n.id;})[0]; if(ed) edgeEls[ed.id].path.classList.remove("active");
+  });
+  document.getElementById("company").addEventListener("input",function(e){ state.company=e.target.value||""; applyCompany(); persist(); });
+
+  /* ---- share + persistence ---- */
+  function persist(){
+    var off = NODES.filter(function(n){return !state.enabled[n.id];}).map(function(n){return n.id;}).join("-");
+    var parts=[];
+    if(state.company && state.company.trim()) parts.push("c="+encodeURIComponent(state.company.trim()));
+    if(off) parts.push("off="+off);
+    if(state.scenario && state.scenario!=="report") parts.push("s="+state.scenario);
+    var hash = parts.length ? "#"+parts.join("&") : "#";
+    try{ history.replaceState(null,"",hash); }catch(e){}
+    try{ localStorage.setItem("smedtec_flow_state", JSON.stringify({c:state.company,off:off,s:state.scenario})); }catch(e){}
+  }
+  function readSaved(){
+    var data=null, h=(location.hash||"").replace(/^#/,"");
+    if(h){
+      data={c:"",off:"",s:"report"};
+      h.split("&").forEach(function(kv){ var p=kv.split("="), k=p[0], v=decodeURIComponent(p[1]||"");
+        if(k==="c") data.c=v; else if(k==="off") data.off=v; else if(k==="s") data.s=v; });
+    } else { try{ var ls=localStorage.getItem("smedtec_flow_state"); if(ls) data=JSON.parse(ls); }catch(e){} }
+    return data;
+  }
+  function applySaved(){
+    var d=readSaved(); if(!d) return;
+    if(d.c){ state.company=d.c; var ci=document.getElementById("company"); if(ci) ci.value=d.c; }
+    if(d.off){ d.off.split("-").forEach(function(id){ if(state.enabled.hasOwnProperty(id)) state.enabled[id]=false; }); }
+    if(d.s){ state.scenario=d.s; }
+    document.querySelectorAll(".stack-toggle").forEach(function(b){ var id=b.getAttribute("data-toggle"); b.setAttribute("aria-pressed", state.enabled[id]?"true":"false"); });
+    document.querySelectorAll("#scenarios .chip").forEach(function(c){ c.setAttribute("aria-pressed", c.getAttribute("data-scenario")===state.scenario?"true":"false"); });
+  }
+  function copyShare(){
+    var btn=document.getElementById("btn-share"), url=location.href;
+    function ok(){ btn.textContent="Link copied"; btn.classList.add("ok"); setTimeout(function(){ btn.textContent="Copy share link"; btn.classList.remove("ok"); },1600); }
+    try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(ok, ok); } else { ok(); } }catch(e){ ok(); }
+  }
+
+  /* ---- guided tour ---- */
+  var TOUR=[
+    {sel:"#hub", title:"One layer you own", body:"Everything connects here \u2014 products, claims, suppliers and tasks, kept in sync. It is yours, not a subscription you rent."},
+    {ids:["sup","lab","pim","reg"], title:"What flows in", body:"On the left: your suppliers and labs, your product catalogue, and live rule changes for every market you sell into."},
+    {ids:["slack","tasks","data","email"], title:"Where work lands", body:"On the right: your chat, your project board, your own registers and email \u2014 the tools your team already uses."},
+    {sel:".ai-bar", title:"AI reasons, you decide", body:"When there is a judgement to make, the AI reasons it through and recommends. Approving the action is always yours."},
+    {sel:"#scenarios", title:"Watch it run", body:"Press play on any of these and a real event moves through the whole connected system. Want to see one now?", final:true}
+  ];
+  var tourIdx=-1, tourSeen=false;
+  function unionRect(ids){
+    var r=null; ids.forEach(function(id){ var el=nodeEls[id]; if(!el) return; var b=el.getBoundingClientRect();
+      if(!r) r={l:b.left,t:b.top,r:b.right,b:b.bottom}; else { r.l=Math.min(r.l,b.left); r.t=Math.min(r.t,b.top); r.r=Math.max(r.r,b.right); r.b=Math.max(r.b,b.bottom);} });
+    return r? {left:r.l,top:r.t,width:r.r-r.l,height:r.b-r.t}:null;
+  }
+  function stepRect(step){
+    if(step.ids) return unionRect(step.ids);
+    if(step.sel){ var el=document.querySelector(step.sel); if(el){ var b=el.getBoundingClientRect(); return {left:b.left,top:b.top,width:b.width,height:b.height}; } }
+    return null;
+  }
+  function renderTour(){
+    var step=TOUR[tourIdx], spot=document.getElementById("tour-spot"), card=document.getElementById("tour-card"), rect=stepRect(step), pad=8;
+    if(rect){
+      spot.classList.remove("center");
+      spot.style.left=(rect.left-pad)+"px"; spot.style.top=(rect.top-pad)+"px";
+      spot.style.width=(rect.width+pad*2)+"px"; spot.style.height=(rect.height+pad*2)+"px";
+    } else { spot.classList.add("center"); spot.style.left="50%"; spot.style.top="50%"; spot.style.width="0"; spot.style.height="0"; }
+    var back = tourIdx>0 ? '<button class="tc-btn" data-tour="back">Back</button>' : '';
+    var nextLabel = step.final ? "Watch one live" : "Next";
+    card.innerHTML='<button class="tc-skip" data-tour="skip">Skip</button>'+
+      '<div class="tc-eyebrow">Tour \u00b7 '+(tourIdx+1)+' of '+TOUR.length+'</div>'+
+      '<h3>'+step.title+'</h3><p>'+step.body+'</p>'+
+      '<div class="tc-foot"><span class="tc-steps">'+(tourIdx+1)+'/'+TOUR.length+'</span>'+
+      '<span class="tc-btns">'+back+'<button class="tc-btn primary" data-tour="next">'+nextLabel+'</button></span></div>';
+    var vw=window.innerWidth, vh=window.innerHeight, cw=Math.min(300, vw*0.88);
+    card.style.width=cw+"px"; var ch=card.offsetHeight||190, cx, cy;
+    if(rect){
+      cx=rect.left+rect.width/2-cw/2;
+      if(rect.top+rect.height+14+ch<=vh-10) cy=rect.top+rect.height+14;
+      else if(rect.top-14-ch>=10) cy=rect.top-14-ch;
+      else cy=Math.max(10, vh-ch-10);
+    } else { cx=vw/2-cw/2; cy=vh/2-ch/2; }
+    cx=Math.max(12, Math.min(cx, vw-cw-12)); cy=Math.max(10, Math.min(cy, vh-ch-10));
+    card.style.left=cx+"px"; card.style.top=cy+"px";
+  }
+  function startTour(){ if(state.playing) stopScenario(); tourIdx=0; var o=document.getElementById("tour"); o.classList.add("on"); o.setAttribute("aria-hidden","false"); renderTour(); }
+  function closeTour(){ var o=document.getElementById("tour"); o.classList.remove("on"); o.setAttribute("aria-hidden","true"); tourIdx=-1; tourSeen=true; try{ localStorage.setItem("smedtec_flow_tour","1"); }catch(e){} }
+  function tourNext(){ var step=TOUR[tourIdx]; if(step.final){ closeTour(); setScenario("report"); persist(); playScenario(); return; } tourIdx++; if(tourIdx>=TOUR.length){ closeTour(); return; } renderTour(); }
+  function tourBack(){ if(tourIdx>0){ tourIdx--; renderTour(); } }
+  document.getElementById("tour").addEventListener("click", function(e){ var b=e.target.closest("[data-tour]"); if(!b) return; var a=b.getAttribute("data-tour"); if(a==="skip") closeTour(); else if(a==="next") tourNext(); else if(a==="back") tourBack(); });
+  window.addEventListener("resize", function(){ if(tourIdx>=0) renderTour(); });
+  document.getElementById("btn-tour").addEventListener("click", startTour);
+  document.getElementById("btn-share").addEventListener("click", copyShare);
+
+  /* ---- init ---- */
+  buildNodes(); buildEdges(); buildScenarioChips(); buildStackToggles();
+  applySaved(); applyEnabled(); applyCompany();
+  drawIn(function(){
+    countUp(); renderCounts(); startAmbient();
+    var seen=false; try{ seen=!!localStorage.getItem("smedtec_flow_tour"); }catch(e){}
+    if(!seen && !tourSeen){ setTimeout(function(){ if(tourIdx<0 && !state.playing) startTour(); }, 700); }
+  });
+  setInterval(tickSync,1000);
+  setInterval(addFeedLine,3400);
+  setInterval(ambientMote,2700);
 })();
-
-render();
 </script>
 </body>
 </html>
